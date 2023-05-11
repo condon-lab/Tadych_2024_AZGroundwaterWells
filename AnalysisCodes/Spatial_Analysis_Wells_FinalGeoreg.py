@@ -1,20 +1,8 @@
 # The purpose of this script is to create a code to spatially analyze all the wells in 
 # the combined database based on management. 
 # Written by Danielle Tadych
-# Goals:
-# - create columns with the different management regions
-#       1. AMA/INA
-#       2. Irrigation District
-#       3. AI Homelands
-#       4. Unregulated
 
-# Potential workflow
-# - import master database and shape files
-# - Create columns of the different management options (did this in QGIS)
-# - Create an if statement of if a well falls within a certain region, then it can equal 
-#       the name of the shape it falls under
-
-# WORKFLOW THAT ACTUALLY HAPPENED
+# WORKFLOW
 # 1. Read in the master ADWR database static database, water level database, and 
 #       georegions shapefile created in QGIS
 # 2. Overlayed region shapefile on static well database shapefile
@@ -34,20 +22,14 @@
 
 
 # %%
-from cProfile import label
-from curses import nocbreak
-# from dbm import _ValueType
-from operator import ge
 from optparse import Values
 import os
-from geopandas.tools.sjoin import sjoin
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.colors import ListedColormap
 import datetime
 from matplotlib.transforms import Bbox
-import seaborn as sns
 import numpy as np
 import pandas as pd
 from shapely.geometry import box

@@ -3,38 +3,27 @@
 # 4/26/23
 
 # The purpose of this code is to make the NHD stream shapefile less of a monster for graphs
+# File needed to create these streams: 'NHD_Important_Rivers.shp' on cyverse
 # Dictionary of NHD Terms is here: https://specx.nationalmap.gov/reports/DD/?report_type=2&product=144&theme=2&feature_class=all&scale=142&table=All 
 
 #%%
 from typing import Mapping
 #import affine
-from geopandas.tools.sjoin import sjoin
 import matplotlib
 from matplotlib.cbook import report_memory
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.colors import ListedColormap
 import datetime as dt
-import seaborn as sns
-import numpy as np
 import pandas as pd
-from shapely.geometry import box, geo
 import geopandas as gp
-import xarray as xr
-import rioxarray as rxr
 import cartopy
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import netCDF4
 import rasterio
-from rasterstats import zonal_stats
-from scipy.stats import kendalltau, pearsonr, spearmanr
 #import rasterstats as rstats
 #from xrspatial import zonal_stats
 import easymore
 import glob
-import scipy.stats as sp
-import pymannkendall as mk
 
 # %% Data paths
 datapath = '../MergedData'

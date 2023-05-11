@@ -11,18 +11,11 @@
 #  - Plotting a single grid cell based on lat/lon: Line 336
 #  - Calculating the average based off a mask (not weighted): Line 510
 # %%
-from cProfile import label
-from calendar import calendar
-from importlib.resources import path
 from itertools import count
 import os
-from pydoc import cli
 from tkinter import Label
 from typing import Mapping
-#import affine
-from geopandas.tools.sjoin import sjoin
 import matplotlib
-from matplotlib.cbook import report_memory
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.colors import ListedColormap
@@ -30,7 +23,7 @@ import datetime as dt
 import seaborn as sns
 import numpy as np
 import pandas as pd
-from shapely.geometry import box, geo
+from shapely.geometry import geo
 import geopandas as gp
 import xarray as xr
 import rioxarray as rxr
@@ -39,10 +32,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import netCDF4
 import rasterio
-from rasterstats import zonal_stats
 from scipy.stats import kendalltau, pearsonr, spearmanr
-#import rasterstats as rstats
-#from xrspatial import zonal_stats
 import easymore
 import glob
 import scipy.stats as sp

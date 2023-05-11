@@ -1,6 +1,17 @@
-# The purpose of this script is combine the GWSI and Wells55 databases into one
+### -- MASTER WELL DATABASE MERGE --
 # Written by Danielle Tadych
-# Goals:
+
+# The purpose of this script is combine the GWSI and Wells55 databases into one
+#   main database.
+
+# Requirements:
+# - Must download data from ADWR GIS database: https://gisdata2016-11-18t150447874z-azwater.opendata.arcgis.com/
+#    > Well_Registry
+#    > GWSI_App
+
+# Data can also be found 
+
+# WORKFLOW:
 # - Create columns in each respective database specifying its origin
 # - Find column they have in common
 # - Merge based on that column
@@ -17,10 +28,10 @@ import geopandas as gp
 
 # %% 
 # ----- Import the Data and Shapefiles with Geometries -----
-shapedir = '../MergedData/Shapefiles'
-outputpath = '../MergedData/Output_files/'
+shapedir = '../Data/Shapefiles'
+outputpath = '../Data/Output_files/'
 
-wellfilename = "Well_Registry__Wells55_.shp"
+wellfilename = "Well_Registry_05032023.shp"
 Wellfp = os.path.join(shapedir, wellfilename)
 wells55shape = gp.read_file(Wellfp)
 
