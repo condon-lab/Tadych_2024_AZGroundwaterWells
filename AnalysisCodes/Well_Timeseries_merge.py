@@ -1,5 +1,5 @@
 # The purpose of this script is to make multiple timeseries databases using data from the GWSI and Wells55 databases
-# Written by Danielle Tadych
+# Written by Danielle Tadych & Matt Ford
 # Goals:
 # - Create columns in each respective database specifying its origin
 # - Find column they have in common
@@ -27,46 +27,66 @@ from pandas.tseries.offsets import BYearBegin
 import seaborn as sns
 import geopandas as gp
 
+datapath = '../Data/Input_files/'
+outputpath = '../Data/Output_files/'
+
+# %% ---- First Creating the GWSI Water level ----
+# Skip to line 72 if downloading the data from cyverse
+# Read in the the water level file
+GWSI_folder = '../Data/Input_files/GWSI/Data_Tables' #GWSI folder name
+file_name = 'GWSI_WW_LEVELS.xlsx'
+filepath=os.path.join(GWSI_folder, file_name)
+print(filepath)
+
+wl_data = pd.read_excel(filepath, parse_dates=['WLWA_MEASUREMENT_DATE'])
+print(wl_data.info())
+
+# Rename the columns in wl file to something shorter
+wl_data=wl_data.rename(columns={"WLWA_MEASUREMENT_DATE": "date",
+                   "WLWA_SITE_WELL_SITE_ID": "wellid",
+                   "WLWA_DEPTH_TO_WATER": "depth"}, errors="raise")
+# %%
+# Read in the file containing basin codes
+file_name = 'GWSI_SITES.xlsx'
+filepath=os.path.join(GWSI_folder, file_name)
+print(filepath)
+
+basin_data = pd.read_excel(filepath)
+print(basin_data.info())
+
+# Rename the columns in basin file to something shorter
+basin_data=basin_data.rename(columns={"SITE_WELL_SITE_ID": "wellid",
+                   "SITE_ADWBAS_CODE_ENTRY": "basinid"}, errors="raise")
+
+# print number of columns
+basin_data['basinid'].nunique()            
+# %%
+# Merge basin codes and water levels by wellid into new datatable called wl_data2
+wl_data2 = wl_data.merge(basin_data, left_on='wellid', right_on='wellid')
+print(wl_data2.info())
+
+#%%
+# Output wl_data2 to a csv in the specified directory
+wl_data2.to_csv(outputpath+'wl_data2.csv')
+
 # %% 
 # ----- Import the Data and Shapefiles with Geometries -----
 # Read in Wells 55 Data
 # This is a file with water levels from ADWR which has been joined with another ADWR file with variables
-filename = 'Wells55.csv'
-datapath = '../MergedData'
-outputpath = '../MergedData/Output_files/'
-filepath = os.path.join(datapath, filename)
+filename = 'Well_Registry_05032023.csv'
+filepath = os.path.join(datapath+'Wells55', filename)
 print(filepath)
 
 wells55 = pd.read_csv(filepath)
 pd.options.display.float_format = '{:.2f}'.format
 print(wells55.info())
 
-# Read in pump_wl 
-# This is a combined file with pump data & depth to water
-filename = 'Pump_wl.csv'
-filepath = os.path.join(datapath, filename)
-print(filepath)
-
-pump_wl = pd.read_csv(filepath)
-pd.options.display.float_format = '{:.2f}'.format
-print(pump_wl.info())
-
 # Read in GWSI collated water level data
 filename = 'wl_data2.csv'
-filepath = os.path.join(datapath, filename)
+filepath = os.path.join(outputpath, filename)
 print(filepath)
 
 wl_data2 = pd.read_csv(filepath)
-pd.options.display.float_format = '{:.2f}'.format
-print(wl_data2.info())
-
-#%%
-# Read in GWSI collated pumping data
-filename = 'Pump_Data_Full.csv'
-filepath = os.path.join(datapath, filename)
-print(filepath)
-
-pump_data_all = pd.read_csv(filepath)
 pd.options.display.float_format = '{:.2f}'.format
 print(wl_data2.info())
 
@@ -78,7 +98,7 @@ print(wl_data2.info())
 gwsi_wl = wl_data2[["date","SITE_WELL_REG_ID","depth"]].copy()
 gwsi_wl.info()
 
-wells55_wl = wells55[["INSTALLED", "REGISTRY_I", "WATER_LEVE"]].copy()
+wells55_wl = wells55[["INSTALLED", "REGISTRY_ID", "WATER_LEVEL"]].copy()
 wells55_wl.info()
 
 # %%
@@ -88,24 +108,31 @@ gwsi_wl["Original_DB"] = 'GWSI'
 wells55_wl.head()
 
 # %%
-wells55_wl.rename(columns = {'INSTALLED':'date','WATER_LEVE':'depth'}, inplace=True)
-gwsi_wl.rename(columns={'SITE_WELL_REG_ID':'REGISTRY_I'}, inplace=True)
-
+wells55_wl.rename(columns = {'INSTALLED':'date','WATER_LEVEL':'depth'}, inplace=True)
+gwsi_wl.rename(columns={'SITE_WELL_REG_ID':'REGISTRY_ID'}, inplace=True)
+gwsi_wl.info()
 #%%
 #combo = gwsi_wl.join(wells55_wl, how='outer')
 #combo
 
 combo = wells55_wl.merge(gwsi_wl, suffixes=['_wells55','_gwsi'], how="outer" 
-                                          ,on=["REGISTRY_I", 'date', 'Original_DB', 'depth']
+                                          ,on=["REGISTRY_ID", 'date', 'Original_DB', 'depth']
                                           )
 combo.info()
 
-# %% Set date as index to conver to datetime
+# %% Set date as index to convert to datetime
 combo.set_index("date", inplace=True)
 combo.index = pd.to_datetime(combo.index)
 combo.info()
+
 # %%
-WL_TS_DB = pd.pivot_table(combo, index=["REGISTRY_I"], columns="date", values="depth")
+combo = combo.reset_index()
+combo.info()
+
+# %%
+combo['date'] = combo['date'].tz_localize(None)
+# %%
+WL_TS_DB = pd.pivot_table(combo, index=["REGISTRY_ID"], columns="date", values="depth")
 # %%
 WL_TS_DB.head()
 

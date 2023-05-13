@@ -1,3 +1,4 @@
+*.txt
 *.shp
 *.cpg
 *.csv
@@ -8,3 +9,4 @@
 *.sbn
 *.sbx
 *.xml
+*.xlsx
