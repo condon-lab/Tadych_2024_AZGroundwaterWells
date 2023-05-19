@@ -75,9 +75,9 @@ def display_corr_pairs(df,color="cyan"):
     plt.show()  
 
 # Data paths
-datapath = '../MergedData'
-outputpath = '../MergedData/Output_files/'
-shapepath = '../MergedData/Shapefiles/Final_Georegions/'
+datapath = '../Data/'
+outputpath = '../Data/Output_files/'
+shapepath = '../Data/Shapefiles/'
 
 # %%  Load in the master databases
 filename_mdb_nd = 'Master_ADWR_database_noduplicates.shp'
@@ -98,11 +98,10 @@ pd.options.display.float_format = '{:.2f}'.format
 print(masterdb_water.info())
 # %%
 # Reading in the shapefile
-# GEOREG.to_file('../MergedData/Output_files/Georegions_3col.shp')
-# filename_georeg = "Final_Georegions.shp"
 filename_georeg = 'georeg_reproject_fixed.shp'
 filepath = os.path.join(shapepath, filename_georeg)
 georeg = gp.read_file(filepath)
+
 # %%
 #georeg.boundary.plot()
 georeg.plot(cmap='viridis')
@@ -116,10 +115,12 @@ filename_ts = 'Wells55_GWSI_WLTS_DB_annual.csv'
 filepath = os.path.join(outputpath, filename_ts)
 print(filepath)
 annual_db = pd.read_csv(filepath, header=1, index_col=0)
+annual_db = annual_db.iloc[1:158,:] # fixing the first row
 annual_db.head()
-#pd.options.display.float_format = '{:.2f}'.format
-#%%
-annual_db.index.astype('int64')
+
+# %%
+annual_db.index = annual_db.index.astype('float')
+annual_db.index = annual_db.index.astype('int64')
 #%%
 annual_db.head()
 
@@ -129,20 +130,33 @@ print("Non-cancelled: ", masterdb.crs, "Water Wells: ", masterdb_water.crs, "Geo
 
 # %%
 georeg = georeg.to_crs(epsg=26912)
+masterdb = masterdb.set_crs(epsg=26912)
+masterdb_water = masterdb_water.set_crs(epsg=26912)
 # %%
 static_geo = gp.sjoin(masterdb, georeg, how="inner", op='intersects')
 static_geo.head()
 print(str(filename_mdb_nd) + " and " + str(filename_georeg) + " join complete.")
 
 # %% Exporting or reading in the static geodatabase instead of rerunning
-# static_geo.to_csv('../MergedData/Output_files/Final_Static_geodatabase_allwells.csv')
+static_geo.to_csv(outputpath+'/Final_Static_geodatabase_allwells.csv')
+
+# %% Rerunning this but for the water wells
+static_geo2 = gp.sjoin(masterdb_water, georeg, how="inner", op='intersects')
+static_geo2.head()
+print(str(filename_mdb_nd) + " and " + str(filename_georeg) + " join complete.")
+
+
+#%%
+static_geo2.to_csv(outputpath+'/Final_Static_geodatabase_waterwells.csv')
+
+# %%
 filename = "Final_Static_geodatabase_allwells.csv"
 filepath = os.path.join(outputpath, filename)
 static_geo = pd.read_csv(filepath)
 static_geo
 
 # %% Create a dataframe of Final_Region and Well ID's
-reg_list = static_geo[['Combo_ID', 'GEO_Region', 'GEOREGI_NU','Water_CAT', 'Loc','Regulation','WELL_DEPTH']]
+reg_list = static_geo[['Combo_ID', 'GEO_Region', 'GEOREGI_NU','Water_CAT', 'Loc','Regulation','WELL_DEPTH','WELL_TYPE_']]
 reg_list
 
 # %% Converting Combo_ID to int
@@ -166,10 +180,10 @@ combo = combo.sort_values(by=['GEOREGI_NU'])
 combo
 
 # %% Exporting the combo table
-# combo.to_csv('../MergedData/Output_files/Final_WaterLevels_adjusted.csv')
+combo.to_csv(outputpath+'Final_WaterLevels_adjusted.csv')
 
 # %% Reading in so we don't have to redo the combining
-filepath = '../MergedData/Output_files/Final_WaterLevels_adjusted.csv'
+filepath = outputpath+'Final_WaterLevels_adjusted.csv'
 combo = pd.read_csv(filepath, index_col=0)
 combo.head()
 

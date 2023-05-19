@@ -95,7 +95,7 @@ print(wl_data2.info())
 # Following this method: https://stackoverflow.com/questions/32215024/merging-time-series-data-by-timestamp-using-numpy-pandas
 # Confirmed through the variables list that "depth" in wldata2 and "WATER_LEVE" are both depth to water below land surface in feet
 
-gwsi_wl = wl_data2[["date","SITE_WELL_REG_ID","depth"]].copy()
+gwsi_wl = wl_data2[["date","wellid","SITE_WELL_REG_ID","depth"]].copy()
 gwsi_wl.info()
 
 wells55_wl = wells55[["INSTALLED", "REGISTRY_ID", "WATER_LEVEL"]].copy()
@@ -109,7 +109,23 @@ wells55_wl.head()
 
 # %%
 wells55_wl.rename(columns = {'INSTALLED':'date','WATER_LEVEL':'depth'}, inplace=True)
-gwsi_wl.rename(columns={'SITE_WELL_REG_ID':'REGISTRY_ID'}, inplace=True)
+
+# %% Need to create a combo ID column
+gwsi_wl['Combo_ID'] = gwsi_wl.SITE_WELL_REG_ID.combine_first(gwsi_wl.wellid)
+gwsi_wl.info()
+
+gwsi_wl.rename(columns={'Combo_ID':'REGISTRY_ID'}, inplace=True)
+gwsi_wl.info()
+
+# %%
+wells55_wl['date'] = pd.to_datetime(wells55_wl.date)
+wells55_wl.info()
+# %%
+wells55_wl['date'] = wells55_wl['date'].dt.tz_localize(None)
+wells55_wl.head()
+
+# %%
+gwsi_wl.date = pd.to_datetime(gwsi_wl.date)
 gwsi_wl.info()
 #%%
 #combo = gwsi_wl.join(wells55_wl, how='outer')
@@ -120,34 +136,20 @@ combo = wells55_wl.merge(gwsi_wl, suffixes=['_wells55','_gwsi'], how="outer"
                                           )
 combo.info()
 
-# %% Set date as index to convert to datetime
-combo.set_index("date", inplace=True)
-combo.index = pd.to_datetime(combo.index)
-combo.info()
-
-# %%
-combo = combo.reset_index()
-combo.info()
-
-# %%
-combo['date'] = combo['date'].tz_localize(None)
-# %%
-WL_TS_DB = pd.pivot_table(combo, index=["REGISTRY_ID"], columns="date", values="depth")
-# %%
-WL_TS_DB.head()
-
-# %%
-# Export data into a csv
-WL_TS_DB.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB.csv')
+# # %% This block of code takes a really long time to run so I would suggest skipping
+# WL_TS_DB = pd.pivot_table(combo, index=["REGISTRY_ID"], columns="date", values="depth")
+# WL_TS_DB.head()
+# # Export data into a csv
+# WL_TS_DB.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB.csv')
 
 # %% --- Summarizing the data by date ---
 # Extract the year from the date column and create a new column year
-combo['year'] = pd.DatetimeIndex(combo.index).year
+combo['year'] = pd.DatetimeIndex(combo.date).year
 combo.head()
 
 # %%
-WL_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_I"], columns=["year"], values=["depth"], dropna=False, aggfunc=np.mean)
-# %%
+WL_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=np.mean)
+# %% Testing 1980 versus 2020 to see if there's a difference
 print(WL_TS_DB_year.iloc[:,115])
 # %%
 print(WL_TS_DB_year.iloc[:,155])
