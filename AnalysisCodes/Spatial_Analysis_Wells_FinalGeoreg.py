@@ -124,6 +124,19 @@ annual_db.index = annual_db.index.astype('int64')
 #%%
 annual_db.head()
 
+#%%
+only_special = masterdb[masterdb['WELL_TYPE_']=='OTHER']
+only_special.info()
+#%%
+monitoring = masterdb[masterdb['WELL_TYPE_']=='MONITOR']
+monitoring.info()
+
+# %%
+exempt = masterdb[masterdb['WELL_TYPE_']=='EXEMPT']
+exempt.info()
+#%%
+nonexempt = masterdb[masterdb['WELL_TYPE_']=='NON-EXEMPT']
+nonexempt.info()
 # %% Overlay georegions onto the static database
 # Going to use sjoin based off this website: https://geopandas.org/docs/user_guide/mergingdata.html
 print("Non-cancelled: ", masterdb.crs, "Water Wells: ", masterdb_water.crs, "Georegions: ", georeg.crs)

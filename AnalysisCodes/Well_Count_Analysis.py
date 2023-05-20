@@ -236,6 +236,10 @@ georeg = gp.read_file(filepath)
 # 
 # https://gis.stackexchange.com/questions/218450/getting-polygon-areas-using-geopandas
 # tost["area"] = tost['geometry'].area/ 10**6
+georeg = georeg.to_crs(epsg=3857)
+georeg.crs
+
+# %%
 georeg['area'] = georeg.geometry.area/10**6
 georeg
 
@@ -288,17 +292,24 @@ dens_wdc3_wc= wdc3_wc/georeg_area_watercat.values[0,:]
 dens_wdc1_wc
 print(dens_wdc1_wc.sum())
 
-# %%
+# %% Well densities but with exemption status
 df = pd.DataFrame(wdc1_reg_ex.sum())
 df = df.transpose()
 df
 # %%
 georeg_area_reg_dens = pd.DataFrame(df,index=df.index)
 # georeg_area_reg_dens = georeg_area_reg_dens.transpose()
-georeg_area_reg_dens.iloc[0:3,0] = georeg_area_reg.iloc[0,0]
-georeg_area_reg_dens.iloc[3:6,0] = georeg_area_reg.iloc[0,1]
-georeg_area_reg_dens.iloc[6:9,0] = georeg_area_reg.iloc[0,2]
+# %%
+georeg_area_reg_dens.iloc[0,0:3] = georeg_area_reg.iloc[0,0]
+georeg_area_reg_dens.iloc[0,3:6] = georeg_area_reg.iloc[0,1]
+georeg_area_reg_dens.iloc[0,6:9] = georeg_area_reg.iloc[0,2]
 georeg_area_reg_dens
+
+# %% 
+dens_wdc1_reg_ex= wdc1_reg_ex/georeg_area_reg_dens.values[0,:]
+dens_wdc2_reg_ex= wdc2_reg_ex/georeg_area_reg_dens.values[0,:]
+dens_wdc3_reg_ex= wdc3_reg_ex/georeg_area_reg_dens.values[0,:]
+dens_wdc3_reg_ex.sum()
 # %%
 df = pd.DataFrame(wdc1_wc_ex.sum())
 df = df.transpose()
@@ -312,21 +323,30 @@ georeg_area_watercat_dens.iloc[0,9:12] = georeg_area_watercat.iloc[0,3]
 georeg_area_watercat_dens.iloc[0,12:15] = georeg_area_watercat.iloc[0,4]
 georeg_area_watercat_dens.iloc[0,15:18] = georeg_area_watercat.iloc[0,5]
 georeg_area_watercat_dens
-# %% Well densities but with exemption status
-dens_wdc1_reg_ex= wdc1_reg_ex/georeg_area_reg_dens.values[0,:]
-dens_wdc2_reg_ex= wdc2_reg_ex/georeg_area_reg_dens.values[0,:]
-dens_wdc3_reg_ex= wdc3_reg_ex/georeg_area_reg_dens.values[0,:]
+
+# %%
 dens_wdc1_wc_ex= wdc1_wc_ex/georeg_area_watercat_dens.values[0,:]
 dens_wdc2_wc_ex= wdc2_wc_ex/georeg_area_watercat_dens.values[0,:]
 dens_wdc3_wc_ex= wdc3_wc_ex/georeg_area_watercat_dens.values[0,:]
-dens_wdc3_wc_ex
-# %%
-dens_wdc2_reg= wdc2_reg/georeg_area_reg.values[0,:]
-dens_wdc3_reg= wdc3_reg/georeg_area_reg.values[0,:]
+dens_wdc3_wc_ex.info()
 
-dens_wdc1_wc= wdc1_wc/georeg_area_watercat.values[0,:]
-dens_wdc2_wc= wdc2_wc/georeg_area_watercat.values[0,:]
-dens_wdc3_wc= wdc3_wc/georeg_area_watercat.values[0,:]
+#%% Exporting the well densities
+dens_wdc1_reg.to_csv(outputpath+'FinalDensities_Welldepth_regulation' + str(deep) + 'plus.csv')
+dens_wdc2_reg.to_csv(outputpath+'FinalDensities_Welldepth_regulation' + str(shallow) + 'to' + str(deep) + '.csv')
+dens_wdc3_reg.to_csv(outputpath+'FinalDensities_Welldepth_regulation' + str(shallow) + 'minus.csv')
+
+dens_wdc1_wc.to_csv(outputpath+'FinalDensities_Welldepth_sw' + str(deep) + 'plus.csv')
+dens_wdc2_wc.to_csv(outputpath+'FinalDensities_Welldepth_sw' + str(shallow) + 'to' + str(deep) + '.csv')
+dens_wdc3_wc.to_csv(outputpath+'FinalDensities_Welldepth_sw' + str(shallow) + 'minus.csv')
+
+dens_wdc1_reg_ex.to_csv(outputpath+'FinalDensities_Welldepth_regulation_exemptstatus' + str(deep) + 'plus.csv')
+dens_wdc2_reg_ex.to_csv(outputpath+'FinalDensities_Welldepth_regulation_exemptstatus' + str(shallow) + 'to' + str(deep) + '.csv')
+dens_wdc3_reg_ex.to_csv(outputpath+'FinalDensities_Welldepth_regulation_exemptstatus' + str(shallow) + 'minus.csv')
+
+dens_wdc1_wc_ex.to_csv(outputpath+'FinalDensities_Welldepth_sw_exemptstatus' + str(deep) + 'plus.csv')
+dens_wdc2_wc_ex.to_csv(outputpath+'FinalDensities_Welldepth_sw_exemptstatus' + str(shallow) + 'to' + str(deep) + '.csv')
+dens_wdc3_wc_ex.to_csv(outputpath+'FinalDensities_Welldepth_sw_exemptstatus' + str(shallow) + 'minus.csv')
+
 
 # %% ------------------------------------------------------------------------
 # This whole thing was to double check if my numbers were correct, skip this.

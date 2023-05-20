@@ -29,7 +29,7 @@ shapepath = '../Data/Shapefiles/'
 shallow = 200
 deep = 500
 
-#%% Importing the Depth categories
+#%% Importing the Depth categories for Well Counts
 wdc1_reg = pd.read_csv(outputpath+'Final_Welldepth_regulation' + str(deep) + 'plus.csv',
                         header=1, index_col=0)
 wdc1_reg = wdc1_reg.iloc[1:,:]
@@ -53,29 +53,75 @@ wdc3_wc = wdc3_wc.iloc[1:,:]
 wdc1_reg_ex = pd.read_csv(outputpath+'Final_Welldepth_regulation_exemptstatus' + str(deep) + 'plus.csv',
                         header=[1,2], index_col=0)
 wdc1_reg_ex = wdc1_reg_ex.iloc[:,:]
-wdc1_reg_ex = wdc1_reg_ex.drop('MONITOR',axis=1,level=1)
+# wdc1_reg_ex = wdc1_reg_ex.drop('MONITOR',axis=1,level=1)
 wdc2_reg_ex = pd.read_csv(outputpath+'Final_Welldepth_regulation_exemptstatus' + str(shallow) + 'to' + str(deep) + '.csv',
                         header=[1,2], index_col=0)
 wdc2_reg_ex = wdc2_reg_ex.iloc[:,:]
-wdc2_reg_ex = wdc2_reg_ex.drop('MONITOR',axis=1,level=1)
+# wdc2_reg_ex = wdc2_reg_ex.drop('MONITOR',axis=1,level=1)
 wdc3_reg_ex = pd.read_csv(outputpath+'Final_Welldepth_regulation_exemptstatus' + str(shallow) + 'minus.csv',
                         header=[1,2], index_col=0)
 wdc3_reg_ex = wdc3_reg_ex.iloc[:,:]
-wdc3_reg_ex = wdc3_reg_ex.drop('MONITOR',axis=1,level=1)
-
+# wdc3_reg_ex = wdc3_reg_ex.drop('MONITOR',axis=1,level=1)
 wdc1_wc_ex = pd.read_csv(outputpath+'Final_Welldepth_sw_exemptstatus' + str(deep) + 'plus.csv',
                         header=[1,2], index_col=0)
 wdc1_wc_ex = wdc1_wc_ex.iloc[:,:]
-wdc1_wc_ex = wdc1_wc_ex.drop('MONITOR',axis=1,level=1)
+# wdc1_wc_ex = wdc1_wc_ex.drop('MONITOR',axis=1,level=1)
 wdc2_wc_ex = pd.read_csv(outputpath+'Final_Welldepth_sw_exemptstatus' + str(shallow) + 'to' + str(deep) + '.csv',
                         header=[1,2], index_col=0)
 wdc2_wc_ex = wdc2_wc_ex.iloc[:,:]
-wdc2_wc_ex = wdc2_wc_ex.drop('MONITOR',axis=1,level=1)
+# wdc2_wc_ex = wdc2_wc_ex.drop('MONITOR',axis=1,level=1)
 wdc3_wc_ex = pd.read_csv(outputpath+'Final_Welldepth_sw_exemptstatus' + str(shallow) + 'minus.csv',
                         header=[1,2], index_col=0)
 wdc3_wc_ex = wdc3_wc_ex.iloc[:,:]
-wdc3_wc_ex = wdc3_wc_ex.drop('MONITOR',axis=1,level=1)
+# wdc3_wc_ex = wdc3_wc_ex.drop('MONITOR',axis=1,level=1)
+wdc3_wc_ex
 
+# %% Now importing Well Densities
+dens_wdc1_reg = pd.read_csv(outputpath+'FinalDensities_Welldepth_regulation' + str(deep) + 'plus.csv',
+                        header=1, index_col=0)
+dens_wdc1_reg = dens_wdc1_reg.iloc[1:,:]
+dens_wdc2_reg = pd.read_csv(outputpath+'FinalDensities_Welldepth_regulation' + str(shallow) + 'to' + str(deep) + '.csv',
+                        header=1, index_col=0)
+dens_wdc2_reg = dens_wdc2_reg.iloc[1:,:]
+dens_wdc3_reg = pd.read_csv(outputpath+'FinalDensities_Welldepth_regulation' + str(shallow) + 'minus.csv',
+                        header=1, index_col=0)
+dens_wdc3_reg = dens_wdc3_reg.iloc[1:,:]
+
+dens_wdc1_wc = pd.read_csv(outputpath+'FinalDensities_Welldepth_sw' + str(deep) + 'plus.csv',
+                        header=1, index_col=0)
+dens_wdc1_wc = dens_wdc1_wc.iloc[1:,:]
+dens_wdc2_wc = pd.read_csv(outputpath+'FinalDensities_Welldepth_sw' + str(shallow) + 'to' + str(deep) + '.csv',
+                        header=1, index_col=0)
+dens_wdc2_wc = dens_wdc2_wc.iloc[1:,:]
+dens_wdc3_wc = pd.read_csv(outputpath+'FinalDensities_Welldepth_sw' + str(shallow) + 'minus.csv',
+                        header=1, index_col=0)
+dens_wdc3_wc = dens_wdc3_wc.iloc[1:,:]
+
+dens_wdc1_reg_ex = pd.read_csv(outputpath+'FinalDensities_Welldepth_regulation_exemptstatus' + str(deep) + 'plus.csv',
+                        header=[1,2], index_col=0)
+dens_wdc1_reg_ex = dens_wdc1_reg_ex.iloc[:,:]
+# dens_wdc1_reg_ex = dens_wdc1_reg_ex.drop('MONITOR',axis=1,level=1)
+dens_wdc2_reg_ex = pd.read_csv(outputpath+'FinalDensities_Welldepth_regulation_exemptstatus' + str(shallow) + 'to' + str(deep) + '.csv',
+                        header=[1,2], index_col=0)
+dens_wdc2_reg_ex = dens_wdc2_reg_ex.iloc[:,:]
+# dens_wdc2_reg_ex = dens_wdc2_reg_ex.drop('MONITOR',axis=1,level=1)
+dens_wdc3_reg_ex = pd.read_csv(outputpath+'FinalDensities_Welldepth_regulation_exemptstatus' + str(shallow) + 'minus.csv',
+                        header=[1,2], index_col=0)
+dens_wdc3_reg_ex = dens_wdc3_reg_ex.iloc[:,:]
+# dens_wdc3_reg_ex = dens_wdc3_reg_ex.drop('MONITOR',axis=1,level=1)
+dens_wdc1_wc_ex = pd.read_csv(outputpath+'FinalDensities_Welldepth_sw_exemptstatus' + str(deep) + 'plus.csv',
+                        header=[1,2], index_col=0)
+dens_wdc1_wc_ex = dens_wdc1_wc_ex.iloc[:,:]
+# dens_wdc1_wc_ex = dens_wdc1_wc_ex.drop('MONITOR',axis=1,level=1)
+dens_wdc2_wc_ex = pd.read_csv(outputpath+'FinalDensities_Welldepth_sw_exemptstatus' + str(shallow) + 'to' + str(deep) + '.csv',
+                        header=[1,2], index_col=0)
+dens_wdc2_wc_ex = dens_wdc2_wc_ex.iloc[:,:]
+# dens_wdc2_wc_ex = dens_wdc2_wc_ex.drop('MONITOR',axis=1,level=1)
+dens_wdc3_wc_ex = pd.read_csv(outputpath+'FinalDensities_Welldepth_sw_exemptstatus' + str(shallow) + 'minus.csv',
+                        header=[1,2], index_col=0)
+dens_wdc3_wc_ex = dens_wdc3_wc_ex.iloc[:,:]
+# dens_wdc3_wc_ex = dens_wdc3_wc_ex.drop('MONITOR',axis=1,level=1)
+dens_wdc3_wc_ex
 # %% Creating colors
 c_1 = '#8d5a99' # Reservation
 c_2 = "#d7191c" # Regulated with CAP (Water Category Color)
@@ -120,8 +166,8 @@ ds3 = wdc3_reg
 
 name = 'New Wells by Drilling Depths over Time'
 ylabel = "Well Count (#)"
-minyear=1975
-maxyear=2020
+minyear=1975.0
+maxyear=2020.0
 #min_y = -15
 #max_y = 7
 fsize = 14
@@ -436,7 +482,7 @@ plt.grid(axis='y', linewidth=0.5, zorder=0)
 plt.legend(fontsize = fsize)
 
 # plt.savefig(outputpath+name+'groupedchart_version2',dpi=600)
-# %% Now for plotting with exempt/non-exempt on the bar graph
+# %% Now for plotting with exempt/non-exempt on the bar graph for Number wells
 # Summing the data
 
 # Shallow
@@ -525,6 +571,188 @@ with sns.axes_style("white"):
     sns.despine()  
     plt.show()  
 
+# %% Now for plotting with exempt/non-exempt on the bar graph for densities
+# Summing the data
+
+# Shallow
+ds = dens_wdc3_reg_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds1 = ds.transpose()
+
+# Midrange
+ds = dens_wdc2_reg_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds2 = ds.transpose()
+
+# Deep
+ds = dens_wdc1_reg_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds3 = ds.transpose()
+
+shallow_exempt = np.array([ds1.iloc[0,0],ds1.iloc[0,3]])
+shallow_nonexempt = np.array([ds1.iloc[0,2],ds1.iloc[0,5]])
+mid_exempt = np.array([ds2.iloc[0,0],ds2.iloc[0,2]])
+mid_nonexempt = np.array([ds2.iloc[0,1],ds2.iloc[0,3]])
+deep_exempt = np.array([ds3.iloc[0,0],ds3.iloc[0,2]])
+deep_nonexempt = np.array([ds3.iloc[0,1],ds3.iloc[0,3]])
+big_categories = ['Regulated', 'Unregulated']
+depth_colors = ['lightsteelblue','cornflowerblue','darkblue']
+
+with sns.axes_style("white"):
+    sns.set_style("ticks")
+    sns.set_context("talk")
+    
+    # plot details
+    bar_width = 0.25
+    epsilon = .015
+    line_width = 1
+    opacity = 0.7
+    left_bar_positions = np.arange(len(shallow_exempt))
+    middle_bar_positions = left_bar_positions + bar_width
+    right_bar_positions = middle_bar_positions + bar_width
+
+    # make bar plots
+    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width,
+                              color=depth_colors[0],
+                              label='Shallow Exempt')
+    shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width-epsilon,
+                              bottom=shallow_exempt,
+                            #   alpha=opacity,
+                              color=depth_colors[0],
+                              edgecolor='000000',
+                              linewidth=line_width,
+                              hatch='//',
+                              label='Shallow Non-exempt')
+
+    Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
+                              color=depth_colors[1],
+                              hatch='//',
+                              edgecolor='#000000',
+                              ecolor="#000000",
+                              linewidth=line_width,
+                              label='Mid exempt')
+    Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
+                              bottom=mid_exempt, # On top of first category
+                              color=depth_colors[1],
+                              label='Mid Non-exempt')
+    
+    Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width,
+                              color=depth_colors[2],
+                              label='Deep Exempt')
+    Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width-epsilon,
+                              bottom=deep_exempt,
+                            #   alpha=opacity,
+                              color=depth_colors[2],
+                              edgecolor='lightsteelblue',
+                              linewidth=line_width,
+                              hatch='//',
+                              label='Deep Non-exempt')
+
+    plt.xticks(middle_bar_positions, big_categories
+               , rotation=0
+               )
+    plt.ylabel('Well Densities (well/km^2)')
+    plt.grid(axis='y', linewidth=0.5, zorder=0)
+    plt.legend(bbox_to_anchor=(1.1, 1.05))  
+    sns.despine()  
+    plt.show() 
+
+# %% Now for plotting with exempt/non-exempt on the bar graph by water category
+# Summing the data
+
+# Shallow
+ds = wdc3_wc_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds1 = ds.transpose()
+
+# Midrange
+ds = wdc2_wc_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds2 = ds.transpose()
+
+# Deep
+ds = wdc1_wc_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds3 = ds.transpose()
+
+shallow_exempt = np.array([ds1.iloc[0,0],ds1.iloc[0,9],ds1.iloc[0,12],ds1.iloc[0,6],ds1.iloc[0,3]])
+shallow_nonexempt = np.array([ds1.iloc[0,2],ds1.iloc[0,11],ds1.iloc[0,14],ds1.iloc[0,8],ds1.iloc[0,5]])
+mid_exempt = np.array([ds2.iloc[0,0],ds2.iloc[0,9],ds2.iloc[0,12],ds2.iloc[0,6],ds2.iloc[0,3]])
+mid_nonexempt = np.array([ds2.iloc[0,2],ds2.iloc[0,11],ds2.iloc[0,14],ds2.iloc[0,8],ds2.iloc[0,5]])
+deep_exempt = np.array([ds3.iloc[0,0],ds3.iloc[0,9],ds3.iloc[0,12],ds3.iloc[0,6],ds3.iloc[0,3]])
+deep_nonexempt = np.array([ds3.iloc[0,2],ds3.iloc[0,11],ds3.iloc[0,14],ds3.iloc[0,8],ds3.iloc[0,5]])
+big_categories = ['Receives\nCAP\n(Regulated)'
+                  , 'GW\nDominated\n(Regulated)'
+                  , ' Surface\nWater\nDominated'
+                  , 'Mixed\nSource','GW\nDominated']
+depth_colors = ['lightsteelblue','cornflowerblue','darkblue']
+
+with sns.axes_style("white"):
+    sns.set_style("ticks")
+    sns.set_context("talk")
+    
+    # plot details
+    bar_width = 0.2
+    epsilon = .05
+    line_width = 1
+    opacity = 0.7
+    left_bar_positions = np.arange(len(shallow_exempt))
+    middle_bar_positions = left_bar_positions + bar_width
+    right_bar_positions = middle_bar_positions + bar_width
+
+    # make bar plots
+    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width,
+                              color=depth_colors[0],
+                              edgecolor='000000',
+                              linewidth=line_width,
+                              hatch='//',
+                              label='Shallow Exempt')
+    shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
+                              bottom=shallow_exempt,
+                            #   alpha=opacity,
+                              color=depth_colors[0],
+                              label='Shallow Non-exempt')
+
+    Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
+                              color=depth_colors[1],
+                              hatch='//',
+                              edgecolor='#000000',
+                              ecolor="#000000",
+                              label='Mid exempt')
+    Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
+                              bottom=mid_exempt, # On top of first category
+                              color=depth_colors[1],
+                              edgecolor='#000000',
+                              linewidth=line_width,
+                              label='Mid Non-exempt')
+    
+    Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
+                              color=depth_colors[2],
+                              edgecolor='lightsteelblue',
+                              linewidth=line_width,
+                              hatch='//',
+                              label='Deep Exempt')
+    Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
+                              bottom=deep_exempt,
+                            #   alpha=opacity,
+                              color=depth_colors[2],
+                              edgecolor='lightsteelblue',
+                              label='Deep Non-exempt')
+
+    plt.xticks(middle_bar_positions, big_categories
+               , rotation=0
+               )
+    plt.ylabel('Number of Wells')
+    plt.grid(axis='y', linewidth=0.5, zorder=0)
+    plt.legend(bbox_to_anchor=(1.1, 1.05))  
+    sns.despine()  
+    plt.show()  
 # %% From the internet
 # https://gist.github.com/ctokheim/6435202a1a880cfecd71
 import seaborn as sns
