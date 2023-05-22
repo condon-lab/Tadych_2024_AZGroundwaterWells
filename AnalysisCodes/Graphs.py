@@ -158,8 +158,32 @@ GWdom = '#3B76AF'
 mixed = '#6EB2E4'
 swdom = '#469B76'
 
-# %%
-# Plot all of the different depths 3 in a line
+# %% # Plot all of the different depths 3 in a line
+# Formatting correctly
+test = wdc1_reg.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+wdc1_reg = test
+
+test = wdc2_reg.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+wdc2_reg = test
+
+test = wdc3_reg.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+wdc3_reg = test
+
 ds1 = wdc1_reg
 ds2 = wdc2_reg
 ds3 = wdc3_reg
@@ -177,10 +201,10 @@ labels = ds1.columns.tolist()
 print(labels)
 
 # For the actual figure
-fig, ax = plt.subplots(1,3,figsize=(20,5))
+fig, ax = plt.subplots(1,3,figsize=(15,5))
 #fig.tight_layout()
-fig.suptitle(name, fontsize=18, y=1.00)
-fig.supylabel(ylabel, fontsize = 14, x=0.08)
+# fig.suptitle(name, fontsize=18, y=1.00)
+fig.supylabel(ylabel, fontsize = 14, x=0.07)
 ax[0].plot(ds3[labels[0]],'--', label='Regulated', color='black')
 ax[0].plot(ds3[labels[2]], label='Unregulated', color='black')
 ax[1].plot(ds2[labels[0]],'--', label='Regulated', color='black')
@@ -196,9 +220,9 @@ ax[2].set_xlim(minyear,maxyear)
 #ax[1].set_ylim(min_y,max_y)
 #ax[2].set_ylim(min_y,max_y)
 
-ax[0].set_title('Shallow (<200 ft)', loc='center')
-ax[1].set_title('Midrange (200-500ft)', loc='center')
-ax[2].set_title('Deep (> 500ft)', loc='center')
+# ax[0].set_title('Shallow (<200 ft)', loc='center')
+# ax[1].set_title('Midrange (200-500ft)', loc='center')
+# ax[2].set_title('Deep (> 500ft)', loc='center')
 
 
 ax[0].grid(True)
@@ -212,10 +236,35 @@ ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
 
 fig.set_dpi(600.0)
 
-# plt.savefig(outputpath+name+'_3horizontalpanel_regulated', bbox_inches='tight')
+plt.savefig(outputpath+name+'_3horizontalpanel_regulated', bbox_inches='tight')
 
 # %%
 # Plot all of the different depths 3 in a line
+# Formatting correctly
+test = wdc1_wc.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+wdc1_wc = test
+
+test = wdc2_wc.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+wdc2_wc = test
+
+test = wdc3_wc.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+wdc3_wc = test
+
 ds1 = wdc1_wc
 ds2 = wdc2_wc
 ds3 = wdc3_wc
@@ -235,8 +284,8 @@ print(labels)
 # For the actual figure
 fig, ax = plt.subplots(1,3,figsize=(15,5))
 #fig.tight_layout()
-fig.suptitle(name, fontsize=18, y=1.00)
-fig.supylabel(ylabel, fontsize = 14, x=0.08)
+# fig.suptitle(name, fontsize=18, y=1.00)
+fig.supylabel(ylabel, fontsize = 14, x=0.06)
 
 ax[0].plot(ds3[labels[0]], label='Receives CAP (Regulated)', color=cap)
 ax[0].plot(ds3[labels[3]], label='GW Dominated (Regulated)', color=noCAP)
@@ -265,9 +314,9 @@ ax[2].set_xlim(minyear,maxyear)
 #ax[1].set_ylim(min_y,max_y)
 #ax[2].set_ylim(min_y,max_y)
 
-ax[0].set_title('Shallow (<200 ft)', loc='center')
-ax[1].set_title('Midrange (200-500ft)', loc='center')
-ax[2].set_title('Deep (> 500ft)', loc='center')
+# ax[0].set_title('Shallow (<200 ft)', loc='center')
+# ax[1].set_title('Midrange (200-500ft)', loc='center')
+# ax[2].set_title('Deep (> 500ft)', loc='center')
 
 
 ax[0].grid(True)
@@ -281,7 +330,7 @@ ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
 
 fig.set_dpi(600.0)
 
-# plt.savefig(outputpath+name+'_watercat_3horizontalpanel', bbox_inches='tight')
+plt.savefig(outputpath+name+'_watercat_3horizontalpanel', bbox_inches='tight')
 
 # %% -- Grouped bar chart - Had to create some summarazing dataframes --
 # Check the commented code to turn on whichever graph you want to make
@@ -503,12 +552,12 @@ ds = ds.drop('Res',axis=1)
 ds = pd.DataFrame(ds.sum())
 ds3 = ds.transpose()
 
-shallow_exempt = np.array([ds1.iloc[0,0],ds1.iloc[0,2]])
-shallow_nonexempt = np.array([ds1.iloc[0,1],ds1.iloc[0,3]])
-mid_exempt = np.array([ds2.iloc[0,0],ds2.iloc[0,2]])
-mid_nonexempt = np.array([ds2.iloc[0,1],ds2.iloc[0,3]])
-deep_exempt = np.array([ds3.iloc[0,0],ds3.iloc[0,2]])
-deep_nonexempt = np.array([ds3.iloc[0,1],ds3.iloc[0,3]])
+shallow_exempt = np.array([ds1.iloc[0,0],ds1.iloc[0,3]])
+shallow_nonexempt = np.array([ds1.iloc[0,2],ds1.iloc[0,5]])
+mid_exempt = np.array([ds2.iloc[0,0],ds2.iloc[0,3]])
+mid_nonexempt = np.array([ds2.iloc[0,2],ds2.iloc[0,5]])
+deep_exempt = np.array([ds3.iloc[0,0],ds3.iloc[0,3]])
+deep_nonexempt = np.array([ds3.iloc[0,2],ds3.iloc[0,5]])
 big_categories = ['Regulated', 'Unregulated']
 depth_colors = ['lightsteelblue','cornflowerblue','darkblue']
 
@@ -518,7 +567,7 @@ with sns.axes_style("white"):
     
     # plot details
     bar_width = 0.25
-    epsilon = .015
+    epsilon = .0
     line_width = 1
     opacity = 0.7
     left_bar_positions = np.arange(len(shallow_exempt))
@@ -526,50 +575,57 @@ with sns.axes_style("white"):
     right_bar_positions = middle_bar_positions + bar_width
 
     # make bar plots
-    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width,
-                              color=depth_colors[0],
-                              label='Shallow Exempt')
-    shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width-epsilon,
-                              bottom=shallow_exempt,
-                            #   alpha=opacity,
+    plt.figure(figsize=(10, 8))
+
+    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width-epsilon,
                               color=depth_colors[0],
                               edgecolor='000000',
                               linewidth=line_width,
                               hatch='//',
-                              label='Shallow Non-exempt')
+                              label='Shallow: Small Wells')
+    shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
+                              bottom=shallow_exempt,
+                              linewidth=line_width,
+                              edgecolor='000000',
+                            #   alpha=opacity,
+                              color=depth_colors[0],
+                              label='     "      : Large Wells')
 
-    Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width,
-                              color=depth_colors[1],
-                              label='Mid exempt')
-    Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width-epsilon,
-                              bottom=mid_exempt, # On top of first category
+    Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
                               color=depth_colors[1],
                               hatch='//',
                               edgecolor='#000000',
                               ecolor="#000000",
                               linewidth=line_width,
-                              label='Mid Non-exempt')
+                              label='Midrange: Small Wells')
+    Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
+                              bottom=mid_exempt, # On top of first category
+                              edgecolor='000000',
+                              linewidth=line_width,
+                              color=depth_colors[1],
+                              label='      "       : Large Wells')
     
-    Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width,
-                              color=depth_colors[2],
-                              label='Deep Exempt')
-    Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width-epsilon,
-                              bottom=deep_exempt,
-                            #   alpha=opacity,
+    Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
                               color=depth_colors[2],
                               edgecolor='lightsteelblue',
                               linewidth=line_width,
                               hatch='//',
-                              label='Deep Non-exempt')
+                              label='Deep: Small Wells')
+    Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
+                              bottom=deep_exempt,
+                              linewidth=line_width,
+                            #   alpha=opacity,
+                              color=depth_colors[2],
+                              label='   "    : Large Wells')
 
     plt.xticks(middle_bar_positions, big_categories
                , rotation=0
                )
     plt.ylabel('Number of Wells')
     plt.grid(axis='y', linewidth=0.5, zorder=0)
-    plt.legend(bbox_to_anchor=(1.1, 1.05))  
+    # plt.legend(bbox_to_anchor=(1.1, 1.05))  
     sns.despine()  
-    plt.show()  
+    # plt.savefig(outputpath+'NumberWells_Regulation_BarGraph', bbox_inches='tight')
 
 # %% Now for plotting with exempt/non-exempt on the bar graph for densities
 # Summing the data
@@ -606,8 +662,8 @@ with sns.axes_style("white"):
     sns.set_context("talk")
     
     # plot details
-    bar_width = 0.25
-    epsilon = .015
+    bar_width = 0.3
+    epsilon = .0
     line_width = 1
     opacity = 0.7
     left_bar_positions = np.arange(len(shallow_exempt))
@@ -615,17 +671,20 @@ with sns.axes_style("white"):
     right_bar_positions = middle_bar_positions + bar_width
 
     # make bar plots
-    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width,
-                              color=depth_colors[0],
-                              label='Shallow Exempt')
-    shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width-epsilon,
-                              bottom=shallow_exempt,
-                            #   alpha=opacity,
+    plt.figure(figsize=(10, 8))
+    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width-epsilon,
                               color=depth_colors[0],
                               edgecolor='000000',
                               linewidth=line_width,
                               hatch='//',
-                              label='Shallow Non-exempt')
+                              label='Shallow: Small Wells')
+    shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
+                              bottom=shallow_exempt,
+                              linewidth=line_width,
+                              edgecolor='000000',
+                            #   alpha=opacity,
+                              color=depth_colors[0],
+                              label='     "      : Large Wells')
 
     Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
                               color=depth_colors[1],
@@ -633,32 +692,36 @@ with sns.axes_style("white"):
                               edgecolor='#000000',
                               ecolor="#000000",
                               linewidth=line_width,
-                              label='Mid exempt')
+                              label='Midrange: Small Wells')
     Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
                               bottom=mid_exempt, # On top of first category
+                              edgecolor='000000',
+                              linewidth=line_width,
                               color=depth_colors[1],
-                              label='Mid Non-exempt')
+                              label='      "       : Large Wells')
     
-    Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width,
-                              color=depth_colors[2],
-                              label='Deep Exempt')
-    Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width-epsilon,
-                              bottom=deep_exempt,
-                            #   alpha=opacity,
+    Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
                               color=depth_colors[2],
                               edgecolor='lightsteelblue',
                               linewidth=line_width,
                               hatch='//',
-                              label='Deep Non-exempt')
+                              label='Deep: Small Wells')
+    Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
+                              bottom=deep_exempt,
+                              linewidth=line_width,
+                            #   alpha=opacity,
+                              color=depth_colors[2],
+                              label='   "    : Large Wells')
 
     plt.xticks(middle_bar_positions, big_categories
                , rotation=0
                )
     plt.ylabel('Well Densities (well/km^2)')
     plt.grid(axis='y', linewidth=0.5, zorder=0)
-    plt.legend(bbox_to_anchor=(1.1, 1.05))  
+    # plt.legend(bbox_to_anchor=(1.75, 1.05))  
     sns.despine()  
-    plt.show() 
+    plt.savefig(outputpath+'WellDensities_Regulation_BarGraph', bbox_inches='tight')
+ 
 
 # %% Now for plotting with exempt/non-exempt on the bar graph by water category
 # Summing the data
@@ -698,61 +761,174 @@ with sns.axes_style("white"):
     sns.set_context("talk")
     
     # plot details
-    bar_width = 0.2
-    epsilon = .05
+    bar_width = 0.3
+    epsilon = .0
     line_width = 1
     opacity = 0.7
     left_bar_positions = np.arange(len(shallow_exempt))
     middle_bar_positions = left_bar_positions + bar_width
     right_bar_positions = middle_bar_positions + bar_width
-
+    plt.figure(figsize=(10, 8))
     # make bar plots
-    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width,
+    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width-epsilon,
                               color=depth_colors[0],
                               edgecolor='000000',
                               linewidth=line_width,
                               hatch='//',
-                              label='Shallow Exempt')
+                              label='Shallow: Small Wells')
     shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
                               bottom=shallow_exempt,
+                              linewidth=line_width,
+                              edgecolor='000000',
                             #   alpha=opacity,
                               color=depth_colors[0],
-                              label='Shallow Non-exempt')
+                              label='     "      : Large Wells')
 
     Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
                               color=depth_colors[1],
                               hatch='//',
                               edgecolor='#000000',
                               ecolor="#000000",
-                              label='Mid exempt')
+                              linewidth=line_width,
+                              label='Midrange: Small Wells')
     Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
                               bottom=mid_exempt, # On top of first category
-                              color=depth_colors[1],
-                              edgecolor='#000000',
+                              edgecolor='000000',
                               linewidth=line_width,
-                              label='Mid Non-exempt')
+                              color=depth_colors[1],
+                              label='      "       : Large Wells')
     
     Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
                               color=depth_colors[2],
                               edgecolor='lightsteelblue',
                               linewidth=line_width,
                               hatch='//',
-                              label='Deep Exempt')
+                              label='Deep: Small Wells')
     Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
                               bottom=deep_exempt,
+                              linewidth=line_width,
                             #   alpha=opacity,
                               color=depth_colors[2],
-                              edgecolor='lightsteelblue',
-                              label='Deep Non-exempt')
+                              label='   "    : Large Wells')
 
     plt.xticks(middle_bar_positions, big_categories
                , rotation=0
                )
     plt.ylabel('Number of Wells')
     plt.grid(axis='y', linewidth=0.5, zorder=0)
-    plt.legend(bbox_to_anchor=(1.1, 1.05))  
-    sns.despine()  
-    plt.show()  
+    plt.legend(bbox_to_anchor=(1.0, 1.05))  
+    sns.despine()
+    plt.savefig(outputpath+'NumberWells_WC_BarGraph', bbox_inches='tight')
+
+# %% Totals
+ds1 = ds1.drop('MONITOR',axis=1,level=1)
+ds2 = ds2.drop('MONITOR',axis=1,level=1)
+ds3 = ds3.drop('MONITOR',axis=1,level=1)
+
+# %%
+allRegUreg = ds1 + ds2 + ds3
+allRegUreg
+
+# %%
+print('Regulated total = ', (allRegUreg.iloc[0,0]+allRegUreg.iloc[0,1]))
+print('Unregulated total = ', (allRegUreg.iloc[0,2]+allRegUreg.iloc[0,3]))
+# %% Now for plotting with exempt/non-exempt on the bar graph by water category
+# Summing the data
+
+# Shallow
+ds = dens_wdc3_wc_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds1 = ds.transpose()
+
+# Midrange
+ds = dens_wdc2_wc_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds2 = ds.transpose()
+
+# Deep
+ds = dens_wdc1_wc_ex.copy()
+ds = ds.drop('Res',axis=1)
+ds = pd.DataFrame(ds.sum())
+ds3 = ds.transpose()
+
+shallow_exempt = np.array([ds1.iloc[0,0],ds1.iloc[0,9],ds1.iloc[0,12],ds1.iloc[0,6],ds1.iloc[0,3]])
+shallow_nonexempt = np.array([ds1.iloc[0,2],ds1.iloc[0,11],ds1.iloc[0,14],ds1.iloc[0,8],ds1.iloc[0,5]])
+mid_exempt = np.array([ds2.iloc[0,0],ds2.iloc[0,9],ds2.iloc[0,12],ds2.iloc[0,6],ds2.iloc[0,3]])
+mid_nonexempt = np.array([ds2.iloc[0,2],ds2.iloc[0,11],ds2.iloc[0,14],ds2.iloc[0,8],ds2.iloc[0,5]])
+deep_exempt = np.array([ds3.iloc[0,0],ds3.iloc[0,9],ds3.iloc[0,12],ds3.iloc[0,6],ds3.iloc[0,3]])
+deep_nonexempt = np.array([ds3.iloc[0,2],ds3.iloc[0,11],ds3.iloc[0,14],ds3.iloc[0,8],ds3.iloc[0,5]])
+big_categories = ['Receives\nCAP\n(Regulated)'
+                  , 'GW\nDominated\n(Regulated)'
+                  , ' Surface\nWater\nDominated'
+                  , 'Mixed\nSource','GW\nDominated']
+depth_colors = ['lightsteelblue','cornflowerblue','darkblue']
+
+with sns.axes_style("white"):
+    sns.set_style("ticks")
+    sns.set_context("talk")
+    
+    # plot details
+    bar_width = 0.3
+    epsilon = .0
+    line_width = 1
+    opacity = 0.7
+    left_bar_positions = np.arange(len(shallow_exempt))
+    middle_bar_positions = left_bar_positions + bar_width
+    right_bar_positions = middle_bar_positions + bar_width
+    plt.figure(figsize=(10, 8))
+    # make bar plots
+    shallow_Exempt_Bar = plt.bar(left_bar_positions, shallow_exempt, bar_width-epsilon,
+                              color=depth_colors[0],
+                              edgecolor='000000',
+                              linewidth=line_width,
+                              hatch='//',
+                              label='Shallow: Small Wells')
+    shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
+                              bottom=shallow_exempt,
+                              linewidth=line_width,
+                              edgecolor='000000',
+                            #   alpha=opacity,
+                              color=depth_colors[0],
+                              label='     "      : Large Wells')
+
+    Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
+                              color=depth_colors[1],
+                              hatch='//',
+                              edgecolor='#000000',
+                              ecolor="#000000",
+                              linewidth=line_width,
+                              label='Midrange: Small Wells')
+    Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
+                              bottom=mid_exempt, # On top of first category
+                              edgecolor='000000',
+                              linewidth=line_width,
+                              color=depth_colors[1],
+                              label='      "       : Large Wells')
+    
+    Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
+                              color=depth_colors[2],
+                              edgecolor='lightsteelblue',
+                              linewidth=line_width,
+                              hatch='//',
+                              label='Deep: Small Wells')
+    Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
+                              bottom=deep_exempt,
+                              linewidth=line_width,
+                            #   alpha=opacity,
+                              color=depth_colors[2],
+                              label='   "    : Large Wells')
+
+    plt.xticks(middle_bar_positions, big_categories
+               , rotation=0
+               )
+    plt.ylabel('Well Densities (well/km^2)')
+    plt.grid(axis='y', linewidth=0.5, zorder=0)
+    plt.legend(bbox_to_anchor=(1.0, 1.05))  
+    sns.despine()
+    plt.savefig(outputpath+'WellDensities_WC_BarGraph', bbox_inches='tight')
+
 # %% From the internet
 # https://gist.github.com/ctokheim/6435202a1a880cfecd71
 import seaborn as sns
