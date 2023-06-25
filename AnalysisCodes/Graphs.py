@@ -19,13 +19,30 @@ import geopandas as gp
 #import earthpy as et
 import scipy.stats as sp
 
-# Assign Data paths
-datapath = '../Data'
-outputpath = '../Data/Output_files/'
-shapepath = '../Data/Shapefiles/'
+# === Assign Data paths ===
 
+# This is for accessing our data on Cyverse
+datapath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/'
+outputpath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Output_files/'
+shapepath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Shapefiles/'
+
+# This is if you created your own database
+datapath_local = '../Data'
+outputpath_local = '../Data/Output_files/'
+shapepath_local = '../Data/Shapefiles/'
+
+# Change this based on whether you're running off local or web data
+# Cyverse:
+datapath = datapath_web
+outputpath = outputpath_web
+shapepath = shapepath_web
+
+# Local: 
+# datapath = datapath_local
+# outputpath = outputpath_local
+# shapepath = shapepath_local
 # %% Read in the data
-# Set shallow and drilling depths
+# Shallow and Deep and drilling depth cutoffs
 shallow = 200
 deep = 500
 
@@ -122,6 +139,25 @@ dens_wdc3_wc_ex = pd.read_csv(outputpath+'FinalDensities_Welldepth_sw_exemptstat
 dens_wdc3_wc_ex = dens_wdc3_wc_ex.iloc[:,:]
 # dens_wdc3_wc_ex = dens_wdc3_wc_ex.drop('MONITOR',axis=1,level=1)
 dens_wdc3_wc_ex
+
+# %% Importing Water Level Values
+# For regulation
+filepath = outputpath_web+'/Waterlevels_Regulation.csv'
+# filepath = '../Data/Output_files/Waterlevels_Regulation.csv'
+cat_wl2_reg = pd.read_csv(filepath, index_col=0)
+cat_wl2_reg.head()
+
+# For Access to SW
+filepath = outputpath_web+'/Waterlevels_AccesstoSW.csv'
+# filepath = '../Data/Output_files/Waterlevels_AccesstoSW.csv'
+cat_wl2_SW = pd.read_csv(filepath, index_col=0)
+cat_wl2_SW.head()
+
+# For georegion number
+filepath = outputpath_web+'Waterlevels_georegions.csv'
+# filepath = '../Data/Output_files/Waterlevels_georegions.csv'
+cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
+# cat_wl2_georeg.head()
 # %% Creating colors
 c_1 = '#8d5a99' # Reservation
 c_2 = "#d7191c" # Regulated with CAP (Water Category Color)
@@ -236,7 +272,7 @@ ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
 
 fig.set_dpi(600.0)
 
-plt.savefig(outputpath+name+'_3horizontalpanel_regulated', bbox_inches='tight')
+# plt.savefig(outputpath_local+name+'_3horizontalpanel_regulated', bbox_inches='tight')
 
 # %%
 # Plot all of the different depths 3 in a line
@@ -330,7 +366,7 @@ ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
 
 fig.set_dpi(600.0)
 
-plt.savefig(outputpath+name+'_watercat_3horizontalpanel', bbox_inches='tight')
+plt.savefig(outputpath_local+name+'_watercat_3horizontalpanel', bbox_inches='tight')
 
 # %% -- Grouped bar chart - Had to create some summarazing dataframes --
 # Check the commented code to turn on whichever graph you want to make
@@ -429,7 +465,7 @@ plt.grid(axis='y', linewidth=0.5, zorder=0)
 plt.legend(fontsize = fsize)
 
 
-# plt.savefig(outputpath+name+'groupedchart', dpi=600)
+# plt.savefig(outputpath_local+name+'groupedchart', dpi=600)
 
 
 # %% Below is for Water Access Category
@@ -530,7 +566,7 @@ plt.xticks(rotation=0)
 plt.grid(axis='y', linewidth=0.5, zorder=0)
 plt.legend(fontsize = fsize)
 
-# plt.savefig(outputpath+name+'groupedchart_version2',dpi=600)
+# plt.savefig(outputpath_local+name+'groupedchart_version2',dpi=600)
 # %% Now for plotting with exempt/non-exempt on the bar graph for Number wells
 # Summing the data
 
@@ -625,7 +661,7 @@ with sns.axes_style("white"):
     plt.grid(axis='y', linewidth=0.5, zorder=0)
     # plt.legend(bbox_to_anchor=(1.1, 1.05))  
     sns.despine()  
-    # plt.savefig(outputpath+'NumberWells_Regulation_BarGraph', bbox_inches='tight')
+    # plt.savefig(outputpath_local+'NumberWells_Regulation_BarGraph', bbox_inches='tight')
 
 # %% Now for plotting with exempt/non-exempt on the bar graph for densities
 # Summing the data
@@ -720,7 +756,7 @@ with sns.axes_style("white"):
     plt.grid(axis='y', linewidth=0.5, zorder=0)
     # plt.legend(bbox_to_anchor=(1.75, 1.05))  
     sns.despine()  
-    plt.savefig(outputpath+'WellDensities_Regulation_BarGraph', bbox_inches='tight')
+    plt.savefig(outputpath_local+'WellDensities_Regulation_BarGraph', bbox_inches='tight')
  
 
 # %% Now for plotting with exempt/non-exempt on the bar graph by water category
@@ -818,7 +854,7 @@ with sns.axes_style("white"):
     plt.grid(axis='y', linewidth=0.5, zorder=0)
     plt.legend(bbox_to_anchor=(1.0, 1.05))  
     sns.despine()
-    plt.savefig(outputpath+'NumberWells_WC_BarGraph', bbox_inches='tight')
+    plt.savefig(outputpath_local+'NumberWells_WC_BarGraph', bbox_inches='tight')
 
 # %% Totals
 ds1 = ds1.drop('MONITOR',axis=1,level=1)
@@ -927,77 +963,791 @@ with sns.axes_style("white"):
     plt.grid(axis='y', linewidth=0.5, zorder=0)
     plt.legend(bbox_to_anchor=(1.0, 1.05))  
     sns.despine()
-    plt.savefig(outputpath+'WellDensities_WC_BarGraph', bbox_inches='tight')
+    plt.savefig(outputpath_local+'WellDensities_WC_BarGraph', bbox_inches='tight')
 
-# %% From the internet
-# https://gist.github.com/ctokheim/6435202a1a880cfecd71
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-
-# make up some fake data
-pos_mut_pcts = np.array([20, 10, 5, 7.5, 30, 50])
-pos_cna_pcts = np.array([10, 0, 0, 7.5, 10, 0])
-pos_both_pcts = np.array([10, 0, 0, 0, 0, 0])
-neg_mut_pcts = np.array([10, 30, 5, 0, 10, 25])
-neg_cna_pcts = np.array([5, 0, 7.5, 0, 0, 10])
-neg_both_pcts = np.array([0, 0, 0, 0, 0, 10])
-genes = ['PIK3CA', 'PTEN', 'CDKN2A', 'FBXW7', 'KRAS', 'TP53']
-
-with sns.axes_style("white"):
-    sns.set_style("ticks")
-    sns.set_context("talk")
-    
-    # plot details
-    bar_width = 0.35
-    epsilon = .015
-    line_width = 1
-    opacity = 0.7
-    pos_bar_positions = np.arange(len(pos_mut_pcts))
-    neg_bar_positions = pos_bar_positions + bar_width
-
-    # make bar plots
-    hpv_pos_mut_bar = plt.bar(pos_bar_positions, pos_mut_pcts, bar_width,
-                              color='#ED0020',
-                              label='HPV+ Mutations')
-    hpv_pos_cna_bar = plt.bar(pos_bar_positions, pos_cna_pcts, bar_width-epsilon,
-                              bottom=pos_mut_pcts,
-                              alpha=opacity,
-                              color='white',
-                              edgecolor='#ED0020',
-                              linewidth=line_width,
-                              hatch='//',
-                              label='HPV+ CNA')
-    hpv_pos_both_bar = plt.bar(pos_bar_positions, pos_both_pcts, bar_width-epsilon,
-                               bottom=pos_cna_pcts+pos_mut_pcts,
-                               alpha=opacity,
-                               color='white',
-                               edgecolor='#ED0020',
-                               linewidth=line_width,
-                               hatch='0',
-                               label='HPV+ Both')
-    hpv_neg_mut_bar = plt.bar(neg_bar_positions, neg_mut_pcts, bar_width,
-                              color='#0000DD',
-                              label='HPV- Mutations')
-    hpv_neg_cna_bar = plt.bar(neg_bar_positions, neg_cna_pcts, bar_width-epsilon,
-                              bottom=neg_mut_pcts,
-                              color="white",
-                              hatch='//',
-                              edgecolor='#0000DD',
-                              ecolor="#0000DD",
-                              linewidth=line_width,
-                              label='HPV- CNA')
-    hpv_neg_both_bar = plt.bar(neg_bar_positions, neg_both_pcts, bar_width-epsilon,
-                               bottom=neg_cna_pcts+neg_mut_pcts,
-                               color="white",
-                               hatch='0',
-                               edgecolor='#0000DD',
-                               ecolor="#0000DD",
-                               linewidth=line_width,
-                               label='HPV- Both')
-    plt.xticks(neg_bar_positions, genes, rotation=0)
-    plt.ylabel('Percentage of Samples')
-    plt.legend(bbox_to_anchor=(1.1, 1.05))  
-    sns.despine()  
-    plt.show()  
+# %%  === Plotting Water Level Madness ===
+ 
+cat_wl2_georeg = cat_wl2_georeg.transpose()
+cat_wl2_georeg
 # %%
+cat_wl2_georeg.reset_index(inplace=True)
+cat_wl2_georeg['index'] = pd.to_numeric(cat_wl2_georeg['index'])
+cat_wl2_georeg.set_index('index', inplace=True)
+cat_wl2_georeg.info()
+
+# %%
+cat_wl2_georeg = cat_wl2_georeg.transpose()
+cat_wl2_georeg
+
+# %% -- Linear regression --
+# This is testing whether or not the slope is positive or negative (2-way)
+#       For our purposes, time is the x variable and y is
+#       1. Depth to Water
+#       2. Number of Wells
+#       3. Well Depths
+
+# Actual documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.linregress.html
+# Tutorial from https://mohammadimranhasan.com/linear-regression-of-time-series-data-with-pandas-library-in-python/
+
+# For Depth to Water of georegions
+ds = cat_wl2_georeg
+min_yr = 2002
+mx_yr = 2020
+Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression:"
+print(Name)
+
+f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
+
+# -- For Multiple years --
+# Name = "Linear Regression for Non-drought years: "
+# wetyrs = [2005, 2008, 2009, 2010, 2016, 2017, 2019]
+# dryyrs = [2002, 2003, 2004, 2006, 2007, 2011, 2012, 2013, 2014, 2015, 2018]
+# #f = ds[(ds.index == wetyrs)]
+
+# f = pd.DataFrame()
+# for i in dryyrs:
+#         wut = ds[(ds.index == i)]
+#         f = f.append(wut)
+# print(f)
+# -----------------------
+
+stats = pd.DataFrame()
+for i in range(1, 12, 1):
+        df = f[i]
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+#        print('Georegion Number: ', i, '\n', 
+#                'slope = ', slope, '\n', 
+#                'intercept = ', intercept, '\n', 
+#                'r^2 = ', r_value, '\n', 
+#                'p-value = ', p_value, '\n', 
+#                'std error = ', std_err)
+        
+        # row1 = pd.DataFrame([slope], index=[i], columns=['slope'])
+        # row2 = pd.DataFrame([intercept], index=[i], columns=['intercept'])
+        # stats = stats.append(row1)
+        # stats = stats.append(row2)
+        # stats['intercept'] = intercept
+        stats = stats.append({'slope': slope, 
+                        #       'int':intercept, 
+                              'rsq':r_value, 
+                              'p_val':p_value, 
+                              'std_err':std_err,
+                              'mean': np.mean(y),
+                              'var': np.var(y)}, 
+                              ignore_index=True)
+        xf = np.linspace(min(x),max(x),100)
+        xf1 = xf.copy()
+        #xf1 = pd.to_datetime(xf1)
+        yf = (slope*xf)+intercept
+        fig, ax = plt.subplots(1, 1)
+        ax.plot(xf1, yf,label='Linear fit', lw=3)
+        df.plot(ax=ax,marker='o', ls='')
+        ax.set_ylim(0,max(y))
+        ax.legend()
+
+
+# stats = stats.append(slope)
+#        stats[i] = stats[i].append(slope)
+
+#   df = df.append({'A': i}, ignore_index=True)
+stats1 = stats.transpose()
+stats1
+
+# %% Linear Regression
+# For Depth to Water by SW Access
+ds = cat_wl2_SW
+data_type = "Depth to Water"
+min_yr = 1975
+mx_yr = 2020
+betterlabels = ['Recieves CAP (Regulated)'
+                ,'GW Dominated (Regulated)'
+                ,'Surface Water Dominated'
+                ,'GW Dominated'
+                ,'Mixed Source'] 
+Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
+print(Name)
+
+f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
+columns = ds.columns
+column_list = ds.columns.tolist()
+# -- For Multiple years --
+# Name = "Linear Regression during Wet and Normal years for " + data_type
+# wetyrs = [2005, 2008, 2009, 2010, 2016, 2017, 2019]
+# dryyrs = [2002, 2003, 2004, 2006, 2007, 2011, 2012, 2013, 2014, 2015, 2018]
+# dryyrs = [1975,1976,1977
+#           ,1981,1989,1990
+#           ,1996,1997,
+#           1999,2000,2001,2002,2003,2004
+#           ,2006,2007,2008,2009
+#           ,2011, 2012, 2013, 2014, 2015,2017,2018]
+# wetyrs = [1978,1979,1980,1982,1983,1984,1984,1986,1987,1988
+#           , 1991,1992,1993,1994,1995,
+#           1998,2005,2010,2019]
+
+#f = ds[(ds.index == wetyrs)]
+
+# f = pd.DataFrame()
+# for i in wetyrs:
+#         wut = ds[(ds.index == i)]
+#         f = f.append(wut)
+# print(f)
+columns = ds.columns
+column_list = ds.columns.tolist()
+# ------------------------
+
+stats = pd.DataFrame()
+for i in column_list:
+        df = f[i]
+        # df = f[i].pct_change()
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+        stats = stats.append({'slope': slope, 
+                              'int':intercept, 
+                              'rsq':r_value*r_value, 
+                              'p_val':p_value, 
+                              'std_err':std_err, 
+                              'mean': np.mean(y),
+                              'var': np.var(y),
+                              'sum': np.sum(y)
+                              },
+                              ignore_index=True)
+
+
+stats.index = betterlabels
+stats1 = stats.transpose()
+print(stats1)
+# -- Data visualization --
+xf = np.linspace(min(x),max(x),100)
+xf1 = xf.copy()
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+m2 = round(stats1.loc['slope',betterlabels[3]], 2)
+m3 = round(stats1.loc['slope',betterlabels[4]], 2)
+m4 = round(stats1.loc['slope',betterlabels[1]], 2)
+m5 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+yint2 = round(stats1.loc['int',betterlabels[3]], 2)
+yint3 = round(stats1.loc['int',betterlabels[4]], 2)
+yint4 = round(stats1.loc['int',betterlabels[1]], 2)
+yint5 = round(stats1.loc['int',betterlabels[2]], 2)
+rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
+rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
+rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
+rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
+rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
+pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
+pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
+pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
+pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
+pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
+yf1 = (m1*xf)+yint1
+yf2 = (m2*xf)+yint2
+yf3 = (m3*xf)+yint3
+yf4 = (m4*xf)+yint4
+yf5 = (m5*xf)+yint5
+
+fig, ax = plt.subplots(1, 1, figsize = (7,4.5))
+# fig, ax = plt.subplots(figsize = (16,9))
+
+ax.plot(xf1, yf1,"-.",color=cap,label='Linear Trendline', lw=1)
+ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
+ax.plot(xf1, yf3,"-.",color=mixed, lw=1)
+ax.plot(xf1, yf4,"-.",color='#CCC339', lw=1)
+ax.plot(xf1, yf5,"-.",color=swdom, lw=1)
+
+# f.plot(ax=ax,marker='o', ls='', label=betterlabels)
+# Trying to draw lines with better shit 
+
+ds = cat_wl2_SW
+minyear=1975
+maxyear=2020
+min_y = 75
+max_y = 300
+fsize = 12
+
+ax.plot(ds['CAP'], label=betterlabels[0], color=cap)
+ax.plot(ds['No_CAP'], label=betterlabels[1], color='#CCC339') 
+ax.plot(ds['SW'], label=betterlabels[2], color=swdom) 
+ax.plot(ds['Mix'], label=betterlabels[4], color=mixed)
+ax.plot(ds['GW'], label=betterlabels[3], color=GWdom)  
+
+ax.set_xlim(minyear,maxyear)
+ax.set_ylim(min_y,max_y)
+# ax.grid(True)
+ax.grid(visible=True,which='major')
+ax.grid(which='minor',color='#EEEEEE', lw=0.8)
+# ax.set_title(name, fontsize=20)
+ax.set_xlabel('Year', fontsize=fsize)
+ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
+ax.legend(loc = [1.04, 0.40], fontsize = 10)
+# # Drought Year Shading
+# a = 1988.5
+# b = 1990.5
+# c = 1995.5
+# d = 1996.5
+# e = 2001.5
+# f = 2003.5
+# g = 2005.5
+# h = 2007.5
+# i = 2011.5
+# j = 2014.5
+# k = 2017.5
+# l= 2018.5
+# plt.axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
+# plt.axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
+# plt.axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
+# plt.axvspan(g, h, color=drought_color, alpha=0.5, lw=0)
+# plt.axvspan(i, j, color=drought_color, alpha=0.5, lw=0)
+# plt.axvspan(k, l, color=drought_color, alpha=0.5, lw=0)
+
+ax.minorticks_on()
+
+fig.set_dpi(600.0)
+
+# ax.set_xlim(min_yr, mx_yr)
+ax.set_ylim(75,300)
+# ax.set_title(Name)
+vertshift = 0
+plt.figtext(0.95, 0.5 - vertshift, 'CAP equation: y = '+str(m1)+'x + '+str(yint1))
+plt.figtext(0.98, 0.45 - vertshift, 'rsq = '+ str(rsq1) + '; p-value = ' + str(pval1))
+plt.figtext(0.95, 0.4 - vertshift, 'Unregulated GW equation: y = '+str(m2)+'x + '+str(yint2))
+plt.figtext(0.98, 0.35 - vertshift, 'rsq = '+ str(rsq2) +'; p-value = ' + str(pval2))
+plt.figtext(0.95, 0.3 - vertshift, 'Mixed SW/GW equation: y = '+str(m3)+'x + '+str(yint3))
+plt.figtext(0.98, 0.25 - vertshift, 'rsq = '+ str(rsq3) +'; p-value = ' + str(pval3))
+plt.figtext(0.95, 0.2 - vertshift, 'Regulated GW equation: y = '+str(m4)+'x + '+str(yint4))
+plt.figtext(0.98, 0.15 - vertshift, 'rsq = '+ str(rsq4) +'; p-value = ' + str(pval4))
+plt.figtext(0.95, 0.1 - vertshift, 'SW equation: y = '+str(m5)+'x + '+str(yint5))
+plt.figtext(0.98, 0.05 - vertshift, 'rsq = '+ str(rsq5) +'; p-value = ' + str(pval5))
+
+ax.legend(
+        loc = [1.065, 0.65]
+        )
+plt.savefig(outputpath_local+Name, bbox_inches = 'tight')
+# plt.savefig(outputpath+'Stats/Water_CAT/'+Name, bbox_inches = 'tight')
+stats1.to_csv(outputpath_local+Name+'.csv')
+
+# %% Piecewise Linear Regression
+# For Depth to Water by SW Access
+ds = cat_wl2_SW
+data_type = "Depth to Water"
+# -- Piece 1 --
+min_yr = 1975
+mx_yr = 1985
+betterlabels = ['Recieves CAP (Regulated)'
+                ,'GW Dominated (Regulated)'
+                ,'Surface Water Dominated'
+                ,'GW Dominated'
+                ,'Mixed Source'] 
+Name1 = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
+print(Name1)
+
+f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
+columns = ds.columns
+column_list = ds.columns.tolist()
+
+stats = pd.DataFrame()
+for i in column_list:
+        df = f[i]
+        # df = f[i].pct_change()
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+        stats = stats.append({'slope': slope, 
+                              'int':intercept, 
+                              'rsq':r_value*r_value, 
+                              'p_val':p_value, 
+                              'std_err':std_err, 
+                              'mean': np.mean(y),
+                              'var': np.var(y),
+                              'sum': np.sum(y)
+                              },
+                              ignore_index=True)
+
+
+stats.index = betterlabels
+stats1 = stats.transpose()
+print(stats1)
+# -- Data visualization --
+xf = np.linspace(min(x),max(x),100)
+xf1 = xf.copy()
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+m2 = round(stats1.loc['slope',betterlabels[3]], 2)
+m3 = round(stats1.loc['slope',betterlabels[4]], 2)
+m4 = round(stats1.loc['slope',betterlabels[1]], 2)
+m5 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+yint2 = round(stats1.loc['int',betterlabels[3]], 2)
+yint3 = round(stats1.loc['int',betterlabels[4]], 2)
+yint4 = round(stats1.loc['int',betterlabels[1]], 2)
+yint5 = round(stats1.loc['int',betterlabels[2]], 2)
+rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
+rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
+rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
+rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
+rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
+pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
+pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
+pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
+pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
+pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
+yf1 = (m1*xf)+yint1
+yf2 = (m2*xf)+yint2
+yf3 = (m3*xf)+yint3
+yf4 = (m4*xf)+yint4
+yf5 = (m5*xf)+yint5
+
+fig, ax = plt.subplots(1, 1, figsize = (12,7))
+# fig, ax = plt.subplots(figsize = (16,9))
+
+# ax.plot(xf1, yf1,"-.",color=c_2,label='Linear Trendline', lw=1)
+ax.plot(xf1, yf2,"-.",color=c_7, lw=1)
+ax.plot(xf1, yf3,"-.",color=c_5, lw=1)
+ax.plot(xf1, yf4,"-.",color=c_3, lw=1)
+# ax.plot(xf1, yf5,"-.",color=c_4, lw=1)
+
+vertshift = -0.3
+horshift = 0
+plt.figtext(0.94+horshift, 0.55 - vertshift, 'Regression for ' +str(min_yr)+' to '+str(mx_yr)+':')
+plt.figtext(0.95+horshift, 0.5 - vertshift, 'CAP equation: y = '+str(m1)+'x + '+str(yint1))
+plt.figtext(0.98+horshift, 0.45 - vertshift, 'rsq = '+ str(rsq1) + '; p-value = ' + str(pval1))
+plt.figtext(0.95+horshift, 0.4 - vertshift, 'Unregulated GW equation: y = '+str(m2)+'x + '+str(yint2))
+plt.figtext(0.98+horshift, 0.35 - vertshift, 'rsq = '+ str(rsq2) +'; p-value = ' + str(pval2))
+plt.figtext(0.95+horshift, 0.3 - vertshift, 'Mixed SW/GW equation: y = '+str(m3)+'x + '+str(yint3))
+plt.figtext(0.98+horshift, 0.25 - vertshift, 'rsq = '+ str(rsq3) +'; p-value = ' + str(pval3))
+plt.figtext(0.95+horshift, 0.2 - vertshift, 'Regulated GW equation: y = '+str(m4)+'x + '+str(yint4))
+plt.figtext(0.98+horshift, 0.15 - vertshift, 'rsq = '+ str(rsq4) +'; p-value = ' + str(pval4))
+plt.figtext(0.95+horshift, 0.1 - vertshift, 'SW equation: y = '+str(m5)+'x + '+str(yint5))
+plt.figtext(0.98+horshift, 0.05 - vertshift, 'rsq = '+ str(rsq5) +'; p-value = ' + str(pval5))
+
+# -- Piece 2 --
+min_yr = 1985
+mx_yr = 1995
+Name2 = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
+print(Name2)
+
+f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
+columns = ds.columns
+column_list = ds.columns.tolist()
+
+stats = pd.DataFrame()
+for i in column_list:
+        df = f[i]
+        # df = f[i].pct_change()
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+        stats = stats.append({'slope': slope, 
+                              'int':intercept, 
+                              'rsq':r_value*r_value, 
+                              'p_val':p_value, 
+                              'std_err':std_err, 
+                              'mean': np.mean(y),
+                              'var': np.var(y),
+                              'sum': np.sum(y)
+                              },
+                              ignore_index=True)
+
+
+stats.index = betterlabels
+stats1 = stats.transpose()
+print(stats1)
+# -- Data visualization --
+xf = np.linspace(min(x),max(x),100)
+xf1 = xf.copy()
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+m2 = round(stats1.loc['slope',betterlabels[3]], 2)
+m3 = round(stats1.loc['slope',betterlabels[4]], 2)
+m4 = round(stats1.loc['slope',betterlabels[1]], 2)
+m5 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+yint2 = round(stats1.loc['int',betterlabels[3]], 2)
+yint3 = round(stats1.loc['int',betterlabels[4]], 2)
+yint4 = round(stats1.loc['int',betterlabels[1]], 2)
+yint5 = round(stats1.loc['int',betterlabels[2]], 2)
+rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
+rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
+rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
+rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
+rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
+pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
+pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
+pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
+pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
+pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
+yf1 = (m1*xf)+yint1
+yf2 = (m2*xf)+yint2
+yf3 = (m3*xf)+yint3
+yf4 = (m4*xf)+yint4
+yf5 = (m5*xf)+yint5
+
+# ax.plot(xf1, yf1,"-.",color=c_2, lw=1)
+ax.plot(xf1, yf2,"-.",color=c_7, lw=1)
+ax.plot(xf1, yf3,"-.",color=c_5, lw=1)
+ax.plot(xf1, yf4,"-.",color=c_3, lw=1)
+# ax.plot(xf1, yf5,"-.",color=c_4, lw=1)
+
+vertshift = -0.3
+horshift = 0.3
+plt.figtext(0.94+horshift, 0.55 - vertshift, 'Regression for ' +str(min_yr)+' to '+str(mx_yr)+':')
+plt.figtext(0.95+horshift, 0.5 - vertshift, 'CAP equation: y = '+str(m1)+'x + '+str(yint1))
+plt.figtext(0.98+horshift, 0.45 - vertshift, 'rsq = '+ str(rsq1) + '; p-value = ' + str(pval1))
+plt.figtext(0.95+horshift, 0.4 - vertshift, 'Unregulated GW equation: y = '+str(m2)+'x + '+str(yint2))
+plt.figtext(0.98+horshift, 0.35 - vertshift, 'rsq = '+ str(rsq2) +'; p-value = ' + str(pval2))
+plt.figtext(0.95+horshift, 0.3 - vertshift, 'Mixed SW/GW equation: y = '+str(m3)+'x + '+str(yint3))
+plt.figtext(0.98+horshift, 0.25 - vertshift, 'rsq = '+ str(rsq3) +'; p-value = ' + str(pval3))
+plt.figtext(0.95+horshift, 0.2 - vertshift, 'Regulated GW equation: y = '+str(m4)+'x + '+str(yint4))
+plt.figtext(0.98+horshift, 0.15 - vertshift, 'rsq = '+ str(rsq4) +'; p-value = ' + str(pval4))
+plt.figtext(0.95+horshift, 0.1 - vertshift, 'SW equation: y = '+str(m5)+'x + '+str(yint5))
+plt.figtext(0.98+horshift, 0.05 - vertshift, 'rsq = '+ str(rsq5) +'; p-value = ' + str(pval5))
+
+# -- Piece 3 --
+min_yr = 1995
+mx_yr = 2020
+Name3 = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
+print(Name3)
+
+f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
+columns = ds.columns
+column_list = ds.columns.tolist()
+
+stats = pd.DataFrame()
+for i in column_list:
+        df = f[i]
+        # df = f[i].pct_change()
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+        stats = stats.append({'slope': slope, 
+                              'int':intercept, 
+                              'rsq':r_value*r_value, 
+                              'p_val':p_value, 
+                              'std_err':std_err, 
+                              'mean': np.mean(y),
+                              'var': np.var(y),
+                              'sum': np.sum(y)
+                              },
+                              ignore_index=True)
+
+
+stats.index = betterlabels
+stats1 = stats.transpose()
+print(stats1)
+# -- Data visualization --
+xf = np.linspace(min(x),max(x),100)
+xf1 = xf.copy()
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+m2 = round(stats1.loc['slope',betterlabels[3]], 2)
+m3 = round(stats1.loc['slope',betterlabels[4]], 2)
+m4 = round(stats1.loc['slope',betterlabels[1]], 2)
+m5 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+yint2 = round(stats1.loc['int',betterlabels[3]], 2)
+yint3 = round(stats1.loc['int',betterlabels[4]], 2)
+yint4 = round(stats1.loc['int',betterlabels[1]], 2)
+yint5 = round(stats1.loc['int',betterlabels[2]], 2)
+rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
+rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
+rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
+rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
+rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
+pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
+pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
+pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
+pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
+pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
+yf1 = (m1*xf)+yint1
+yf2 = (m2*xf)+yint2
+yf3 = (m3*xf)+yint3
+yf4 = (m4*xf)+yint4
+yf5 = (m5*xf)+yint5
+
+# ax.plot(xf1, yf1,"-.",color=c_2, lw=1)
+ax.plot(xf1, yf2,"-.",color=c_7, lw=1)
+ax.plot(xf1, yf3,"-.",color=c_5, lw=1)
+ax.plot(xf1, yf4,"-.",color=c_3, lw=1)
+# ax.plot(xf1, yf5,"-.",color=c_4, lw=1)
+
+vertshift = -0.3
+horshift = 0.6
+plt.figtext(0.94+horshift, 0.55 - vertshift, 'Regression for ' +str(min_yr)+' to '+str(mx_yr)+':')
+plt.figtext(0.95+horshift, 0.5 - vertshift, 'CAP equation: y = '+str(m1)+'x + '+str(yint1))
+plt.figtext(0.98+horshift, 0.45 - vertshift, 'rsq = '+ str(rsq1) + '; p-value = ' + str(pval1))
+plt.figtext(0.95+horshift, 0.4 - vertshift, 'Unregulated GW equation: y = '+str(m2)+'x + '+str(yint2))
+plt.figtext(0.98+horshift, 0.35 - vertshift, 'rsq = '+ str(rsq2) +'; p-value = ' + str(pval2))
+plt.figtext(0.95+horshift, 0.3 - vertshift, 'Mixed SW/GW equation: y = '+str(m3)+'x + '+str(yint3))
+plt.figtext(0.98+horshift, 0.25 - vertshift, 'rsq = '+ str(rsq3) +'; p-value = ' + str(pval3))
+plt.figtext(0.95+horshift, 0.2 - vertshift, 'Regulated GW equation: y = '+str(m4)+'x + '+str(yint4))
+plt.figtext(0.98+horshift, 0.15 - vertshift, 'rsq = '+ str(rsq4) +'; p-value = ' + str(pval4))
+plt.figtext(0.95+horshift, 0.1 - vertshift, 'SW equation: y = '+str(m5)+'x + '+str(yint5))
+plt.figtext(0.98+horshift, 0.05 - vertshift, 'rsq = '+ str(rsq5) +'; p-value = ' + str(pval5))
+
+
+# --- Code for Main Plot ---
+ds = cat_wl2_SW
+minyear=1975
+maxyear=2020
+min_y = 75
+max_y = 300
+fsize = 14
+
+# ax.plot(ds['CAP'], label='CAP', color=c_2)
+ax.plot(ds['No_CAP'], label='Regulated GW', color=c_3) 
+# ax.plot(ds['SW'], label='Surface Water', color=c_4) 
+ax.plot(ds['Mix'], label='Mixed SW/GW', color=c_5)
+ax.plot(ds['GW'], label='Unregulated GW', color=c_7)  
+
+ax.set_xlim(minyear,maxyear)
+ax.set_ylim(min_y,max_y)
+# ax.grid(True)
+ax.grid(visible=True,which='major')
+ax.grid(which='minor',color='#EEEEEE', lw=0.8)
+# ax.set_title(name, fontsize=20)
+ax.set_xlabel('Year', fontsize=fsize)
+ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
+ax.legend(loc = [1.04, 0.40], fontsize = fsize)
+
+ax.minorticks_on()
+
+fig.set_dpi(600.0)
+
+# ax.set_xlim(min_yr, mx_yr)
+ax.set_ylim(75,300)
+# ax.set_title(Name)
+ax.set_title('Linear Regression Depth to Water and Access to Surface Water Categories')
+ax.legend(
+        # loc = [1.065, 0.75]
+        )
+# plt.savefig(outputpath+'Stats/Water_CAT/'+Name+'_all', bbox_inches = 'tight')
+plt.savefig(outputpath_local+Name+'_GW_3pieces', bbox_inches = 'tight')
+# stats1.to_csv(outputpath+'Stats/Water_CAT/'+Name+'_GW.csv')
+
+# %% For Depth to Water by regulation
+ds = cat_wl2_reg
+data_type = "Depth to Water"
+min_yr = 1975
+mx_yr = 2020
+betterlabels = ['Regulated','Unregulated'] 
+Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
+print(Name)
+
+f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
+columns = ds.columns
+column_list = ds.columns.tolist()
+
+stats = pd.DataFrame()
+# for i in range(1, 12, 1):
+for i in column_list:
+        df = f[i]
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+        # print('Georegion Number: ', i, '\n', 
+        #        'slope = ', slope, '\n', 
+        #        'intercept = ', intercept, '\n', 
+        #        'r^2 = ', r_value, '\n', 
+        #        'p-value = ', p_value, '\n', 
+        #        'std error = ', std_err)      
+        stats = stats.append({'slope': slope, 
+                              'int':intercept, 
+                              'rsq':r_value*r_value, 
+                              'p_val':p_value, 
+                              'std_err':std_err, 
+                              'mean': np.mean(y),
+                              'var': np.var(y),
+                              'sum': np.sum(y)
+                              },
+                              ignore_index=True)
+        # xf = np.linspace(min(x),max(x),100)
+        # xf1 = xf.copy()
+        # xf1 = pd.to_datetime(xf1)
+        # yf = (slope*xf)+intercept
+        # fig, ax = plt.subplots(1, 1)
+        # ax.plot(xf1, yf,label='Linear fit', lw=3)
+        # df.plot(ax=ax,marker='o', ls='')
+        # ax.set_ylim(0,max(y))
+        # ax.legend()
+
+
+stats.index = betterlabels
+stats1 = stats.transpose()
+print(stats1)
+
+# -- Data visualization --
+xf = np.linspace(min(x),max(x),100)
+xf1 = xf.copy()
+#xf1 = pd.to_datetime(xf1)
+m1 = round(stats1.loc['slope','Regulated'], 2)
+m2 = round(stats1.loc['slope','Unregulated'], 2)
+yint1 = round(stats1.loc['int','Regulated'], 2)
+yint2 = round(stats1.loc['int','Unregulated'], 2)
+pval1 = round(stats1.loc['p_val', 'Regulated'], 4)
+pval2 = round(stats1.loc['p_val', 'Unregulated'], 4)
+
+yf1 = (m1*xf)+yint1
+yf2 = (m2*xf)+yint2
+
+fig, ax = plt.subplots(1, 1, figsize = (7,4.5))
+ax.plot(xf1, yf1,"-.",color=cap,label='Linear Trendline', lw=1)
+ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
+
+ds = cat_wl2_reg
+minyear=1975
+maxyear=2020
+min_y = 75
+max_y = 300
+fsize = 12
+
+ax.plot(ds['R'], label='Regulated', color=cap) 
+ax.plot(ds['U'], label='Unregulated', color=GWdom) 
+
+ax.set_xlim(minyear,maxyear)
+ax.set_ylim(min_y,max_y)
+# ax.grid(True)
+ax.grid(visible=True,which='major')
+ax.grid(which='minor',color='#EEEEEE', lw=0.8)
+ax.set_xlabel('Year', fontsize=fsize)
+ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
+ax.legend(loc = [1.04, 0.40], fontsize = fsize)
+# # Drought Year Shading
+# a = 1988.5
+# b = 1990.5
+# c = 1995.5
+# d = 1996.5
+# e = 2001.5
+# f = 2003.5
+# g = 2005.5
+# h = 2007.5
+# i = 2011.5
+# j = 2014.5
+# k = 2017.5
+# l= 2018.5
+# plt.axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
+# plt.axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
+# plt.axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
+# plt.axvspan(g, h, color=drought_color, alpha=0.5, lw=0)
+# plt.axvspan(i, j, color=drought_color, alpha=0.5, lw=0)
+# plt.axvspan(k, l, color=drought_color, alpha=0.5, lw=0)
+
+ax.minorticks_on()
+
+fig.set_dpi(600.0)
+
+# ax.set_xlim(min_yr, mx_yr)
+ax.set_ylim(75,300)
+# ax.set_title(Name)
+
+plt.figtext(0.95, 0.4, 'Regulated equation: y= '+str(m1)+'x + '+str(yint1))
+plt.figtext(0.96, 0.35, 'p-value = ' + str(pval1))
+plt.figtext(0.95, 0.6, 'Unregulated equation: y= '+str(m2)+'x + '+str(yint2))
+plt.figtext(0.96, 0.55, 'p-value = ' + str(pval2))
+ax.legend()
+plt.savefig(outputpath_local+Name, bbox_inches = 'tight')
+# stats1.to_csv(outputpath+'Stats/'+Name+'.csv')
+
+# %% Figure out which water level database you want
+cat_wl2 = cat_wl2_reg.copy() 
+# cat_wl2 = cat_wl2_SW.copy()
+# cat_wl2 = cat_wl2_georeg.copy()
+
+# cat_wl2 = wdc1_reg.copy()
+# cat_wl2 = wdc2_reg.copy()
+# cat_wl2 = wdc3_reg.copy()
+# cat_wl2 = wdc1_SW.copy()
+# cat_wl2 = wdc2_SW.copy()
+# cat_wl2 = wdc3_SW.copy()
+
+# Water Analysis period
+wlanalysis_period = cat_wl2[cat_wl2.index>=1975]
+# %%
+state_wellcount = wdc1_reg + wdc2_reg + wdc3_reg
+state_wellcount = state_wellcount[['R','U']]
+state_wellcount = state_wellcount[state_wellcount.index>=1975]
+# %%
+test = state_wellcount.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test.set_index('Regulation', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
+
+# %% Scatterplot of correlation values
+ds = wlanalysis_period
+# name = 'Comparing PDSI with Depth to Water Anomalies by Access to SW'
+name = 'Comparing Number of wells with Depth to Water Levels by Regulation'
+# del ds['Res']
+columns = ds.columns
+column_list = ds.columns.tolist()
+# betterlabels = ['Receives CAP (Regulated)','GW Dominated (Regulated)','Surface Water Dominated','GW Dominated','Mixed Source'] 
+betterlabels = ['Regulated','Unregulated'] 
+colors=[cap, GWdom]
+# colors=[cap,noCAP, swdom, mixed, GWdom]
+
+fig, ax = plt.subplots(figsize = (7,5))
+x = test['R']
+y = ds['R']
+ax.scatter(x,y,label=betterlabels[0],color=colors[0])
+z = np.polyfit(x,y,1)
+p = np.poly1d(z)
+plt.plot(x,p(x),'-',color=colors[0])
+x = test['U']
+y = ds['U']
+ax.scatter(x,y,label=betterlabels[1],color=colors[1])
+z = np.polyfit(x,y,1)
+p = np.poly1d(z)
+plt.plot(x,p(x),'-',color=colors[1])
+
+ax.set_xlabel('Number of Wells')
+ax.set_ylabel('Depth to Water Levels (ft)')
+ax.set_title(name,loc='center')
+# ax.set_ylim(0,400)
+fig.set_dpi(600)
+plt.legend(loc = [1.05, 0.40])
+
+# plt.savefig(outputpath+name, bbox_inches='tight') 
+
+# %% If running a shifted correlation analysis,
+#    change this to however many # years; 0 is no lag
+lag = 0
+
+print('Kendall Correlation coefficient')
+for i in column_list:
+        # print(' '+i+':')
+        print(' '+str(i)+':')
+# To normalize the data 
+        # df1 = ds[i].pct_change()
+        # df2 = drought_indices.PDSI.pct_change()
+        df1 = ds[i]
+        df2 = drought_indices.PDSI.shift(lag)
+        print('  tau = ',round(df1.corr(df2, method='kendall'),3))
+        print('  pval = ',round(df1.corr(df2, method=kendall_pval),4))
+
+# %%
+print('Spearman Correlation coefficient')
+for i in column_list:
+        print(' '+str(i)+':')
+        # df1 = ds[i].pct_change()
+        # df2 = drought_indices.PDSI.pct_change()
+        df1 = ds[i]
+        df2 = drought_indices.PDSI.shift(lag)
+        print('  rho = ',round(df1.corr(df2, method='spearman'),3))
+        print('  pval = ',round(df1.corr(df2, method=spearmanr_pval),4))
+
+# %%
+print('Pearson Correlation coefficient')
+for i in column_list:
+        print(' '+str(i)+':')
+        # df1 = ds[i].pct_change()
+        # df2 = drought_indices.PDSI.pct_change()
+        df1 = ds[i]
+        df2 = drought_indices.PDSI.shift(lag)
+        r = df1.corr(df2, method='pearson')
+        print('  rsq = ',round(r*r,3))
+        print('  pval = ',round(df1.corr(df2, method=pearsonr_pval),4))

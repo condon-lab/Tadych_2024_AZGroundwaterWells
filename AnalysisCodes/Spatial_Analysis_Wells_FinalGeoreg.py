@@ -115,11 +115,11 @@ filename_ts = 'Wells55_GWSI_WLTS_DB_annual.csv'
 filepath = os.path.join(outputpath, filename_ts)
 print(filepath)
 annual_db = pd.read_csv(filepath, header=1, index_col=0)
-annual_db = annual_db.iloc[1:158,:] # fixing the first row
-annual_db.head()
+# annual_db = annual_db.iloc[1:158,:] # fixing the first row
+annual_db
 
 # %%
-annual_db.index = annual_db.index.astype('float')
+# annual_db.index = annual_db.index.astype('float')
 annual_db.index = annual_db.index.astype('int64')
 #%%
 annual_db.head()
@@ -174,7 +174,8 @@ reg_list
 
 # %% Converting Combo_ID to int
 reg_list['Combo_ID'] = reg_list['Combo_ID'].astype(int, errors = 'raise')
-
+# %%
+annual_db2
 # %%
 annual_db2 = annual_db.reset_index(inplace=True)
 annual_db2 = annual_db.rename(columns = {'year':'Combo_ID'})
@@ -222,6 +223,14 @@ cat_wl_reg = combo.groupby(['Regulation']).mean()
 cat_wl_SW = combo.groupby(['Water_CAT']).mean()
 
 cat_wl_georeg.info()
+
+# %%
+test = cat_wl_reg.copy()
+del test['Combo_ID']
+test = test.transpose()
+test
+#%%
+test.plot()
 
 # %%
 wdc1_reg = wd1.groupby(['Regulation']).mean() # deep
@@ -350,23 +359,23 @@ f.set_index('index', inplace=True)
 f.info()
 cat_wl2_SW = f
 # %% Going to export all these as CSV's
-# cat_wl2_georeg.to_csv('../MergedData/Output_files/Waterlevels_georegions.csv')
-# cat_wl2_reg.to_csv('../MergedData/Output_files/Waterlevels_Regulation.csv')
-# cat_wl2_SW.to_csv('../MergedData/Output_files/Waterlevels_Waterlevels_AccesstoSW.csv')
+cat_wl2_georeg.to_csv('../Data/Output_files/Waterlevels_georegions.csv')
+cat_wl2_reg.to_csv('../Data/Output_files/Waterlevels_Regulation.csv')
+cat_wl2_SW.to_csv('../Data/Output_files/Waterlevels_AccesstoSW.csv')
 
 # %%  ==== Reading in the data we created above ====
 # For regulation
-filepath = '../MergedData/Output_files/Waterlevels_Regulation.csv'
+filepath = '../Data/Output_files/Waterlevels_Regulation.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 cat_wl2_reg.head()
 
 # For Access to SW
-filepath = '../MergedData/Output_files/Waterlevels_AccesstoSW.csv'
+filepath = '../Data/Output_files/Waterlevels_AccesstoSW.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 cat_wl2_SW.head()
 
 # For georegion number
-filepath = '../MergedData/Output_files/Waterlevels_georegions.csv'
+filepath = '../Data/Output_files/Waterlevels_georegions.csv'
 cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
 # cat_wl2_georeg.head()
 # %%

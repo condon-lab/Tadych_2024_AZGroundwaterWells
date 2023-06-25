@@ -95,7 +95,10 @@ print(wl_data2.info())
 # Following this method: https://stackoverflow.com/questions/32215024/merging-time-series-data-by-timestamp-using-numpy-pandas
 # Confirmed through the variables list that "depth" in wldata2 and "WATER_LEVE" are both depth to water below land surface in feet
 
-gwsi_wl = wl_data2[["date","wellid","SITE_WELL_REG_ID","depth"]].copy()
+# gwsi_wl = wl_data2[["date","wellid","SITE_WELL_REG_ID","depth"]].copy()
+# gwsi_wl.info()
+
+gwsi_wl = wl_data2[["date","SITE_WELL_REG_ID","depth"]].copy()
 gwsi_wl.info()
 
 wells55_wl = wells55[["INSTALLED", "REGISTRY_ID", "WATER_LEVEL"]].copy()
@@ -109,20 +112,24 @@ wells55_wl.head()
 
 # %%
 wells55_wl.rename(columns = {'INSTALLED':'date','WATER_LEVEL':'depth'}, inplace=True)
-
 # %% Need to create a combo ID column
-gwsi_wl['Combo_ID'] = gwsi_wl.SITE_WELL_REG_ID.combine_first(gwsi_wl.wellid)
+# gwsi_wl['Combo_ID'] = gwsi_wl.SITE_WELL_REG_ID.combine_first(gwsi_wl.wellid)
+# gwsi_wl.info()
+
+
+# gwsi_wl.rename(columns={'Combo_ID':'REGISTRY_ID'}, inplace=True)
+gwsi_wl.rename(columns={'SITE_WELL_REG_ID':'REGISTRY_ID'}, inplace=True)
 gwsi_wl.info()
 
-gwsi_wl.rename(columns={'Combo_ID':'REGISTRY_ID'}, inplace=True)
+# %% Need to make sure the columns are the same Dtype
+gwsi_wl.REGISTRY_ID = gwsi_wl.REGISTRY_ID.astype('int64')
 gwsi_wl.info()
-
 # %%
 wells55_wl['date'] = pd.to_datetime(wells55_wl.date)
 wells55_wl.info()
 # %%
 wells55_wl['date'] = wells55_wl['date'].dt.tz_localize(None)
-wells55_wl.head()
+wells55_wl.info()
 
 # %%
 gwsi_wl.date = pd.to_datetime(gwsi_wl.date)
@@ -137,7 +144,7 @@ combo = wells55_wl.merge(gwsi_wl, suffixes=['_wells55','_gwsi'], how="outer"
 combo.info()
 
 # # %% This block of code takes a really long time to run so I would suggest skipping
-# WL_TS_DB = pd.pivot_table(combo, index=["REGISTRY_ID"], columns="date", values="depth")
+WL_TS_DB = pd.pivot_table(combo, index=["REGISTRY_ID"], columns="date", values="depth")
 # WL_TS_DB.head()
 # # Export data into a csv
 # WL_TS_DB.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB.csv')
@@ -165,6 +172,24 @@ WL_TS_DB_2020.columns = ["depth"]
 #%%
 WL_TS_DB_year.index.name = None
 WL_TS_DB_year.head()
+# %%
+test = WL_TS_DB_year.mean()
+test.plot()
+
+# %% 
+stats = WL_TS_DB_year.describe()
+stats = stats.transpose()
+stats2 = stats[['mean','25%','50%','75%']]
+stats2[119:157].plot()
+
+# %%
+narrowedstats = stats[110:158]
+narrowedstats
+# %%
+narrowedstats.to_csv(outputpath+"state_average_WL.csv")
+# %%
+max = stats['max']
+max[119:157].plot()
 # %% Exporting data
 WL_TS_DB_1980.to_csv(outputpath + 'comboDB_WL_1980.csv')
 WL_TS_DB_2020.to_csv(outputpath + 'comboDB_WL_2020.csv')
