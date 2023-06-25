@@ -18,6 +18,43 @@ from shapely.geometry import box
 import geopandas as gp
 #import earthpy as et
 import scipy.stats as sp
+#import earthpy as et
+from scipy.stats import kendalltau, pearsonr, spearmanr
+import pymannkendall as mk
+
+# Some functions for analysis
+def kendall_pval(x,y):
+        return kendalltau(x,y)[1]
+    
+def pearsonr_pval(x,y):
+        return pearsonr(x,y)[1]
+    
+def spearmanr_pval(x,y):
+        return spearmanr(x,y)[1]
+
+def display_correlation(df):
+    r = df.corr(method="spearman")
+    plt.figure(figsize=(10,6))
+    heatmap = sns.heatmap(df.corr(method='spearman'), vmin=-1, 
+                      vmax=1, annot=True)
+    plt.title("Spearman Correlation")
+    return(r)
+
+def display_corr_pairs(df,color="cyan"):
+    s = set_title = np.vectorize(lambda ax,r,rho: ax.title.set_text("r = " + 
+                                        "{:.2f}".format(r) + 
+                                        '\n $\\rho$ = ' + 
+                                        "{:.2f}".format(rho)) if ax!=None else None
+                            )      
+
+    rho = display_correlation(df)
+    r = df.corr(method="pearson")
+    g = sns.PairGrid(df,corner=True)
+    g.map_diag(plt.hist,color="yellow")
+    g.map_lower(sns.scatterplot,color="magenta")
+    set_title(g.axes,r,rho)
+    plt.subplots_adjust(hspace = 0.6)
+    plt.show()  
 
 # === Assign Data paths ===
 
@@ -1725,7 +1762,7 @@ for i in column_list:
         # df1 = ds[i].pct_change()
         # df2 = drought_indices.PDSI.pct_change()
         df1 = ds[i]
-        df2 = drought_indices.PDSI.shift(lag)
+        df2 = test[i].shift(lag)
         print('  tau = ',round(df1.corr(df2, method='kendall'),3))
         print('  pval = ',round(df1.corr(df2, method=kendall_pval),4))
 
@@ -1736,7 +1773,7 @@ for i in column_list:
         # df1 = ds[i].pct_change()
         # df2 = drought_indices.PDSI.pct_change()
         df1 = ds[i]
-        df2 = drought_indices.PDSI.shift(lag)
+        df2 = test[i].shift(lag)
         print('  rho = ',round(df1.corr(df2, method='spearman'),3))
         print('  pval = ',round(df1.corr(df2, method=spearmanr_pval),4))
 
@@ -1747,7 +1784,8 @@ for i in column_list:
         # df1 = ds[i].pct_change()
         # df2 = drought_indices.PDSI.pct_change()
         df1 = ds[i]
-        df2 = drought_indices.PDSI.shift(lag)
+        df2 = test[i].shift(lag)
         r = df1.corr(df2, method='pearson')
         print('  rsq = ',round(r*r,3))
         print('  pval = ',round(df1.corr(df2, method=pearsonr_pval),4))
+# %%
