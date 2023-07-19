@@ -56,6 +56,155 @@ def display_corr_pairs(df,color="cyan"):
     plt.subplots_adjust(hspace = 0.6)
     plt.show()  
 
+def regulation_scatterplot(ds,ds2,name):
+       columns = ds.columns
+       column_list = ds.columns.tolist()
+       betterlabels = ['Regulated','Unregulated'] 
+       colors=[cap, GWdom]
+       # colors=[cap,noCAP, swdom, mixed, GWdom]
+
+       fig, ax = plt.subplots(figsize = (7,5))
+       for i,j,k in zip(column_list
+                        # ,reg_colors
+                        # , SW_colors
+                        , colors
+                        , betterlabels
+                        ):
+                x = ds2[i]
+                y = ds[i]
+                ax.scatter(x,y
+                        , label=k
+                        , color=j
+                        )
+                # Trendline: 1=Linear, 2=polynomial
+                z = np.polyfit(x, y, 1)
+                p = np.poly1d(z)
+                plt.plot(x, p(x),'-'
+                        , color=j
+                        # ,label=(k+' Trendline')
+                        )
+
+       ax.set_xlabel('Number of Wells')
+       ax.set_ylabel('Depth to Water Levels (ft)')
+       ax.set_title(name,loc='center')
+       # ax.set_ylim(0,400)
+       fig.set_dpi(600)
+       plt.legend(loc = [1.05, 0.40])
+
+       plt.savefig(outputpath_local+name, bbox_inches='tight') 
+
+       # If running a shifted correlation analysis,
+       #    change this to however many # years; 0 is no lag
+       lag = 0
+
+       print('Kendall Correlation coefficient')
+       for i in column_list:
+                # print(' '+i+':')
+                print(' '+str(i)+':')
+       # To normalize the data 
+                # df1 = ds[i].pct_change()
+                # df2 = drought_indices.PDSI.pct_change()
+                df1 = ds[i]
+                df2 = ds2[i].shift(lag)
+                print('  tau = ',round(df1.corr(df2, method='kendall'),3))
+                print('  pval = ',round(df1.corr(df2, method=kendall_pval),4))
+
+
+       print('Spearman Correlation coefficient')
+       for i in column_list:
+                print(' '+str(i)+':')
+                # df1 = ds[i].pct_change()
+                # df2 = drought_indices.PDSI.pct_change()
+                df1 = ds[i]
+                df2 = ds2[i].shift(lag)
+                print('  rho = ',round(df1.corr(df2, method='spearman'),3))
+                print('  pval = ',round(df1.corr(df2, method=spearmanr_pval),4))
+
+        #
+       print('Pearson Correlation coefficient')
+       for i in column_list:
+                print(' '+str(i)+':')
+                # df1 = ds[i].pct_change()
+                # df2 = drought_indices.PDSI.pct_change()
+                df1 = ds[i]
+                df2 = ds2[i].shift(lag)
+                r = df1.corr(df2, method='pearson')
+                print('  rsq = ',round(r*r,3))
+                print('  pval = ',round(df1.corr(df2, method=pearsonr_pval),4))
+def sw_scatterplot(ds,ds2,name):
+        columns = ds.columns
+        column_list = ds.columns.tolist()
+        betterlabels = ['Receives CAP (Regulated)','GW Dominated (Regulated)','Mixed Source','GW Dominated','Surface Water Dominated'] 
+        # betterlabels = ['Regulated','Unregulated'] 
+        # colors=[cap, GWdom]
+        colors=[cap,noCAP, mixed,GWdom,swdom]
+
+        fig, ax = plt.subplots(figsize = (7,5))
+        for i,j,k in zip(column_list
+                        , colors
+                        , betterlabels
+                        ):
+                x = ds2[i]
+                y = ds[i]
+                ax.scatter(x,y
+                        , label=k
+                        , color=j
+                        )
+                # Trendline: 1=Linear, 2=polynomial
+                z = np.polyfit(x, y, 1)
+                p = np.poly1d(z)
+                plt.plot(x, p(x),'-'
+                        , color=j
+                        )
+
+        ax.set_xlabel('Number of Wells')
+        ax.set_ylabel('Depth to Water Levels (ft)')
+        ax.set_title(name,loc='center')
+        # ax.set_ylim(0,400)
+        fig.set_dpi(600)
+        plt.legend(loc = [1.05, 0.40])
+
+        plt.savefig(outputpath_local+name, bbox_inches='tight') 
+
+        # If running a shifted correlation analysis,
+        #    change this to however many # years; 0 is no lag
+        lag = 0
+        # 
+        print('Kendall Correlation coefficient')
+        for i in column_list:
+                # print(' '+i+':')
+                print(' '+str(i)+':')
+        # To normalize the data 
+                # df1 = ds[i].pct_change()
+                # df2 = drought_indices.PDSI.pct_change()
+                df1 = ds[i]
+                df2 = test[i].shift(lag)
+                print('  tau = ',round(df1.corr(df2, method='kendall'),3))
+                print('  pval = ',round(df1.corr(df2, method=kendall_pval),4))
+
+        #
+        print('Spearman Correlation coefficient')
+        for i in column_list:
+                print(' '+str(i)+':')
+                # df1 = ds[i].pct_change()
+                # df2 = drought_indices.PDSI.pct_change()
+                df1 = ds[i]
+                df2 = ds2[i].shift(lag)
+                print('  rho = ',round(df1.corr(df2, method='spearman'),3))
+                print('  pval = ',round(df1.corr(df2, method=spearmanr_pval),4))
+
+        # 
+        print('Pearson Correlation coefficient')
+        for i in column_list:
+                print(' '+str(i)+':')
+                # df1 = ds[i].pct_change()
+                # df2 = drought_indices.PDSI.pct_change()
+                df1 = ds[i]
+                df2 = ds2[i].shift(lag)
+                r = df1.corr(df2, method='pearson')
+                print('  rsq = ',round(r*r,3))
+                print('  pval = ',round(df1.corr(df2, method=pearsonr_pval),4))
+
 # === Assign Data paths ===
 
 # This is for accessing our data on Cyverse
@@ -1689,25 +1838,17 @@ ax.legend()
 plt.savefig(outputpath_local+Name, bbox_inches = 'tight')
 # stats1.to_csv(outputpath+'Stats/'+Name+'.csv')
 
-# %% Figure out which water level database you want
-cat_wl2 = cat_wl2_reg.copy() 
-# cat_wl2 = cat_wl2_SW.copy()
-# cat_wl2 = cat_wl2_georeg.copy()
 
-# cat_wl2 = wdc1_reg.copy()
-# cat_wl2 = wdc2_reg.copy()
-# cat_wl2 = wdc3_reg.copy()
-# cat_wl2 = wdc1_SW.copy()
-# cat_wl2 = wdc2_SW.copy()
-# cat_wl2 = wdc3_SW.copy()
+# %% Correlation Graphs
+# =.= By Regulation =.=
+cat_wl2 = cat_wl2_reg.copy() 
 
 # Water Analysis period
 wlanalysis_period = cat_wl2[cat_wl2.index>=1975]
-# %%
-state_wellcount = wdc1_reg + wdc2_reg + wdc3_reg
+
+state_wellcount = wdc1_reg.fillna(0) + wdc2_reg.fillna(0) + wdc3_reg.fillna(0)
 state_wellcount = state_wellcount[['R','U']]
-state_wellcount = state_wellcount[state_wellcount.index>=1975]
-# %%
+
 test = state_wellcount.copy()
 test = test.reset_index()
 test['Regulation'] = test['Regulation'].astype(float)
@@ -1715,77 +1856,144 @@ test.set_index('Regulation', inplace=True)
 test = test[(test.index>=1975)&(test.index<=2020)]
 test
 
+# Scatterplot of correlation values
+Name = 'Comparing Number of wells with DTW by Regulation'
+regulation_scatterplot(wlanalysis_period,test,Name)
+
+# %% For Deep Wells
+test = wdc1_reg.fillna(0).copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test.set_index('Regulation', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
+
+# Scatterplot of correlation values
+Name = 'Comparing Number of Deep Wells with DTW by Regulation'
+regulation_scatterplot(wlanalysis_period,test,Name)
+
+# %% For Midrange Wells
+test = wdc2_reg.fillna(0).copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test.set_index('Regulation', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
+
+# Scatterplot of correlation values
+Name = 'Comparing Number of Midrange Wells with DTW by Regulation'
+regulation_scatterplot(wlanalysis_period,test,Name)
+
+# %% For Shallow Wells
+test = wdc3_reg.fillna(0).copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test.set_index('Regulation', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
+
+# Scatterplot of correlation values
+Name = 'Comparing Number of Shallow Wells with DTW by Regulation'
+regulation_scatterplot(wlanalysis_period,test,Name)
+
+# %% For well densities
+state_wellcount = dens_wdc1_reg.fillna(0) + dens_wdc2_reg.fillna(0) + dens_wdc3_reg.fillna(0)
+state_wellcount = state_wellcount[['R','U']]
+
+test = state_wellcount.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test.set_index('Regulation', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
+
+# Scatterplot of correlation values
+Name = 'Comparing Well Densities with DTW by Regulation'
+regulation_scatterplot(wlanalysis_period,test,Name)
+
+# %% For Deep Wells
+test = dens_wdc1_reg.fillna(0).copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test.set_index('Regulation', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
+
+# Scatterplot of correlation values
+Name = 'Comparing Well Densities with DTW by Regulation'
+regulation_scatterplot(wlanalysis_period,test,Name)
+
+# %% For Midrange Wells
+test = dens_wdc2_reg.fillna(0).copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test.set_index('Regulation', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
+
+# Scatterplot of correlation values
+Name = 'Comparing Midrange Well Densities with DTW by Regulation'
+regulation_scatterplot(wlanalysis_period,test,Name)
+
+# %% For Shallow Wells
+test = dens_wdc3_reg.fillna(0).copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test.set_index('Regulation', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
+
+# Scatterplot of correlation values
+Name = 'Comparing ShallWell Densities with DTW by Regulation'
+regulation_scatterplot(wlanalysis_period,test,Name)
+
+# %% = By access to SW =
+cat_wl2 = cat_wl2_SW.copy() 
+
+# Water Analysis period
+wlanalysis_period = cat_wl2[cat_wl2.index>=1975]
+
+
+state_wellcount = wdc1_wc.fillna(0) + wdc2_wc.fillna(0) + wdc3_wc.fillna(0)
+del state_wellcount['Res']
+state_wellcount
+# %%
+test = state_wellcount.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test.set_index('Water_CAT', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
+test
 # %% Scatterplot of correlation values
-ds = wlanalysis_period
-# name = 'Comparing PDSI with Depth to Water Anomalies by Access to SW'
-name = 'Comparing Number of wells with Depth to Water Levels by Regulation'
-# del ds['Res']
-columns = ds.columns
-column_list = ds.columns.tolist()
-# betterlabels = ['Receives CAP (Regulated)','GW Dominated (Regulated)','Surface Water Dominated','GW Dominated','Mixed Source'] 
-betterlabels = ['Regulated','Unregulated'] 
-colors=[cap, GWdom]
-# colors=[cap,noCAP, swdom, mixed, GWdom]
+Name = 'Comparing Number of wells with Depth to Water Levels by Access to SW'
+sw_scatterplot(wlanalysis_period,test,Name)
+# %% Trying just for deep wells
+test = wdc1_wc.fillna(0).copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test.set_index('Water_CAT', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
 
-fig, ax = plt.subplots(figsize = (7,5))
-x = test['R']
-y = ds['R']
-ax.scatter(x,y,label=betterlabels[0],color=colors[0])
-z = np.polyfit(x,y,1)
-p = np.poly1d(z)
-plt.plot(x,p(x),'-',color=colors[0])
-x = test['U']
-y = ds['U']
-ax.scatter(x,y,label=betterlabels[1],color=colors[1])
-z = np.polyfit(x,y,1)
-p = np.poly1d(z)
-plt.plot(x,p(x),'-',color=colors[1])
+Name = 'Comparing Number of Deep Wells with Depth to Water Levels by Access to SW'
+sw_scatterplot(wlanalysis_period,test,Name)
 
-ax.set_xlabel('Number of Wells')
-ax.set_ylabel('Depth to Water Levels (ft)')
-ax.set_title(name,loc='center')
-# ax.set_ylim(0,400)
-fig.set_dpi(600)
-plt.legend(loc = [1.05, 0.40])
+# %% Trying just for midrange wells
+test = wdc2_wc.fillna(0).copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test.set_index('Water_CAT', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
 
-# plt.savefig(outputpath+name, bbox_inches='tight') 
+Name = 'Comparing Number of Midrange Wells with Depth to Water Levels by Access to SW'
+sw_scatterplot(wlanalysis_period,test,Name)
 
-# %% If running a shifted correlation analysis,
-#    change this to however many # years; 0 is no lag
-lag = 0
+# %% Trying just for shallow wells
+test = wdc3_wc.fillna(0).copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test.set_index('Water_CAT', inplace=True)
+test = test[(test.index>=1975)&(test.index<=2020)]
 
-print('Kendall Correlation coefficient')
-for i in column_list:
-        # print(' '+i+':')
-        print(' '+str(i)+':')
-# To normalize the data 
-        # df1 = ds[i].pct_change()
-        # df2 = drought_indices.PDSI.pct_change()
-        df1 = ds[i]
-        df2 = test[i].shift(lag)
-        print('  tau = ',round(df1.corr(df2, method='kendall'),3))
-        print('  pval = ',round(df1.corr(df2, method=kendall_pval),4))
-
-# %%
-print('Spearman Correlation coefficient')
-for i in column_list:
-        print(' '+str(i)+':')
-        # df1 = ds[i].pct_change()
-        # df2 = drought_indices.PDSI.pct_change()
-        df1 = ds[i]
-        df2 = test[i].shift(lag)
-        print('  rho = ',round(df1.corr(df2, method='spearman'),3))
-        print('  pval = ',round(df1.corr(df2, method=spearmanr_pval),4))
-
-# %%
-print('Pearson Correlation coefficient')
-for i in column_list:
-        print(' '+str(i)+':')
-        # df1 = ds[i].pct_change()
-        # df2 = drought_indices.PDSI.pct_change()
-        df1 = ds[i]
-        df2 = test[i].shift(lag)
-        r = df1.corr(df2, method='pearson')
-        print('  rsq = ',round(r*r,3))
-        print('  pval = ',round(df1.corr(df2, method=pearsonr_pval),4))
+Name = 'Comparing Number of Shallow Wells with Depth to Water Levels by Access to SW'
+sw_scatterplot(wlanalysis_period,test,Name)
 # %%

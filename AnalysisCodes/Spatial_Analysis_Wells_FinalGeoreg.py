@@ -79,6 +79,10 @@ datapath = '../Data/'
 outputpath = '../Data/Output_files/'
 shapepath = '../Data/Shapefiles/'
 
+datapath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/'
+outputpath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Output_files/'
+shapepath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Shapefiles/'
+
 # %%  Load in the master databases
 filename_mdb_nd = 'Master_ADWR_database_noduplicates.shp'
 filepath = os.path.join(outputpath, filename_mdb_nd)
@@ -365,17 +369,20 @@ cat_wl2_SW.to_csv('../Data/Output_files/Waterlevels_AccesstoSW.csv')
 
 # %%  ==== Reading in the data we created above ====
 # For regulation
-filepath = '../Data/Output_files/Waterlevels_Regulation.csv'
+filepath = outputpath_web+'/Waterlevels_Regulation.csv'
+# filepath = '../Data/Output_files/Waterlevels_Regulation.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 cat_wl2_reg.head()
 
 # For Access to SW
-filepath = '../Data/Output_files/Waterlevels_AccesstoSW.csv'
+filepath = outputpath_web+'/Waterlevels_AccesstoSW.csv'
+# filepath = '../Data/Output_files/Waterlevels_AccesstoSW.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 cat_wl2_SW.head()
 
 # For georegion number
-filepath = '../Data/Output_files/Waterlevels_georegions.csv'
+filepath = outputpath_web+'Waterlevels_georegions.csv'
+# filepath = '../Data/Output_files/Waterlevels_georegions.csv'
 cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
 # cat_wl2_georeg.head()
 # %%
@@ -427,825 +434,6 @@ GWdom = '#3B76AF'
 mixed = '#6EB2E4'
 swdom = '#469B76'
 
-
-# %% DTW by well depths and Access to SW
-# ds = wdc1.copy()
-name = 'Average Depth to water for Access to SW Categories'
-ds = wdc1_SW.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['CAP'] = ds[labels[0]]
-ds1['SW'] = ds[labels[4]]
-ds1['Mixed'] = ds[labels[2]]
-ds1['GW Regulated'] = ds[labels[3]]
-ds1['GW'] = ds[labels[1]]
-
-dft1 = ds1.copy()
-dft1
-
-# ds = wdc2.copy()
-ds = wdc2_SW.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['CAP'] = ds[labels[0]]
-ds1['SW'] = ds[labels[4]]
-ds1['Mixed'] = ds[labels[2]]
-ds1['GW Regulated'] = ds[labels[3]]
-ds1['GW'] = ds[labels[1]]
-
-dft2 = ds1.copy()
-dft2
-
-
-# ds = wdc3.copy()
-ds = wdc3_SW.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['CAP'] = ds[labels[0]]
-ds1['SW'] = ds[labels[4]]
-ds1['Mixed'] = ds[labels[2]]
-ds1['GW Regulated'] = ds[labels[3]]
-ds1['GW'] = ds[labels[1]]
-
-dft3 = ds1.copy()
-dft3
-
-df1 = pd.DataFrame(dft1.mean())
-df1 = df1.transpose()
-df1 = df1.reset_index()
-df1['index'] = 'Deep'
-df1.set_index('index', inplace=True)
-df1
-
-df2 = pd.DataFrame(dft2.mean())
-df2 = df2.transpose()
-df2 = df2.reset_index()
-df2['index'] = 'Midrange'
-df2.set_index('index', inplace=True)
-df2
-
-df3 = pd.DataFrame(dft3.mean())
-df3 = df3.transpose()
-df3 = df3.reset_index()
-df3['index'] = 'Shallow'
-df3.set_index('index', inplace=True)
-df3
-
-df_test = df3.append([df2,df1])
-df_test = df_test.transpose()
-df_test = df_test.rename_axis(None,axis=1)
-df_test
-
-# group_colors = ['cornflowerblue','slategrey','darkblue']
-group_colors = ['lightsteelblue','cornflowerblue','darkblue']
-
-# name = 'Well Densities by Access to Surface Water'
-horlabel = 'Depth to water (ft)'
-# name = 'Number of wells by Access to Surface Water'
-# horlabel = 'Number of Wells (#)'
-fsize = 14
-
-df_test.plot(figsize = (12,7),
-        kind='bar',
-        stacked=False,
-        # title=name,
-        color = group_colors,
-        zorder = 2,
-        width = 0.85,
-        fontsize = fsize
-        )
-plt.title(name, fontsize = (fsize+2))
-plt.ylabel(horlabel, fontsize = fsize)
-plt.xticks(rotation=30)
-plt.grid(axis='y', linewidth=0.5, zorder=0)
-plt.legend(fontsize = fsize)
-
-# plt.savefig(outputpath+name+'groupedchart')
-
-
-#%% Plot by Groundwater Regulation
-# ds = cat_wl2_reg
-ds = wdc3_reg #shallow
-# ds = wdc2_reg #midrange
-# ds = wdc1_reg #deep 
-minyear=1975
-maxyear=2020
-# name = "Average Depth to Water from " + str(minyear) + " to " + str(maxyear) + ' by Groundwater Regulation'
-# name = "Average Depth to Water for Deep Wells by Groundwater Regulation" # wd1
-# name = "Average Depth to Water for Midrange Wells by Groundwater Regulation" # wd2
-name = "Average Depth to Water for Shallow Wells by Groundwater Regulation" #wd3
-
-min_y = 75
-max_y = 300
-fsize = 14
-
-fig, ax = plt.subplots(figsize = (16,9))
-#ax.plot(ds[1.0], label='Reservation', color=c_1)
-ax.plot(ds['R'], label='GW Regulated', color=c_2) 
-ax.plot(ds['U'], label='GW Unregulated', color=c_7) 
-ax.set_xlim(minyear,maxyear)
-# ax.set_ylim(min_y,max_y)
-# ax.grid(True)
-ax.grid(visible=True,which='major')
-ax.grid(which='minor',color='#EEEEEE', lw=0.8)
-ax.set_title(name, fontsize=20)
-ax.set_xlabel('Year', fontsize=fsize)
-ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
-ax.legend(loc = [1.04, 0.40], fontsize = fsize)
-# # Drought Year Shading
-a = 1988.5
-b = 1990.5
-c = 1995.5
-d = 1996.5
-e = 2001.5
-f = 2003.5
-g = 2005.5
-h = 2007.5
-i = 2011.5
-j = 2014.5
-k = 2017.5
-l= 2018.5
-plt.axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-plt.axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-plt.axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-plt.axvspan(g, h, color=drought_color, alpha=0.5, lw=0)
-plt.axvspan(i, j, color=drought_color, alpha=0.5, lw=0)
-plt.axvspan(k, l, color=drought_color, alpha=0.5, lw=0)
-ax.minorticks_on()
-
-
-fig.set_dpi(600.0)
-
-# plt.savefig(outputpath+name+'_byregulation', bbox_inches='tight')
-# plt.savefig(outputpath+name+'_timeseries_Drought', bbox_inches='tight')
-
-
-#%% Plot by access to surfacewater
-ds = wdc1_SW
-minyear=1975
-maxyear=2020
-# name = "Average Depth to Water from " + str(minyear) + " to " + str(maxyear) + " by Access to SW"
-# name = "Average Depth to Water for Deep Wells by Access to SW" # wd1
-# name = "Average Depth to Water for Midrange Wells by Access to SW" # wd2
-# name = "Average Depth to Water for Deep Wells by Access to SW" # wd3
-min_y = 0
-max_y = 300
-fsize = 14
-
-fig, ax = plt.subplots(figsize = (16,9))
-ax.plot(ds['CAP'], label='CAP', color=c_2)
-ax.plot(ds['No_CAP'], label='Regulated GW', color=c_3) 
-ax.plot(ds['GW'], label='Unregulated GW', color=c_7) 
-ax.plot(ds['Mix'], label='Mixed SW/GW', color=c_5) 
-ax.plot(ds['SW'], label='Surface Water', color=c_4) 
-
-ax.set_xlim(minyear,maxyear)
-ax.set_ylim(min_y,max_y)
-# ax.grid(True)
-ax.grid(visible=True,which='major')
-ax.grid(which='minor',color='#EEEEEE', lw=0.8)
-ax.set_title(name, fontsize=20)
-ax.set_xlabel('Year', fontsize=fsize)
-ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
-ax.legend(loc = [1.04, 0.40], fontsize = fsize)
-# Drought Year Shading
-# a = 1988.5
-# b = 1990.5
-# c = 1995.5
-# d = 1996.5
-# e = 2001.5
-# f = 2003.5
-# g = 2005.5
-# h = 2007.5
-# i = 2011.5
-# j = 2014.5
-# k = 2017.5
-# l= 2018.5
-# plt.axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# plt.axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(g, h, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(i, j, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(k, l, color=drought_color, alpha=0.5, lw=0)
-
-# # Wet years (2005 and 2010)
-# g = 2005
-# h = 2010
-# ax.axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# ax.axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-ax.minorticks_on()
-
-fig.set_dpi(600.0)
-
-# plt.savefig(outputpath+name+'_Drought', bbox_inches='tight')
-# plt.savefig(outputpath+name+'_byGW', bbox_inches='tight')
-# plt.savefig(outputpath+name+'_bySW', bbox_inches='tight')
-# plt.savefig(outputpath+name, bbox_inches='tight')
-
-#%% Plotting individual divisions
-ds = cat_wl2_georeg
-minyear=1975
-maxyear=2020
-# name = "Average Depth to Water from " + str(minyear) + " to " + str(maxyear)
-name = "Average Depth to Water for Deep Wells by Georegion" # wd1
-# name = "Average Depth to Water for Midrange Wells by Georegion" # wd2
-# name = "Average Depth to Water for Deep Wells by Georegion" # wd3
-
-min_y = 150
-max_y = 600
-fsize = 14
-
-# Plot all of them on a single graph
-fig, ax = plt.subplots(figsize = (16,9))
-#ax.plot(ds[1.0], label='Reservation', color=c_1)
-ax.plot(ds[2.0], label='Regulated with CAP', color=c_2) 
-ax.plot(ds[3.0], label='Regulated without CAP', color=c_3) 
-ax.plot(ds[4.0], color=c_4, label='Lower Colorado River - SW Dominated')
-ax.plot(ds[5.0], color=c_5, label='Upper Colorado River - Mixed')
-# ax.plot(ds[10.0], color=c_10, label='North - Mixed')
-ax.plot(ds[11.0], color=c_11, label='Central - Mixed')
-ax.plot(ds[7.0], color=c_7, label='Northwest - GW Dominated')
-ax.plot(ds[9.0], color=c_9, label='Northeast - GW Dominated')
-ax.plot(ds[8.0], color=c_8, label='South central - GW Dominated')
-ax.plot(ds[6.0], color=c_6, label='Southeast - GW Dominated')
-# Drought Year Shading
-a = 1988.5
-b = 1990.5
-c = 1995.5
-d = 1996.5
-e = 2001.5
-f = 2003.5
-g = 2005.5
-h = 2007.5
-i = 2011.5
-j = 2014.5
-k = 2017.5
-l= 2018.5
-plt.axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-plt.axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-plt.axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-plt.axvspan(g, h, color=drought_color, alpha=0.5, lw=0)
-plt.axvspan(i, j, color=drought_color, alpha=0.5, lw=0)
-plt.axvspan(k, l, color=drought_color, alpha=0.5, lw=0)
-
-ax.set_xlim(minyear,maxyear)
-ax.set_ylim(min_y,max_y)
-ax.grid(True)
-ax.set(title=name, xlabel='Year', ylabel='Depth to Water (ft)')
-ax.legend(loc = [1.04, 0.40])
-
-#%% Plot just the regulated
-fig, ax = plt.subplots(figsize = (16,9))
-#ax.plot(ds[1.0], label='Reservation', color=c_1)
-ax.plot(ds[2.0], label='Regulated with CAP', color=c_2) 
-ax.plot(ds[3.0], label='Regulated without CAP', color=c_3) 
-ax.set_xlim(minyear,maxyear)
-ax.set_ylim(min_y,max_y)
-ax.grid(True)
-ax.set(title=name, xlabel='Year', ylabel='Depth to Water (ft)')
-ax.legend(loc = [1.04, 0.40])
-# Drought Year Shading
-a = 2011
-b = 2015.999
-c = 2018.001
-d = 2018.999
-e = 2006
-f = 2007.999
-plt.axvspan(a, b, color='#ffa6b8', alpha=0.5, lw=0, label="Drought")
-plt.axvspan(c, d, color='#ffa6b8', alpha=0.5, lw=0)
-plt.axvspan(e, f, color='#ffa6b8', alpha=0.5, lw=0)
-# Wet years (2005 and 2010)
-g = 2005
-h = 2010
-ax.axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax.axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-
-#%% Plot SW Dominated and Mixed
-fig, ax = plt.subplots(figsize = (16,9))
-ax.plot(ds[4.0], color=c_4, label='Lower Colorado River - SW Dominated')
-ax.plot(ds[5.0], color=c_5, label='Upper Colorado River - Mixed')
-ax.plot(ds[10.0], color=c_10, label='North - Mixed')
-ax.plot(ds[11.0], color=c_11, label='Central - Mixed')
-ax.set_xlim(minyear,maxyear)
-ax.set_ylim(min_y,max_y)
-ax.grid(True)
-ax.set(title=name, xlabel='Year', ylabel='Depth to Water (ft)')
-ax.legend(loc = [1.04, 0.40])
-
-# Drought Year Shading
-a = 2011
-b = 2015.999
-c = 2018.001
-d = 2018.999
-e = 2006
-f = 2007.999
-plt.axvspan(a, b, color='#ffa6b8', alpha=0.5, lw=0, label="Drought")
-plt.axvspan(c, d, color='#ffa6b8', alpha=0.5, lw=0)
-plt.axvspan(e, f, color='#ffa6b8', alpha=0.5, lw=0)
-# Wet years (2005 and 2010)
-g = 2005
-h = 2010
-ax.axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax.axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-
-# %%
-# Plot just the Groundwater Dominated
-fig, ax = plt.subplots(figsize = (16,9))
-ax.plot(ds[7.0], color=c_7, label='Northwest - GW Dominated')
-ax.plot(ds[9.0], color=c_9, label='Northeast - GW Dominated')
-ax.plot(ds[8.0], color=c_8, label='South central - GW Dominated')
-ax.plot(ds[6.0], color=c_6, label='Southeast - GW Dominated')
-ax.set_xlim(minyear,maxyear)
-ax.set_ylim(min_y,max_y)
-ax.grid(True)
-ax.set(title=name, xlabel='Year', ylabel='Depth to Water (ft)')
-ax.legend(loc = [1.04, 0.40])
-
-# Drought Year Shading
-a = 2011
-b = 2015.999
-c = 2018.001
-d = 2018.999
-e = 2006
-f = 2007.999
-plt.axvspan(a, b, color='#ffa6b8', alpha=0.5, lw=0, label="Drought")
-plt.axvspan(c, d, color='#ffa6b8', alpha=0.5, lw=0)
-plt.axvspan(e, f, color='#ffa6b8', alpha=0.5, lw=0)
-# Wet years (2005 and 2010)
-g = 2005
-h = 2010
-ax.axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax.axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-
-# %% Plot in a four panel graph
-# ds = cat_wl2_georeg
-# minyear=1970
-# maxyear=2020
-# name = "Average Depth to Water for " + str(minyear) + " to " + str(maxyear)
-# min_y = 150
-# max_y = 400
-# fsize = 14
-ylabel = "Depth to Water (ft)"
-
-# del ds.at[2015, 10]
-ds.at[2015, 10] = None
-
-# For the actual figure
-fig, ax = plt.subplots(2,2,figsize=(18,10))
-#fig.tight_layout()
-fig.suptitle(name, fontsize=20, y=0.91)
-fig.supylabel(ylabel, fontsize = 14, x=0.09)
-fig.supxlabel("Year", fontsize = 14, y=0.08)
-#ax[1,1].plot(ds['Reservation'], label='Reservation', color='#8d5a99')
-ax[0,0].plot(ds[2], label='Regulated with CAP', color=c_2) 
-ax[0,0].plot(ds[3], label='Regulated without CAP', color=c_3) 
-ax[1,1].plot(ds[4], color=c_4, label='Lower Colorado River - SW Dominated')
-ax[0,1].plot(ds[5], color=c_5, label='Upper Colorado River - Mixed')
-ax[0,1].plot(ds[10], color=c_10, label='North - Mixed')
-ax[0,1].plot(ds[11], color=c_11, label='Central - Mixed')
-ax[1,0].plot(ds[7], color=c_7, label='Northwest - GW Dominated')
-ax[1,0].plot(ds[9], color=c_9, label='Northeast - GW Dominated')
-ax[1,0].plot(ds[8], color=c_8, label='South central - GW Dominated')
-ax[1,0].plot(ds[6], color=c_6, label='Southeast - GW Dominated')
-
-# ax.plot(ds[2.0], label='Regulated with CAP', color=c_2) 
-# ax.plot(ds[3.0], label='Regulated without CAP', color=c_3) 
-# ax.plot(ds[4.0], color=c_4, label='Lower Colorado River - SW Dominated')
-# ax.plot(ds[5.0], color=c_5, label='Upper Colorado River - Mixed')
-# ax.plot(ds[10.0], color=c_10, label='North - Mixed')
-# ax.plot(ds[11.0], color=c_11, label='Central - Mixed')
-# ax.plot(ds[7.0], color=c_7, label='Northwest - GW Dominated')
-# ax.plot(ds[9.0], color=c_9, label='Northeast - GW Dominated')
-# ax.plot(ds[8.0], color=c_8, label='South central - GW Dominated')
-# ax.plot(ds[6.0], color=c_6, label='Southeast - GW Dominated')
-
-ax[0,0].set_xlim(minyear,maxyear)
-ax[0,1].set_xlim(minyear,maxyear)
-ax[1,0].set_xlim(minyear,maxyear)
-ax[1,1].set_xlim(minyear,maxyear)
-ax[0,0].set_ylim(min_y,max_y)
-ax[0,1].set_ylim(min_y,max_y)
-ax[1,0].set_ylim(min_y,max_y)
-ax[1,1].set_ylim(min_y,max_y)
-ax[0,0].grid(True)
-ax[0,1].grid(True)
-ax[1,0].grid(True)
-ax[1,1].grid(True)
-#ax[0,0].set(title=name, xlabel='Year', ylabel='Change from Baseline (cm)')
-#ax[0,0].set_title(name, loc='right')
-#ax[1,0].set_ylabel("Change from 2004-2009 Baseline (cm)", loc='top', fontsize = fsize)
-
-# # Drought Year Shading
-a = 2011
-b = 2015.999
-c = 2018.001
-d = 2018.999
-e = 2006
-f = 2007.999
-
-ax[0,0].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-ax[0,0].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-ax[0,0].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-ax[1,0].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-ax[1,0].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-ax[1,0].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-ax[0,1].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-ax[0,1].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-ax[0,1].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-ax[1,1].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-ax[1,1].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-ax[1,1].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-
-# Wet years (2005 and 2010)
-g = 2005
-h = 2010
-ax[0,0].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax[0,0].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-ax[0,1].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax[0,1].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-ax[1,0].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax[1,0].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-ax[1,1].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax[1,1].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-
-# ax[0,0].legend(loc = [0.1, 0.15], fontsize = fsize)
-# ax[0,1].legend(loc = [0.1, 0.05], fontsize = fsize)
-# ax[1,0].legend(loc = [0.1, 0.05], fontsize = fsize)
-# ax[1,1].legend(loc = [0.1, 0.20], fontsize = fsize)
-
-# plt.savefig(outputpath+name+'_4panel')
-# plt.savefig(outputpath+name+'_4panel_drought')
-
-# %% Plot in a four panel 1 column graph
-# ds = cat_wl2_georeg
-# minyear=1975
-# maxyear=2020
-# name = "Average Depth to Water for " + str(minyear) + " to " + str(maxyear)
-min_y = 150
-max_y = 600
-fsize = 14
-ylabel = "Depth to Water (ft)"
-linewidth = 2
-
-# del ds.at[2015, 10]
-# ds.at[2015, 10] = None
-
-# For the actual figure
-fig, ax = plt.subplots(4,1,figsize=(12,15))
-#fig.tight_layout()
-fig.suptitle(name, fontsize=20, y=0.91)
-fig.supylabel(ylabel, fontsize = 14, x=0.05)
-fig.supxlabel("Year", fontsize = 14, y=0.08)
-# Panel numbers for easy adjusting
-p1 = 0 # Panel 1
-p2 = 1 # Panel 2
-p3 = 2 # Panel 3
-p4 = 3 # Panel 4
-#ax[1,1].plot(ds['Reservation'], label='Reservation', color='#8d5a99')
-ax[p1].plot(ds[2], label='Regulated with CAP', color=c_2, lw=linewidth) 
-ax[p1].plot(ds[4], color=c_4, label='Lower Colorado River - SW Dominated', lw=linewidth)
-ax[p2].plot(ds[5], color=c_5, label='Upper Colorado River - Mixed', lw=linewidth)
-#ax[p2].plot(ds[10], color=c_10, label='North - Mixed', lw=linewidth)
-ax[p2].plot(ds[11], color=c_11, label='Central - Mixed', lw=3)
-ax[p4].plot(ds[7], color=c_7, label='Northwest - GW Dominated', lw=linewidth)
-ax[p3].plot(ds[9], color=c_9, label='Northeast - GW Dominated', lw=linewidth)
-ax[p4].plot(ds[8], color=c_8, label='South central - GW Dominated', lw=linewidth)
-ax[p3].plot(ds[6], color=c_6, label='Southeast - GW Dominated', lw=3)
-ax[p3].plot(ds[3], label='Regulated without CAP', color=c_3, lw=linewidth) 
-ax[p4].plot(ds[3], label='Regulated without CAP', color=c_3, lw=linewidth) 
-
-
-ax[p1].set_xlim(minyear,maxyear)
-ax[p2].set_xlim(minyear,maxyear)
-ax[p3].set_xlim(minyear,maxyear)
-ax[p4].set_xlim(minyear,maxyear)
-ax[p1].set_ylim(min_y,max_y)
-ax[p2].set_ylim(min_y,max_y)
-ax[p3].set_ylim(min_y,max_y)
-ax[p4].set_ylim(min_y,max_y)
-ax[p1].grid(True)
-ax[p2].grid(True)
-ax[p3].grid(True)
-ax[p4].grid(True)
-#ax[0,0].set(title=name, xlabel='Year', ylabel='Change from Baseline (cm)')
-#ax[0,0].set_title(name, loc='right')
-#ax[1,0].set_ylabel("Change from 2004-2009 Baseline (cm)", loc='top', fontsize = fsize)
-
-# # Drought Year Shading
-# a = 2011
-# b = 2015.999
-# c = 2018.001
-# d = 2018.999
-# e = 2006
-# f = 2007.999
-
-# ax[p1].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# ax[p1].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# ax[p1].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# ax[p2].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# ax[p2].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# ax[p2].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# ax[p3].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# ax[p3].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# ax[p3].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# ax[p4].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# ax[p4].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# ax[p4].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-
-# # Wet years (2005 and 2010)
-# g = 2005
-# h = 2010
-# ax[p1].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# ax[p1].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-# ax[p2].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# ax[p2].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-# ax[p3].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# ax[p3].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-# ax[p4].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# ax[p4].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-
-ax[p1].legend(loc = [1.02, 0.40], fontsize = fsize)
-ax[p2].legend(loc = [1.02, 0.40], fontsize = fsize)
-ax[p3].legend(loc = [1.02, 0.30], fontsize = fsize)
-ax[p4].legend(loc = [1.02, 0.20], fontsize = fsize)
-
-# plt.savefig(outputpath+name+'_3panel', bbox_inches = 'tight') # bbox_inches makes sure the legend saves
-# plt.savefig(outputpath+name+'_4panel', bbox_inches = 'tight') # bbox_inches makes sure the legend saves
-# plt.savefig(outputpath+name+'_4panel_1col', bbox_inches = 'tight') # bbox_inches makes sure the legend saves
-fig.set_dpi(600.0)
-
-# plt.savefig(outputpath+name+'_3panel_drought')
-# %% Plot in a four panel 1 column graph
-# ds = cat_wl2_georeg
-# minyear=2002
-# maxyear=2020
-# name = "Average Depth to Water for " + str(minyear) + " to " + str(maxyear)
-min_y = 150
-max_y = 600
-fsize = 14
-ylabel = "Depth to Water (ft)"
-linewidth = 2
-
-# del ds.at[2015, 10]
-ds.at[2015, 10] = None
-
-# For the actual figure
-fig, ax = plt.subplots(4,1,figsize=(12,15))
-#fig.tight_layout()
-fig.suptitle(name, fontsize=20, y=0.91)
-fig.supylabel(ylabel, fontsize = 14, x=0.05)
-fig.supxlabel("Year", fontsize = 14, y=0.08)
-# Panel numbers for easy adjusting
-p1 = 0 # Panel 1
-p2 = 1 # Panel 2
-p3 = 2 # Panel 3
-p4 = 3 # Panel 4
-#ax[1,1].plot(ds['Reservation'], label='Reservation', color='#8d5a99')
-ax[p1].plot(ds[2], label='Regulated with CAP', color=c_2, lw=linewidth) 
-ax[p3].plot(ds[3], label='Regulated without CAP', color=c_3, lw=linewidth) 
-ax[p1].plot(ds[4], color=c_4, label='Lower Colorado River - SW Dominated', lw=linewidth)
-ax[p2].plot(ds[5], color=c_5, label='Upper Colorado River - Mixed', lw=linewidth)
-#ax[p2].plot(ds[10], color=c_10, label='North - Mixed', lw=linewidth)
-ax[p2].plot(ds[11], color=c_11, label='Central - Mixed', lw=3)
-ax[p4].plot(ds[7], color=c_7, label='Northwest - GW Dominated', lw=linewidth)
-ax[p3].plot(ds[9], color=c_9, label='Northeast - GW Dominated', lw=linewidth)
-ax[p4].plot(ds[8], color=c_8, label='South central - GW Dominated', lw=linewidth)
-ax[p3].plot(ds[6], color=c_6, label='Southeast - GW Dominated', lw=3)
-
-ax[p1].set_xlim(minyear,maxyear)
-ax[p2].set_xlim(minyear,maxyear)
-ax[p3].set_xlim(minyear,maxyear)
-ax[p4].set_xlim(minyear,maxyear)
-ax[p1].set_ylim(min_y,max_y)
-ax[p2].set_ylim(min_y,max_y)
-ax[p3].set_ylim(min_y,max_y)
-ax[p4].set_ylim(min_y,max_y)
-ax[p1].grid(True)
-ax[p2].grid(True)
-ax[p3].grid(True)
-ax[p4].grid(True)
-#ax[0,0].set(title=name, xlabel='Year', ylabel='Change from Baseline (cm)')
-#ax[0,0].set_title(name, loc='right')
-#ax[1,0].set_ylabel("Change from 2004-2009 Baseline (cm)", loc='top', fontsize = fsize)
-
-# Drought Year Shading
-a = 2011
-b = 2015.999
-c = 2018.001
-d = 2018.999
-e = 2006
-f = 2007.999
-
-ax[p1].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-ax[p1].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-ax[p1].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-ax[p2].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-ax[p2].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-ax[p2].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-ax[p3].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-ax[p3].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-ax[p3].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-ax[p4].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-ax[p4].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-ax[p4].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-
-# Wet years (2005 and 2010)
-g = 2005
-h = 2010
-ax[p1].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax[p1].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-ax[p2].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax[p2].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-ax[p3].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax[p3].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-ax[p4].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-ax[p4].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-
-ax[p1].legend(loc = [1.02, 0.40], fontsize = fsize)
-ax[p2].legend(loc = [1.02, 0.40], fontsize = fsize)
-ax[p3].legend(loc = [1.02, 0.30], fontsize = fsize)
-ax[p4].legend(loc = [1.02, 0.20], fontsize = fsize)
-
-# plt.savefig(outputpath+name+'_3panel', bbox_inches = 'tight') # bbox_inches makes sure the legend saves
-# plt.savefig(outputpath+name+'_4panel', bbox_inches = 'tight') # bbox_inches makes sure the legend saves
-# plt.savefig(outputpath+name+'_4panel_drought', bbox_inches = 'tight') # bbox_inches makes sure the legend saves
-
-# plt.savefig(outputpath+name+'_3panel_drought')
-
-# %% Plot georegions in a three panel graph, 1 column
-ds = cat_wl2_georeg
-minyear=1971
-maxyear=2020
-name = "Average Depth to Water for " + str(minyear) + " to " + str(maxyear)
-min_y = 150
-max_y = 350
-fsize = 14
-ylabel = "Depth to Water (ft)"
-linewidth = 2
-
-# del ds.at[2015, 10]
-ds.at[2015, 10] = None
-
-# For the actual figure
-fig, ax = plt.subplots(3,1,figsize=(12,15))
-#fig.tight_layout()
-fig.suptitle(name, fontsize=20, y=0.91)
-fig.supylabel(ylabel, fontsize = 14, x=0.05)
-fig.supxlabel("Year", fontsize = 14, y=0.08)
-# Panel numbers for easy adjusting
-p1 = 0 # Panel 1
-p2 = 1 # Panel 2
-p3 = 2 # Panel 3
-p4 = 3 # Panel 4
-#ax[1,1].plot(ds['Reservation'], label='Reservation', color='#8d5a99')
-ax[p1].plot(ds[2], label='Regulated with CAP', color=c_2, lw=linewidth) 
-ax[p3].plot(ds[3], label='Regulated without CAP', color=c_3, lw=linewidth, zorder = 10) 
-ax[p1].plot(ds[4], color=c_4, label='Lower Colorado River - SW Dominated', lw=linewidth)
-ax[p2].plot(ds[5], color=c_5, label='Upper Colorado River - Mixed', lw=linewidth)
-#ax[p2].plot(ds[10], color=c_10, label='North - Mixed', lw=linewidth)
-ax[p2].plot(ds[11], color=c_11, label='Central - Mixed', lw=linewidth)
-ax[p3].plot(ds[7], color=c_7, label='Northwest - GW Dominated', lw=linewidth)
-# ax[p3].plot(ds[9], color=c_9, label='Northeast - GW Dominated', lw=linewidth)
-# ax[p3].plot(ds[8], color=c_8, label='South central - GW Dominated', lw=linewidth)
-ax[p3].plot(ds[6], color=c_6, label='Southeast - GW Dominated', lw=linewidth)
-
-ax[p1].set_xlim(minyear,maxyear)
-ax[p2].set_xlim(minyear,maxyear)
-ax[p3].set_xlim(minyear,maxyear)
-# ax[p4].set_xlim(minyear,maxyear)
-ax[p1].set_ylim(min_y,max_y)
-ax[p2].set_ylim(min_y,max_y)
-ax[p3].set_ylim(min_y,max_y)
-ax[p4].set_ylim(min_y,max_y)
-ax[p1].grid(True)
-ax[p2].grid(True)
-ax[p3].grid(True)
-# ax[p4].grid(True)
-#ax[0,0].set(title=name, xlabel='Year', ylabel='Change from Baseline (cm)')
-#ax[0,0].set_title(name, loc='right')
-#ax[1,0].set_ylabel("Change from 2004-2009 Baseline (cm)", loc='top', fontsize = fsize)
-
-# # Drought Year Shading
-# a = 2011
-# b = 2015.999
-# c = 2018.001
-# d = 2018.999
-# e = 2006
-# f = 2007.999
-
-# ax[p1].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# ax[p1].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# ax[p1].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# ax[p2].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# ax[p2].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# ax[p2].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# ax[p3].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# ax[p3].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# ax[p3].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# # ax[p4].axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# # ax[p4].axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# # ax[p4].axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-
-# # Wet years (2005 and 2010)
-# g = 2005
-# h = 2010
-# ax[p1].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# ax[p1].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-# ax[p2].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# ax[p2].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-# ax[p3].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# ax[p3].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-# # ax[p4].axvspan(g, e, color=wet_color, alpha=0.5, lw=0, label="Wet Years")
-# # ax[p4].axvspan(h, a, color=wet_color, alpha=0.5, lw=0)
-
-ax[p1].legend(loc = [1.02, 0.40], fontsize = fsize)
-ax[p2].legend(loc = [1.02, 0.40], fontsize = fsize)
-ax[p3].legend(loc = [1.02, 0.30], fontsize = fsize)
-# ax[p4].legend(loc = [1.02, 0.20], fontsize = fsize)
-
-plt.savefig(outputpath+name+'_3panel_custom', bbox_inches = 'tight') # bbox_inches makes sure the legend saves
-# plt.savefig(outputpath+name+'_4panel', bbox_inches = 'tight') # bbox_inches makes sure the legend saves
-
-# plt.savefig(outputpath+name+'_3panel_drought')
-# %% --- Now making graphs for other things
-# - Well Density (cumulative number of wells) over time
-# - max screen depth over time (Casing_DEP vs Installed)
-# - Number of new wells installed over time
-
-# Re-read in after proper install date formatting, also had to fix NaN values in Regulation column
-#       Note: had to go into excel and change the date from mm/dd/yy to mm/dd/yyyy
-#             because date parser cutoff for older items is 1969
-filename = 'Final_Static_geodatabase_waterwells.csv'
-filepath = os.path.join(outputpath, filename)
-print(filepath)
-static_geo2 = pd.read_csv(filepath 
-                          ,parse_dates=['INSTALLED']
-                          )
-static_geo2
-
-# %% 
-static_geo2 = static_geo
-static_geo2.info()
-
-# %%
-#static_geo2['APPROVED'] = pd.to_datetime(static_geo2['APPROVED'])
-#static_geo2['APPROVED'].describe()
-# %% Only run this if date parser didn't work
-static_geo2['INSTALLED'] = pd.to_datetime(static_geo2['INSTALLED'])
-static_geo2['INSTALLED'].describe()
-# %%
-static_geo2['In_year'] = static_geo2['INSTALLED'].dt.year
-static_geo2['In_year'].describe()
-
-# %% Checking information about static_geo2
-
-static_na = static_geo2[static_geo2['Regulation'].isna()]
-print(static_na)
-
-# %%
-static_na['GEO_Region'].unique()
-
-# %% Calculate the region area
-# to double check the coordinate system is in meters, georeg.crs
-# 
-# https://gis.stackexchange.com/questions/218450/getting-polygon-areas-using-geopandas
-# tost["area"] = tost['geometry'].area/ 10**6
-georeg['area'] = georeg.geometry.area/10**6
-georeg
-# %%
-georeg2 = pd.DataFrame(georeg)
-georeg2
-
-# %%
-#del georeg2['geometry']
-#georeg2.info()
-# %%
-#georeg2.to_csv('../MergedData/Output_files/georegions_area.csv')
-
-#%%
-georeg_area = georeg2[['GEOREGI_NU','area']]
-georeg_area.info()
-
-# %%
-georeg_area = georeg_area.set_index('GEOREGI_NU')
-georeg_area = georeg_area.transpose()
-georeg_area
-
-# %% Area for other categories
-georeg_area_reg = pd.pivot_table(georeg, columns=["Regulation"], values=["area"], dropna=False, aggfunc=np.sum)
-# del georeg_area_reg['NA']
-georeg_area_reg
-
-# %%
-georeg_area_watercat = pd.pivot_table(georeg, columns=["Water_CAT"], values=["area"], dropna=False, aggfunc=np.sum)
-# del georeg_area_watercat['NA']
-georeg_area_watercat
 
 # %% -- Linear regression --
 # This is testing whether or not the slope is positive or negative (2-way)
@@ -1330,7 +518,7 @@ ds = cat_wl2_SW
 data_type = "Depth to Water"
 min_yr = 1975
 mx_yr = 2020
-betterlabels = ['Res','Recieves CAP (Regulated)'
+betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
                 ,'Surface Water Dominated'
                 ,'GW Dominated'
@@ -1392,26 +580,26 @@ print(stats1)
 # -- Data visualization --
 xf = np.linspace(min(x),max(x),100)
 xf1 = xf.copy()
-m1 = round(stats1.loc['slope',betterlabels[1]], 2)
-m2 = round(stats1.loc['slope',betterlabels[4]], 2)
-m3 = round(stats1.loc['slope',betterlabels[5]], 2)
-m4 = round(stats1.loc['slope',betterlabels[2]], 2)
-m5 = round(stats1.loc['slope',betterlabels[3]], 2)
-yint1 = round(stats1.loc['int',betterlabels[1]], 2)
-yint2 = round(stats1.loc['int',betterlabels[4]], 2)
-yint3 = round(stats1.loc['int',betterlabels[5]], 2)
-yint4 = round(stats1.loc['int',betterlabels[2]], 2)
-yint5 = round(stats1.loc['int',betterlabels[3]], 2)
-rsq1 = round(stats1.loc['rsq',betterlabels[1]], 4)
-rsq2 = round(stats1.loc['rsq',betterlabels[4]], 4)
-rsq3 = round(stats1.loc['rsq',betterlabels[5]], 4)
-rsq4 = round(stats1.loc['rsq',betterlabels[2]], 4)
-rsq5 = round(stats1.loc['rsq',betterlabels[3]], 4)
-pval1 = round(stats1.loc['p_val',betterlabels[1]], 4)
-pval2 = round(stats1.loc['p_val',betterlabels[4]], 4)
-pval3 = round(stats1.loc['p_val',betterlabels[5]], 4)
-pval4 = round(stats1.loc['p_val',betterlabels[2]], 4)
-pval5 = round(stats1.loc['p_val',betterlabels[3]], 4)
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+m2 = round(stats1.loc['slope',betterlabels[3]], 2)
+m3 = round(stats1.loc['slope',betterlabels[4]], 2)
+m4 = round(stats1.loc['slope',betterlabels[1]], 2)
+m5 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+yint2 = round(stats1.loc['int',betterlabels[3]], 2)
+yint3 = round(stats1.loc['int',betterlabels[4]], 2)
+yint4 = round(stats1.loc['int',betterlabels[1]], 2)
+yint5 = round(stats1.loc['int',betterlabels[2]], 2)
+rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
+rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
+rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
+rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
+rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
+pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
+pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
+pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
+pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
+pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
 yf1 = (m1*xf)+yint1
 yf2 = (m2*xf)+yint2
 yf3 = (m3*xf)+yint3
@@ -1437,11 +625,11 @@ min_y = 75
 max_y = 300
 fsize = 12
 
-ax.plot(ds['CAP'], label=betterlabels[1], color=cap)
-ax.plot(ds['No_CAP'], label=betterlabels[2], color='#CCC339') 
-ax.plot(ds['SW'], label=betterlabels[3], color=swdom) 
-ax.plot(ds['Mix'], label=betterlabels[5], color=mixed)
-ax.plot(ds['GW'], label=betterlabels[4], color=GWdom)  
+ax.plot(ds['CAP'], label=betterlabels[0], color=cap)
+ax.plot(ds['No_CAP'], label=betterlabels[1], color='#CCC339') 
+ax.plot(ds['SW'], label=betterlabels[2], color=swdom) 
+ax.plot(ds['Mix'], label=betterlabels[4], color=mixed)
+ax.plot(ds['GW'], label=betterlabels[3], color=GWdom)  
 
 ax.set_xlim(minyear,maxyear)
 ax.set_ylim(min_y,max_y)
@@ -1505,7 +693,7 @@ data_type = "Depth to Water"
 # -- Piece 1 --
 min_yr = 1975
 mx_yr = 1985
-betterlabels = ['Res','Recieves CAP (Regulated)'
+betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
                 ,'Surface Water Dominated'
                 ,'GW Dominated'
@@ -1543,26 +731,26 @@ print(stats1)
 # -- Data visualization --
 xf = np.linspace(min(x),max(x),100)
 xf1 = xf.copy()
-m1 = round(stats1.loc['slope','CAP'], 2)
-m2 = round(stats1.loc['slope','Unregulated Groundwater'], 2)
-m3 = round(stats1.loc['slope','Mixed GW/SW'], 2)
-m4 = round(stats1.loc['slope','Regulated Groundwater'], 2)
-m5 = round(stats1.loc['slope','Surface Water'], 2)
-yint1 = round(stats1.loc['int','CAP'], 2)
-yint2 = round(stats1.loc['int','Unregulated Groundwater'], 2)
-yint3 = round(stats1.loc['int','Mixed GW/SW'], 2)
-yint4 = round(stats1.loc['int','Regulated Groundwater'], 2)
-yint5 = round(stats1.loc['int','Surface Water'], 2)
-rsq1 = round(stats1.loc['rsq', 'CAP'], 4)
-rsq2 = round(stats1.loc['rsq', 'Unregulated Groundwater'], 4)
-rsq3 = round(stats1.loc['rsq', 'Mixed GW/SW'], 4)
-rsq4 = round(stats1.loc['rsq', 'Regulated Groundwater'], 4)
-rsq5 = round(stats1.loc['rsq', 'Surface Water'], 4)
-pval1 = round(stats1.loc['p_val', 'CAP'], 4)
-pval2 = round(stats1.loc['p_val', 'Unregulated Groundwater'], 4)
-pval3 = round(stats1.loc['p_val', 'Mixed GW/SW'], 4)
-pval4 = round(stats1.loc['p_val', 'Regulated Groundwater'], 4)
-pval5 = round(stats1.loc['p_val', 'Surface Water'], 4)
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+m2 = round(stats1.loc['slope',betterlabels[3]], 2)
+m3 = round(stats1.loc['slope',betterlabels[4]], 2)
+m4 = round(stats1.loc['slope',betterlabels[1]], 2)
+m5 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+yint2 = round(stats1.loc['int',betterlabels[3]], 2)
+yint3 = round(stats1.loc['int',betterlabels[4]], 2)
+yint4 = round(stats1.loc['int',betterlabels[1]], 2)
+yint5 = round(stats1.loc['int',betterlabels[2]], 2)
+rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
+rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
+rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
+rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
+rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
+pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
+pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
+pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
+pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
+pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
 yf1 = (m1*xf)+yint1
 yf2 = (m2*xf)+yint2
 yf3 = (m3*xf)+yint3
@@ -1628,26 +816,26 @@ print(stats1)
 # -- Data visualization --
 xf = np.linspace(min(x),max(x),100)
 xf1 = xf.copy()
-m1 = round(stats1.loc['slope','CAP'], 2)
-m2 = round(stats1.loc['slope','Unregulated Groundwater'], 2)
-m3 = round(stats1.loc['slope','Mixed GW/SW'], 2)
-m4 = round(stats1.loc['slope','Regulated Groundwater'], 2)
-m5 = round(stats1.loc['slope','Surface Water'], 2)
-yint1 = round(stats1.loc['int','CAP'], 2)
-yint2 = round(stats1.loc['int','Unregulated Groundwater'], 2)
-yint3 = round(stats1.loc['int','Mixed GW/SW'], 2)
-yint4 = round(stats1.loc['int','Regulated Groundwater'], 2)
-yint5 = round(stats1.loc['int','Surface Water'], 2)
-rsq1 = round(stats1.loc['rsq', 'CAP'], 4)
-rsq2 = round(stats1.loc['rsq', 'Unregulated Groundwater'], 4)
-rsq3 = round(stats1.loc['rsq', 'Mixed GW/SW'], 4)
-rsq4 = round(stats1.loc['rsq', 'Regulated Groundwater'], 4)
-rsq5 = round(stats1.loc['rsq', 'Surface Water'], 4)
-pval1 = round(stats1.loc['p_val', 'CAP'], 4)
-pval2 = round(stats1.loc['p_val', 'Unregulated Groundwater'], 4)
-pval3 = round(stats1.loc['p_val', 'Mixed GW/SW'], 4)
-pval4 = round(stats1.loc['p_val', 'Regulated Groundwater'], 4)
-pval5 = round(stats1.loc['p_val', 'Surface Water'], 4)
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+m2 = round(stats1.loc['slope',betterlabels[3]], 2)
+m3 = round(stats1.loc['slope',betterlabels[4]], 2)
+m4 = round(stats1.loc['slope',betterlabels[1]], 2)
+m5 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+yint2 = round(stats1.loc['int',betterlabels[3]], 2)
+yint3 = round(stats1.loc['int',betterlabels[4]], 2)
+yint4 = round(stats1.loc['int',betterlabels[1]], 2)
+yint5 = round(stats1.loc['int',betterlabels[2]], 2)
+rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
+rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
+rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
+rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
+rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
+pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
+pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
+pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
+pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
+pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
 yf1 = (m1*xf)+yint1
 yf2 = (m2*xf)+yint2
 yf3 = (m3*xf)+yint3
@@ -1710,26 +898,26 @@ print(stats1)
 # -- Data visualization --
 xf = np.linspace(min(x),max(x),100)
 xf1 = xf.copy()
-m1 = round(stats1.loc['slope','CAP'], 2)
-m2 = round(stats1.loc['slope','Unregulated Groundwater'], 2)
-m3 = round(stats1.loc['slope','Mixed GW/SW'], 2)
-m4 = round(stats1.loc['slope','Regulated Groundwater'], 2)
-m5 = round(stats1.loc['slope','Surface Water'], 2)
-yint1 = round(stats1.loc['int','CAP'], 2)
-yint2 = round(stats1.loc['int','Unregulated Groundwater'], 2)
-yint3 = round(stats1.loc['int','Mixed GW/SW'], 2)
-yint4 = round(stats1.loc['int','Regulated Groundwater'], 2)
-yint5 = round(stats1.loc['int','Surface Water'], 2)
-rsq1 = round(stats1.loc['rsq', 'CAP'], 4)
-rsq2 = round(stats1.loc['rsq', 'Unregulated Groundwater'], 4)
-rsq3 = round(stats1.loc['rsq', 'Mixed GW/SW'], 4)
-rsq4 = round(stats1.loc['rsq', 'Regulated Groundwater'], 4)
-rsq5 = round(stats1.loc['rsq', 'Surface Water'], 4)
-pval1 = round(stats1.loc['p_val', 'CAP'], 4)
-pval2 = round(stats1.loc['p_val', 'Unregulated Groundwater'], 4)
-pval3 = round(stats1.loc['p_val', 'Mixed GW/SW'], 4)
-pval4 = round(stats1.loc['p_val', 'Regulated Groundwater'], 4)
-pval5 = round(stats1.loc['p_val', 'Surface Water'], 4)
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+m2 = round(stats1.loc['slope',betterlabels[3]], 2)
+m3 = round(stats1.loc['slope',betterlabels[4]], 2)
+m4 = round(stats1.loc['slope',betterlabels[1]], 2)
+m5 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+yint2 = round(stats1.loc['int',betterlabels[3]], 2)
+yint3 = round(stats1.loc['int',betterlabels[4]], 2)
+yint4 = round(stats1.loc['int',betterlabels[1]], 2)
+yint5 = round(stats1.loc['int',betterlabels[2]], 2)
+rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
+rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
+rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
+rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
+rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
+pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
+pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
+pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
+pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
+pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
 yf1 = (m1*xf)+yint1
 yf2 = (m2*xf)+yint2
 yf3 = (m3*xf)+yint3
@@ -1801,7 +989,7 @@ ds = cat_wl2_reg
 data_type = "Depth to Water"
 min_yr = 1975
 mx_yr = 2020
-betterlabels = ['Regulated','Reservation','Unregulated'] 
+betterlabels = ['Regulated','Unregulated'] 
 Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
 print(Name)
 
@@ -1847,7 +1035,7 @@ for i in column_list:
 stats.index = betterlabels
 stats1 = stats.transpose()
 print(stats1)
-#%%
+
 # -- Data visualization --
 xf = np.linspace(min(x),max(x),100)
 xf1 = xf.copy()

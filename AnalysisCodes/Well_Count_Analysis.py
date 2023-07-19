@@ -31,6 +31,10 @@ import geopandas as gp
 #import earthpy as et
 import scipy.stats as sp
 # %% Assign Data paths
+datapath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/'
+outputpath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Output_files/'
+shapepath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Shapefiles/'
+
 datapath = '../Data'
 outputpath = '../Data/Output_files/'
 shapepath = '../Data/Shapefiles/'

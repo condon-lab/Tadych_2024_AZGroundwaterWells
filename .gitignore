@@ -1,12 +1,1 @@
-*.txt
-*.shp
-*.cpg
-*.csv
-*.dbf
-*.shx
-*.DS_Store
-*.prj
-*.sbn
-*.sbx
-*.xml
-*.xlsx
+Data/
