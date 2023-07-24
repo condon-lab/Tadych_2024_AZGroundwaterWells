@@ -5,15 +5,31 @@
 <br>
 The purpose of this repository is to be able to recreate databases and timeseries from our paper (under review).  All data for the paper can be found on cyverse here <link later>; however, the goals of this study are for others to recreate these or run new analyses with the raw data.  Below are instructions on where to download and place the data on this repository so the code runs properly.
 </br>
+
 <br></br>
 
 ## Choose your adventure!
 
-### ** To only reproduce the graphs from our paper (reccomended): **
-### 1. First Clone This Repository
+### To only reproduce the graphs from our paper (reccomended):
+### 1. Clone This Repository
+To run the code you can use the provided conda environment. To clone the repo and create the environment use (the last step may take some time):
+```
+git clone git@github.com:dtadych/Az-Well-GRACE-Spatiotemp-Analysis.git
+cd Hydro-LSTM
+conda env create -f environment.yml
+```
+Once you have the environment set up you can activate it and start running the code. For example, you can try:
+
+conda activate Hydro-LSTM
+cd Codes
+python main.py --code 9223000 --cells 1 --memory 256 --epochs 10 --model HYDRO
+To see the available options, you can use:
+
+python main.py -h, --help
 ### 2. Create Graphs
 - In the Analysis Codes folder, run "Graphs.py".
   - This code automatically links to our data on Cyverse
+<br></br>
 
 ### To create your own graphs of the databases using our methodology: 
 ### 1. First Clone This Repository

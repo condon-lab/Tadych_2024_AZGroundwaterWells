@@ -57,14 +57,14 @@ def display_corr_pairs(df,color="cyan"):
     plt.show()  
 
 def regulation_scatterplot(ds,ds2,name):
-       columns = ds.columns
-       column_list = ds.columns.tolist()
-       betterlabels = ['Regulated','Unregulated'] 
-       colors=[cap, GWdom]
-       # colors=[cap,noCAP, swdom, mixed, GWdom]
+        columns = ds.columns
+        column_list = ds.columns.tolist()
+        betterlabels = ['Regulated','Unregulated'] 
+        colors=[cap, GWdom]
+        # colors=[cap,noCAP, swdom, mixed, GWdom]
 
-       fig, ax = plt.subplots(figsize = (7,5))
-       for i,j,k in zip(column_list
+        fig, ax = plt.subplots(figsize = (7,5))
+        for i,j,k in zip(column_list
                         # ,reg_colors
                         # , SW_colors
                         , colors
@@ -84,53 +84,57 @@ def regulation_scatterplot(ds,ds2,name):
                         # ,label=(k+' Trendline')
                         )
 
-       ax.set_xlabel('Number of Wells')
-       ax.set_ylabel('Depth to Water Levels (ft)')
-       ax.set_title(name,loc='center')
-       # ax.set_ylim(0,400)
-       fig.set_dpi(600)
-       plt.legend(loc = [1.05, 0.40])
+        ax.set_xlabel('Number of Wells')
+        ax.set_ylabel('Depth to Water Levels (ft)')
+        ax.set_title(name,loc='center')
+        # ax.set_ylim(0,400)
+        fig.set_dpi(600)
+        plt.legend(loc = [1.05, 0.40])
 
-       plt.savefig(outputpath_local+name, bbox_inches='tight') 
+        plt.savefig(outputpath_local+name, bbox_inches='tight') 
 
-       # If running a shifted correlation analysis,
-       #    change this to however many # years; 0 is no lag
-       lag = 0
+        # If running a shifted correlation analysis,
+        #    change this to however many # years; 0 is no lag
+        lag = 0
 
-       print('Kendall Correlation coefficient')
-       for i in column_list:
-                # print(' '+i+':')
-                print(' '+str(i)+':')
-       # To normalize the data 
-                # df1 = ds[i].pct_change()
-                # df2 = drought_indices.PDSI.pct_change()
-                df1 = ds[i]
-                df2 = ds2[i].shift(lag)
-                print('  tau = ',round(df1.corr(df2, method='kendall'),3))
-                print('  pval = ',round(df1.corr(df2, method=kendall_pval),4))
+        stats = pd.DataFrame()
 
+        for i in column_list:
+                # To normalize the data 
+                df1 = ds[i].pct_change()
+                df2 = ds2[i].pct_change()
+                # df1 = ds[i]
+                # df2 = ds2[i].shift(lag)
+                tau = round(df1.corr(df2, method='kendall'),3)
+                k_pval = round(df1.corr(df2, method=kendall_pval),4)
+                # print('  tau = ',tau)
+                # print('  pval = ',k_pval)
 
-       print('Spearman Correlation coefficient')
-       for i in column_list:
-                print(' '+str(i)+':')
-                # df1 = ds[i].pct_change()
-                # df2 = drought_indices.PDSI.pct_change()
-                df1 = ds[i]
-                df2 = ds2[i].shift(lag)
-                print('  rho = ',round(df1.corr(df2, method='spearman'),3))
-                print('  pval = ',round(df1.corr(df2, method=spearmanr_pval),4))
+                # print('Spearman Correlation coefficient')
+                rho = round(df1.corr(df2, method='spearman'),3)
+                s_pval = round(df1.corr(df2, method=spearmanr_pval),4)
+                # print('  rho = ',rho)
+                # print('  pval = ',s_pval)
 
-        #
-       print('Pearson Correlation coefficient')
-       for i in column_list:
-                print(' '+str(i)+':')
-                # df1 = ds[i].pct_change()
-                # df2 = drought_indices.PDSI.pct_change()
-                df1 = ds[i]
-                df2 = ds2[i].shift(lag)
+                # print('Pearson Correlation coefficient')
                 r = df1.corr(df2, method='pearson')
-                print('  rsq = ',round(r*r,3))
-                print('  pval = ',round(df1.corr(df2, method=pearsonr_pval),4))
+                rsq = round(r*r,3)
+                p_pval = round(df1.corr(df2, method=pearsonr_pval),4)
+                # print('  rsq = ',rsq)
+                # print('  pval = ',p_pval)
+                stats = stats.append({'tau':tau,
+                              'k_pval':k_pval,
+                              'rho':rho,
+                              's_pval':s_pval,                                            
+                              'p_rsq': rsq, 
+                              'p_pval':p_pval
+                              },
+                              ignore_index=True)
+        stats.index = betterlabels
+        stats1 = stats.transpose()
+        print(stats1)
+        stats1.to_csv(outputpath_local+'/'+Name+'_corrstats.csv')
+
 def sw_scatterplot(ds,ds2,name):
         columns = ds.columns
         column_list = ds.columns.tolist()
@@ -166,44 +170,43 @@ def sw_scatterplot(ds,ds2,name):
 
         plt.savefig(outputpath_local+name, bbox_inches='tight') 
 
-        # If running a shifted correlation analysis,
-        #    change this to however many # years; 0 is no lag
-        lag = 0
-        # 
-        print('Kendall Correlation coefficient')
-        for i in column_list:
-                # print(' '+i+':')
-                print(' '+str(i)+':')
-        # To normalize the data 
-                # df1 = ds[i].pct_change()
-                # df2 = drought_indices.PDSI.pct_change()
-                df1 = ds[i]
-                df2 = test[i].shift(lag)
-                print('  tau = ',round(df1.corr(df2, method='kendall'),3))
-                print('  pval = ',round(df1.corr(df2, method=kendall_pval),4))
+        stats = pd.DataFrame()
 
-        #
-        print('Spearman Correlation coefficient')
         for i in column_list:
-                print(' '+str(i)+':')
-                # df1 = ds[i].pct_change()
-                # df2 = drought_indices.PDSI.pct_change()
-                df1 = ds[i]
-                df2 = ds2[i].shift(lag)
-                print('  rho = ',round(df1.corr(df2, method='spearman'),3))
-                print('  pval = ',round(df1.corr(df2, method=spearmanr_pval),4))
+                # To normalize the data 
+                df1 = ds[i].pct_change()
+                df2 = ds2[i].pct_change()
+                # df1 = ds[i]
+                # df2 = ds2[i].shift(lag)
+                tau = round(df1.corr(df2, method='kendall'),3)
+                k_pval = round(df1.corr(df2, method=kendall_pval),4)
+                # print('  tau = ',tau)
+                # print('  pval = ',k_pval)
 
-        # 
-        print('Pearson Correlation coefficient')
-        for i in column_list:
-                print(' '+str(i)+':')
-                # df1 = ds[i].pct_change()
-                # df2 = drought_indices.PDSI.pct_change()
-                df1 = ds[i]
-                df2 = ds2[i].shift(lag)
+                # print('Spearman Correlation coefficient')
+                rho = round(df1.corr(df2, method='spearman'),3)
+                s_pval = round(df1.corr(df2, method=spearmanr_pval),4)
+                print('  rho = ',rho)
+                print('  pval = ',s_pval)
+
+                # print('Pearson Correlation coefficient')
                 r = df1.corr(df2, method='pearson')
-                print('  rsq = ',round(r*r,3))
-                print('  pval = ',round(df1.corr(df2, method=pearsonr_pval),4))
+                rsq = round(r*r,3)
+                p_pval = round(df1.corr(df2, method=pearsonr_pval),4)
+                # print('  rsq = ',rsq)
+                # print('  pval = ',p_pval)
+                stats = stats.append({'tau':tau,
+                              'k_pval':k_pval,
+                              'rho':rho,
+                              's_pval':s_pval,                                            
+                              'p_rsq': rsq, 
+                              'p_pval':p_pval
+                              },
+                              ignore_index=True)
+        stats.index = betterlabels
+        stats1 = stats.transpose()
+        print(stats1)
+        stats1.to_csv(outputpath_local+'/'+Name+'_corrstats.csv')
 
 # === Assign Data paths ===
 
@@ -374,7 +377,7 @@ blind =["#000000","#004949","#009292","#ff6db6","#ffb6db",
 # Matching new map
 
 cap = '#C6652B'
-# noCAP = '#EDE461' # This is one from the map
+# noCAP = '#EDE461' # This is one from the map but it's too bright
 noCAP = '#CCC339' # This color but darker for lines
 GWdom = '#3B76AF'
 mixed = '#6EB2E4'
@@ -1370,26 +1373,6 @@ ax.grid(which='minor',color='#EEEEEE', lw=0.8)
 ax.set_xlabel('Year', fontsize=fsize)
 ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
 ax.legend(loc = [1.04, 0.40], fontsize = 10)
-# # Drought Year Shading
-# a = 1988.5
-# b = 1990.5
-# c = 1995.5
-# d = 1996.5
-# e = 2001.5
-# f = 2003.5
-# g = 2005.5
-# h = 2007.5
-# i = 2011.5
-# j = 2014.5
-# k = 2017.5
-# l= 2018.5
-# plt.axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# plt.axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(g, h, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(i, j, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(k, l, color=drought_color, alpha=0.5, lw=0)
-
 ax.minorticks_on()
 
 fig.set_dpi(600.0)
@@ -1735,12 +1718,6 @@ for i in column_list:
         y=np.array(df.values, dtype=float)
         x=np.array(pd.to_datetime(df).index.values, dtype=float)
         slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-        # print('Georegion Number: ', i, '\n', 
-        #        'slope = ', slope, '\n', 
-        #        'intercept = ', intercept, '\n', 
-        #        'r^2 = ', r_value, '\n', 
-        #        'p-value = ', p_value, '\n', 
-        #        'std error = ', std_err)      
         stats = stats.append({'slope': slope, 
                               'int':intercept, 
                               'rsq':r_value*r_value, 
@@ -1751,15 +1728,6 @@ for i in column_list:
                               'sum': np.sum(y)
                               },
                               ignore_index=True)
-        # xf = np.linspace(min(x),max(x),100)
-        # xf1 = xf.copy()
-        # xf1 = pd.to_datetime(xf1)
-        # yf = (slope*xf)+intercept
-        # fig, ax = plt.subplots(1, 1)
-        # ax.plot(xf1, yf,label='Linear fit', lw=3)
-        # df.plot(ax=ax,marker='o', ls='')
-        # ax.set_ylim(0,max(y))
-        # ax.legend()
 
 
 stats.index = betterlabels
@@ -1802,26 +1770,6 @@ ax.grid(which='minor',color='#EEEEEE', lw=0.8)
 ax.set_xlabel('Year', fontsize=fsize)
 ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
 ax.legend(loc = [1.04, 0.40], fontsize = fsize)
-# # Drought Year Shading
-# a = 1988.5
-# b = 1990.5
-# c = 1995.5
-# d = 1996.5
-# e = 2001.5
-# f = 2003.5
-# g = 2005.5
-# h = 2007.5
-# i = 2011.5
-# j = 2014.5
-# k = 2017.5
-# l= 2018.5
-# plt.axvspan(a, b, color=drought_color, alpha=0.5, lw=0, label="Drought")
-# plt.axvspan(c, d, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(e, f, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(g, h, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(i, j, color=drought_color, alpha=0.5, lw=0)
-# plt.axvspan(k, l, color=drought_color, alpha=0.5, lw=0)
-
 ax.minorticks_on()
 
 fig.set_dpi(600.0)
@@ -1859,6 +1807,7 @@ test
 # Scatterplot of correlation values
 Name = 'Comparing Number of wells with DTW by Regulation'
 regulation_scatterplot(wlanalysis_period,test,Name)
+
 
 # %% For Deep Wells
 test = wdc1_reg.fillna(0).copy()
@@ -1920,7 +1869,7 @@ test = test[(test.index>=1975)&(test.index<=2020)]
 test
 
 # Scatterplot of correlation values
-Name = 'Comparing Well Densities with DTW by Regulation'
+Name = 'Comparing Deep Well Densities with DTW by Regulation'
 regulation_scatterplot(wlanalysis_period,test,Name)
 
 # %% For Midrange Wells
@@ -1944,9 +1893,11 @@ test = test[(test.index>=1975)&(test.index<=2020)]
 test
 
 # Scatterplot of correlation values
-Name = 'Comparing ShallWell Densities with DTW by Regulation'
+Name = 'Comparing Shallow Well Densities with DTW by Regulation'
 regulation_scatterplot(wlanalysis_period,test,Name)
 
+# %%
+display_corr_pairs(wlanalysis_period)
 # %% = By access to SW =
 cat_wl2 = cat_wl2_SW.copy() 
 
