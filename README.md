@@ -3,36 +3,37 @@
 *by Danielle E. Tadych, Matthew Ford, Laura E. Condon, Bonnie G. Colby*
 
 <br>
-The purpose of this repository is to be able to recreate databases and timeseries from our paper (under review).  All data for the paper can be found on cyverse here <link later>; however, the goals of this study are for others to recreate these or run new analyses with the raw data.  Below are instructions on where to download and place the data on this repository so the code runs properly.
+The purpose of this repository is to be able to recreate databases and timeseries from our paper (under review).  All data for the paper can be found on cyverse <a href="https://gisdata2016-11-18t150447874z-azwater.opendata.arcgis.com/maps/gwsi-app/about">here</a>; however, the goals of this study are for others to recreate these datasets or run new analyses with the raw data.  Below are instructions on where to download and place the data on this repository so the code runs properly.
 </br>
 
+<br></br>
+By using this repository or data in your publications, you agree to cite:
+> *Tadych, D.E., Condon, L.E., Ford, M., Colby, B.G.: Evaluation of Spatial and Temporal Patterns of Well Distributions and Groundwater: A Historical and Statistical Analysis of Arizona[under review], 2023.*
 <br></br>
 
 ## Choose your adventure!
 
-### To only reproduce the graphs from our paper (reccomended):
-### 1. Clone This Repository
-To run the code you can use the provided conda environment. To clone the repo and create the environment use (the last step may take some time):
+### **To only reproduce the graphs from our paper (reccomended):**
+### 1. Clone This Repository & Create Environment
+To run the code you can use the provided conda environment. To clone the repo and create the environment use:
 ```
 git clone git@github.com:dtadych/Az-Well-GRACE-Spatiotemp-Analysis.git
-cd Hydro-LSTM
+cd Az-Well-GRACE-Spatiotemp-Analysis
 conda env create -f environment.yml
 ```
-Once you have the environment set up you can activate it and start running the code. For example, you can try:
+Once you have the environment set up you can activate it by running:
 
-conda activate Hydro-LSTM
-cd Codes
-python main.py --code 9223000 --cells 1 --memory 256 --epochs 10 --model HYDRO
-To see the available options, you can use:
+```
+conda activate azgwspatialanalysis
+```
 
-python main.py -h, --help
 ### 2. Create Graphs
 - In the Analysis Codes folder, run "Graphs.py".
-  - This code automatically links to our data on Cyverse
+  - This code automatically links to our data on Cyverse and outputs images into the Data/Figures folder
 <br></br>
 
-### To create your own graphs of the databases using our methodology: 
-### 1. First Clone This Repository
+### **To create your own graphs of the databases using our methodology:**
+### 1. Clone This Repository & Create Environment (see above).
 ### 2. Download Data
 - Well Registry (also known as Wells55) can be downloaded <a href="https://gisdata2016-11-18t150447874z-azwater.opendata.arcgis.com/datasets/azwater::well-registry/explore?location=34.114115%2C-111.970052%2C8.10">here</a>: 
     - Move .shp and .dbf from both into Data/Shapefiles folder
