@@ -8,7 +8,7 @@ The purpose of this repository is to be able to recreate databases and timeserie
 
 <br></br>
 By using this repository or data in your publications, you agree to cite:
-> *Tadych, D.E., Condon, L.E., Ford, M., Colby, B.G.: Evaluation of Spatial and Temporal Patterns of Well Distributions and Groundwater: A Historical and Statistical Analysis of Arizona[under review], 2023.*
+> *Tadych, D.E., Ford, M., Condon, L.E., Colby, B.G.: Evaluation of Spatial and Temporal Patterns of Well Distributions and Groundwater: A Historical and Statistical Analysis of Arizona[under review], 2023.*
 <br></br>
 
 ## Choose your adventure!

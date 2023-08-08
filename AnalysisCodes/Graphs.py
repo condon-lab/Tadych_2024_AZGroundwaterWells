@@ -21,192 +21,7 @@ import scipy.stats as sp
 #import earthpy as et
 from scipy.stats import kendalltau, pearsonr, spearmanr
 import pymannkendall as mk
-
-# Some functions for analysis
-def kendall_pval(x,y):
-        return kendalltau(x,y)[1]
-    
-def pearsonr_pval(x,y):
-        return pearsonr(x,y)[1]
-    
-def spearmanr_pval(x,y):
-        return spearmanr(x,y)[1]
-
-def display_correlation(df):
-    r = df.corr(method="spearman")
-    plt.figure(figsize=(10,6))
-    heatmap = sns.heatmap(df.corr(method='spearman'), vmin=-1, 
-                      vmax=1, annot=True)
-    plt.title("Spearman Correlation")
-    return(r)
-
-def display_corr_pairs(df,color="cyan"):
-    s = set_title = np.vectorize(lambda ax,r,rho: ax.title.set_text("r = " + 
-                                        "{:.2f}".format(r) + 
-                                        '\n $\\rho$ = ' + 
-                                        "{:.2f}".format(rho)) if ax!=None else None
-                            )      
-
-    rho = display_correlation(df)
-    r = df.corr(method="pearson")
-    g = sns.PairGrid(df,corner=True)
-    g.map_diag(plt.hist,color="yellow")
-    g.map_lower(sns.scatterplot,color="magenta")
-    set_title(g.axes,r,rho)
-    plt.subplots_adjust(hspace = 0.6)
-    plt.show()  
-
-def regulation_scatterplot(ds,ds2,name):
-        columns = ds.columns
-        column_list = ds.columns.tolist()
-        betterlabels = ['Regulated','Unregulated'] 
-        colors=[cap, GWdom]
-        # colors=[cap,noCAP, swdom, mixed, GWdom]
-
-        fig, ax = plt.subplots(figsize = (7,5))
-        for i,j,k in zip(column_list
-                        # ,reg_colors
-                        # , SW_colors
-                        , colors
-                        , betterlabels
-                        ):
-                x = ds2[i]
-                y = ds[i]
-                ax.scatter(x,y
-                        , label=k
-                        , color=j
-                        )
-                # Trendline: 1=Linear, 2=polynomial
-                z = np.polyfit(x, y, 1)
-                p = np.poly1d(z)
-                plt.plot(x, p(x),'-'
-                        , color=j
-                        # ,label=(k+' Trendline')
-                        )
-
-        ax.set_xlabel('Number of Wells')
-        ax.set_ylabel('Depth to Water Levels (ft)')
-        ax.set_title(name,loc='center')
-        # ax.set_ylim(0,400)
-        fig.set_dpi(600)
-        plt.legend(loc = [1.05, 0.40])
-
-        plt.savefig(outputpath_local+name, bbox_inches='tight') 
-
-        # If running a shifted correlation analysis,
-        #    change this to however many # years; 0 is no lag
-        lag = 0
-
-        stats = pd.DataFrame()
-
-        for i in column_list:
-                # To normalize the data 
-                df1 = ds[i].pct_change()
-                df2 = ds2[i].pct_change()
-                # df1 = ds[i]
-                # df2 = ds2[i].shift(lag)
-                tau = round(df1.corr(df2, method='kendall'),3)
-                k_pval = round(df1.corr(df2, method=kendall_pval),4)
-                # print('  tau = ',tau)
-                # print('  pval = ',k_pval)
-
-                # print('Spearman Correlation coefficient')
-                rho = round(df1.corr(df2, method='spearman'),3)
-                s_pval = round(df1.corr(df2, method=spearmanr_pval),4)
-                # print('  rho = ',rho)
-                # print('  pval = ',s_pval)
-
-                # print('Pearson Correlation coefficient')
-                r = df1.corr(df2, method='pearson')
-                rsq = round(r*r,3)
-                p_pval = round(df1.corr(df2, method=pearsonr_pval),4)
-                # print('  rsq = ',rsq)
-                # print('  pval = ',p_pval)
-                stats = stats.append({'tau':tau,
-                              'k_pval':k_pval,
-                              'rho':rho,
-                              's_pval':s_pval,                                            
-                              'p_rsq': rsq, 
-                              'p_pval':p_pval
-                              },
-                              ignore_index=True)
-        stats.index = betterlabels
-        stats1 = stats.transpose()
-        print(stats1)
-        stats1.to_csv(outputpath_local+'/'+Name+'_corrstats.csv')
-
-def sw_scatterplot(ds,ds2,name):
-        columns = ds.columns
-        column_list = ds.columns.tolist()
-        betterlabels = ['Receives CAP (Regulated)','GW Dominated (Regulated)','Mixed Source','GW Dominated','Surface Water Dominated'] 
-        # betterlabels = ['Regulated','Unregulated'] 
-        # colors=[cap, GWdom]
-        colors=[cap,noCAP, mixed,GWdom,swdom]
-
-        fig, ax = plt.subplots(figsize = (7,5))
-        for i,j,k in zip(column_list
-                        , colors
-                        , betterlabels
-                        ):
-                x = ds2[i]
-                y = ds[i]
-                ax.scatter(x,y
-                        , label=k
-                        , color=j
-                        )
-                # Trendline: 1=Linear, 2=polynomial
-                z = np.polyfit(x, y, 1)
-                p = np.poly1d(z)
-                plt.plot(x, p(x),'-'
-                        , color=j
-                        )
-
-        ax.set_xlabel('Number of Wells')
-        ax.set_ylabel('Depth to Water Levels (ft)')
-        ax.set_title(name,loc='center')
-        # ax.set_ylim(0,400)
-        fig.set_dpi(600)
-        plt.legend(loc = [1.05, 0.40])
-
-        plt.savefig(outputpath_local+name, bbox_inches='tight') 
-
-        stats = pd.DataFrame()
-
-        for i in column_list:
-                # To normalize the data 
-                df1 = ds[i].pct_change()
-                df2 = ds2[i].pct_change()
-                # df1 = ds[i]
-                # df2 = ds2[i].shift(lag)
-                tau = round(df1.corr(df2, method='kendall'),3)
-                k_pval = round(df1.corr(df2, method=kendall_pval),4)
-                # print('  tau = ',tau)
-                # print('  pval = ',k_pval)
-
-                # print('Spearman Correlation coefficient')
-                rho = round(df1.corr(df2, method='spearman'),3)
-                s_pval = round(df1.corr(df2, method=spearmanr_pval),4)
-                print('  rho = ',rho)
-                print('  pval = ',s_pval)
-
-                # print('Pearson Correlation coefficient')
-                r = df1.corr(df2, method='pearson')
-                rsq = round(r*r,3)
-                p_pval = round(df1.corr(df2, method=pearsonr_pval),4)
-                # print('  rsq = ',rsq)
-                # print('  pval = ',p_pval)
-                stats = stats.append({'tau':tau,
-                              'k_pval':k_pval,
-                              'rho':rho,
-                              's_pval':s_pval,                                            
-                              'p_rsq': rsq, 
-                              'p_pval':p_pval
-                              },
-                              ignore_index=True)
-        stats.index = betterlabels
-        stats1 = stats.transpose()
-        print(stats1)
-        stats1.to_csv(outputpath_local+'/'+Name+'_corrstats.csv')
+import functions_for_graphs
 
 # === Assign Data paths ===
 
@@ -219,6 +34,7 @@ shapepath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatia
 datapath_local = '../Data'
 outputpath_local = '../Data/Output_files/'
 shapepath_local = '../Data/Shapefiles/'
+figurepath = '..Data/Figures/'
 
 # Change this based on whether you're running off local or web data
 # Cyverse:
@@ -235,7 +51,7 @@ shapepath = shapepath_web
 shallow = 200
 deep = 500
 
-#%% Importing the Depth categories for Well Counts
+# Importing the Depth categories for Well Counts
 wdc1_reg = pd.read_csv(outputpath+'Final_Welldepth_regulation' + str(deep) + 'plus.csv',
                         header=1, index_col=0)
 wdc1_reg = wdc1_reg.iloc[1:,:]
@@ -347,37 +163,13 @@ filepath = outputpath_web+'Waterlevels_georegions.csv'
 # filepath = '../Data/Output_files/Waterlevels_georegions.csv'
 cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
 # cat_wl2_georeg.head()
+
+# %% Importing GRACE analyses
+filepath = 
 # %% Creating colors
-c_1 = '#8d5a99' # Reservation
-c_2 = "#d7191c" # Regulated with CAP (Water Category Color)
-c_3 = '#e77a47' # Regulated without CAP (Water Category Color)
-c_4 = '#2cbe21' # Lower CO River - SW (Water Category Color)
-c_5 = '#2f8c73' # Upper CO River - Mixed (Water Category Color)
-c_6 = '#6db7e8' # SE - GW
-c_7 = '#165782' # NW - GW (Water Category color)
-c_8 = '#229ce8' # SC - GW
-c_9 = '#1f78b4' # NE - GW
-c_10 = '#41bf9e' # N - Mixed
-c_11 = '#7adec4' # C - Mixed
-drought_color = '#ffa6b8'
-wet_color = '#b8d3f2'
-
-reg_colors = [c_2,c_7]
-georeg_colors = [c_1,c_2,c_3,c_4,c_5,c_6,c_7,c_8,c_9,c_10,c_11]
-SW_colors = [c_2,c_3,c_4,c_5,c_7]
-
-bar_watercatc = [c_2,c_3,c_4,c_5,c_7]
-
-# Color blind palette
-# https://jacksonlab.agronomy.wisc.edu/2016/05/23/15-level-colorblind-friendly-palette/
-blind =["#000000","#004949","#009292","#ff6db6","#ffb6db",
- "#490092","#006ddb","#b66dff","#6db6ff","#b6dbff",
- "#920000","#924900","#db6d00","#24ff24","#ffff6d"]
-
-# Matching new map
-
+# Matching map
 cap = '#C6652B'
-# noCAP = '#EDE461' # This is one from the map but it's too bright
+# noCAP = '#EDE461' # This is one from the map but it's too bright and hard to see
 noCAP = '#CCC339' # This color but darker for lines
 GWdom = '#3B76AF'
 mixed = '#6EB2E4'
@@ -461,7 +253,7 @@ ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
 
 fig.set_dpi(600.0)
 
-# plt.savefig(outputpath_local+name+'_3horizontalpanel_regulated', bbox_inches='tight')
+plt.savefig('_3horizontalpanel_regulated', bbox_inches='tight')
 
 # %%
 # Plot all of the different depths 3 in a line
@@ -1178,73 +970,6 @@ cat_wl2_georeg
 # Actual documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.linregress.html
 # Tutorial from https://mohammadimranhasan.com/linear-regression-of-time-series-data-with-pandas-library-in-python/
 
-# For Depth to Water of georegions
-ds = cat_wl2_georeg
-min_yr = 2002
-mx_yr = 2020
-Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression:"
-print(Name)
-
-f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
-
-# -- For Multiple years --
-# Name = "Linear Regression for Non-drought years: "
-# wetyrs = [2005, 2008, 2009, 2010, 2016, 2017, 2019]
-# dryyrs = [2002, 2003, 2004, 2006, 2007, 2011, 2012, 2013, 2014, 2015, 2018]
-# #f = ds[(ds.index == wetyrs)]
-
-# f = pd.DataFrame()
-# for i in dryyrs:
-#         wut = ds[(ds.index == i)]
-#         f = f.append(wut)
-# print(f)
-# -----------------------
-
-stats = pd.DataFrame()
-for i in range(1, 12, 1):
-        df = f[i]
-        #print(df)
-        y=np.array(df.values, dtype=float)
-        x=np.array(pd.to_datetime(df).index.values, dtype=float)
-        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-#        print('Georegion Number: ', i, '\n', 
-#                'slope = ', slope, '\n', 
-#                'intercept = ', intercept, '\n', 
-#                'r^2 = ', r_value, '\n', 
-#                'p-value = ', p_value, '\n', 
-#                'std error = ', std_err)
-        
-        # row1 = pd.DataFrame([slope], index=[i], columns=['slope'])
-        # row2 = pd.DataFrame([intercept], index=[i], columns=['intercept'])
-        # stats = stats.append(row1)
-        # stats = stats.append(row2)
-        # stats['intercept'] = intercept
-        stats = stats.append({'slope': slope, 
-                        #       'int':intercept, 
-                              'rsq':r_value, 
-                              'p_val':p_value, 
-                              'std_err':std_err,
-                              'mean': np.mean(y),
-                              'var': np.var(y)}, 
-                              ignore_index=True)
-        xf = np.linspace(min(x),max(x),100)
-        xf1 = xf.copy()
-        #xf1 = pd.to_datetime(xf1)
-        yf = (slope*xf)+intercept
-        fig, ax = plt.subplots(1, 1)
-        ax.plot(xf1, yf,label='Linear fit', lw=3)
-        df.plot(ax=ax,marker='o', ls='')
-        ax.set_ylim(0,max(y))
-        ax.legend()
-
-
-# stats = stats.append(slope)
-#        stats[i] = stats[i].append(slope)
-
-#   df = df.append({'A': i}, ignore_index=True)
-stats1 = stats.transpose()
-stats1
-
 # %% Linear Regression
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
@@ -1262,30 +987,8 @@ print(Name)
 f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
 columns = ds.columns
 column_list = ds.columns.tolist()
-# -- For Multiple years --
-# Name = "Linear Regression during Wet and Normal years for " + data_type
-# wetyrs = [2005, 2008, 2009, 2010, 2016, 2017, 2019]
-# dryyrs = [2002, 2003, 2004, 2006, 2007, 2011, 2012, 2013, 2014, 2015, 2018]
-# dryyrs = [1975,1976,1977
-#           ,1981,1989,1990
-#           ,1996,1997,
-#           1999,2000,2001,2002,2003,2004
-#           ,2006,2007,2008,2009
-#           ,2011, 2012, 2013, 2014, 2015,2017,2018]
-# wetyrs = [1978,1979,1980,1982,1983,1984,1984,1986,1987,1988
-#           , 1991,1992,1993,1994,1995,
-#           1998,2005,2010,2019]
-
-#f = ds[(ds.index == wetyrs)]
-
-# f = pd.DataFrame()
-# for i in wetyrs:
-#         wut = ds[(ds.index == i)]
-#         f = f.append(wut)
-# print(f)
 columns = ds.columns
 column_list = ds.columns.tolist()
-# ------------------------
 
 stats = pd.DataFrame()
 for i in column_list:
@@ -1397,7 +1100,6 @@ ax.legend(
         )
 plt.savefig(outputpath_local+Name, bbox_inches = 'tight')
 # plt.savefig(outputpath+'Stats/Water_CAT/'+Name, bbox_inches = 'tight')
-stats1.to_csv(outputpath_local+Name+'.csv')
 
 # %% Piecewise Linear Regression
 # For Depth to Water by SW Access
