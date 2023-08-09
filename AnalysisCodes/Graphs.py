@@ -21,7 +21,7 @@ import scipy.stats as sp
 #import earthpy as et
 from scipy.stats import kendalltau, pearsonr, spearmanr
 import pymannkendall as mk
-import functions_for_graphs
+import Custom_functions
 
 # === Assign Data paths ===
 
@@ -34,7 +34,7 @@ shapepath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatia
 datapath_local = '../Data'
 outputpath_local = '../Data/Output_files/'
 shapepath_local = '../Data/Shapefiles/'
-figurepath = '..Data/Figures/'
+figurepath = '../Data/Figures/'
 
 # Change this based on whether you're running off local or web data
 # Cyverse:
@@ -154,7 +154,7 @@ cat_wl2_reg.head()
 
 # For Access to SW
 filepath = outputpath_web+'/Waterlevels_AccesstoSW.csv'
-# filepath = '../Data/Output_files/Waterlevels_AccesstoSW.csv'
+# filepath = '../Data/Output_files/Waterlevels_AccesstoSW_GWlumped.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 cat_wl2_SW.head()
 
@@ -165,7 +165,23 @@ cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
 # cat_wl2_georeg.head()
 
 # %% Importing GRACE analyses
-filepath = 
+filepath = filepath = outputpath_web+'grace_stateavg_yearly.csv'
+# filepath = outputpath_local+'gracse_remapped_yearly.csv'
+grace_yearly = pd.read_csv(filepath, index_col=0)
+
+# Reading in the shapefile - note, figure 2 is created through QGIS
+filename_georeg = 'georeg_reproject_fixed.shp'
+filepath = os.path.join(shapepath_web, filename_georeg)
+# %% creating weights for the GW dominated categories
+georeg = gp.read_file(filepath)
+georeg.plot(cmap='viridis')
+georeg['area'] = georeg.geometry.area/10**6
+georeg_wcweights = georeg.groupby(['Water_CAT']).sum()
+nocap_area = georeg_wcweights.loc['No_CAP','area']
+gwdom_area = georeg_wcweights.loc['GW','area']
+nocap_wt = nocap_area/(nocap_area+gwdom_area)
+gwdom_wt = gwdom_area/(nocap_area+gwdom_area)
+
 # %% Creating colors
 # Matching map
 cap = '#C6652B'
@@ -174,381 +190,9 @@ noCAP = '#CCC339' # This color but darker for lines
 GWdom = '#3B76AF'
 mixed = '#6EB2E4'
 swdom = '#469B76'
+specialyears = 'darkgray'
 
-# %% # Plot all of the different depths 3 in a line
-# Formatting correctly
-test = wdc1_reg.copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test['Regulation'] = test['Regulation'].astype(int)
-test.set_index('Regulation', inplace=True)
-test.info()
-wdc1_reg = test
-
-test = wdc2_reg.copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test['Regulation'] = test['Regulation'].astype(int)
-test.set_index('Regulation', inplace=True)
-test.info()
-wdc2_reg = test
-
-test = wdc3_reg.copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test['Regulation'] = test['Regulation'].astype(int)
-test.set_index('Regulation', inplace=True)
-test.info()
-wdc3_reg = test
-
-ds1 = wdc1_reg
-ds2 = wdc2_reg
-ds3 = wdc3_reg
-
-name = 'New Wells by Drilling Depths over Time'
-ylabel = "Well Count (#)"
-minyear=1975.0
-maxyear=2020.0
-#min_y = -15
-#max_y = 7
-fsize = 14
-
-columns = ds1.columns
-labels = ds1.columns.tolist()
-print(labels)
-
-# For the actual figure
-fig, ax = plt.subplots(1,3,figsize=(15,5))
-#fig.tight_layout()
-# fig.suptitle(name, fontsize=18, y=1.00)
-fig.supylabel(ylabel, fontsize = 14, x=0.07)
-ax[0].plot(ds3[labels[0]],'--', label='Regulated', color='black')
-ax[0].plot(ds3[labels[2]], label='Unregulated', color='black')
-ax[1].plot(ds2[labels[0]],'--', label='Regulated', color='black')
-ax[1].plot(ds2[labels[2]], label='Unregulated', color='black')
-ax[2].plot(ds1[labels[0]],'--', label='Regulated', color='black')
-ax[2].plot(ds1[labels[2]], label='Unregulated', color='black')
-
-ax[0].set_xlim(minyear,maxyear)
-ax[1].set_xlim(minyear,maxyear)
-ax[2].set_xlim(minyear,maxyear)
-
-#ax[0].set_ylim(min_y,max_y)
-#ax[1].set_ylim(min_y,max_y)
-#ax[2].set_ylim(min_y,max_y)
-
-# ax[0].set_title('Shallow (<200 ft)', loc='center')
-# ax[1].set_title('Midrange (200-500ft)', loc='center')
-# ax[2].set_title('Deep (> 500ft)', loc='center')
-
-
-ax[0].grid(True)
-ax[1].grid(True)
-ax[2].grid(True)
-
-#ax[0,0].set(title=name, xlabel='Year', ylabel='Change from Baseline (cm)')
-#ax[0,0].set_title(name, loc='right')
-#ax[1,0].set_ylabel("Change from 2004-2009 Baseline (cm)", loc='top', fontsize = fsize)
-ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
-
-fig.set_dpi(600.0)
-
-plt.savefig('_3horizontalpanel_regulated', bbox_inches='tight')
-
-# %%
-# Plot all of the different depths 3 in a line
-# Formatting correctly
-test = wdc1_wc.copy()
-test = test.reset_index()
-test['Water_CAT'] = test['Water_CAT'].astype(float)
-test['Water_CAT'] = test['Water_CAT'].astype(int)
-test.set_index('Water_CAT', inplace=True)
-test.info()
-wdc1_wc = test
-
-test = wdc2_wc.copy()
-test = test.reset_index()
-test['Water_CAT'] = test['Water_CAT'].astype(float)
-test['Water_CAT'] = test['Water_CAT'].astype(int)
-test.set_index('Water_CAT', inplace=True)
-test.info()
-wdc2_wc = test
-
-test = wdc3_wc.copy()
-test = test.reset_index()
-test['Water_CAT'] = test['Water_CAT'].astype(float)
-test['Water_CAT'] = test['Water_CAT'].astype(int)
-test.set_index('Water_CAT', inplace=True)
-test.info()
-wdc3_wc = test
-
-ds1 = wdc1_wc
-ds2 = wdc2_wc
-ds3 = wdc3_wc
-
-name = 'New Wells by Drilling Depths over Time'
-ylabel = "Well Count (#)"
-minyear=1975
-maxyear=2022
-#min_y = -15
-#max_y = 7
-fsize = 14
-
-columns = ds1.columns
-labels = ds1.columns.tolist()
-print(labels)
-
-# For the actual figure
-fig, ax = plt.subplots(1,3,figsize=(15,5))
-#fig.tight_layout()
-# fig.suptitle(name, fontsize=18, y=1.00)
-fig.supylabel(ylabel, fontsize = 14, x=0.06)
-
-ax[0].plot(ds3[labels[0]], label='Receives CAP (Regulated)', color=cap)
-ax[0].plot(ds3[labels[3]], label='GW Dominated (Regulated)', color=noCAP)
-ax[0].plot(ds3[labels[4]], label='Surface Water Dominated', color=swdom)
-ax[0].plot(ds3[labels[2]], label='Mixed Source', color=mixed)
-ax[0].plot(ds3[labels[1]], label='GW Dominated', color=GWdom)
-
-ax[1].plot(ds2[labels[0]], label='Receives CAP (Regulated)', color=cap)
-ax[1].plot(ds2[labels[3]], label='GW Dominated (Regulated)', color=noCAP)
-ax[1].plot(ds2[labels[4]], label='Surface Water Dominated', color=swdom)
-ax[1].plot(ds2[labels[2]], label='Mixed Source', color=mixed)
-ax[1].plot(ds2[labels[1]], label='GW Dominated', color=GWdom)
-
-ax[2].plot(ds1[labels[0]], label='Receives CAP (Regulated)', color=cap)
-ax[2].plot(ds1[labels[3]], label='GW Dominated (Regulated)', color=noCAP)
-ax[2].plot(ds1[labels[4]], label='Surface Water Dominated', color=swdom)
-ax[2].plot(ds1[labels[2]], label='Mixed Source', color=mixed)
-ax[2].plot(ds1[labels[1]], label='GW Dominated', color=GWdom)
-
-
-ax[0].set_xlim(minyear,maxyear)
-ax[1].set_xlim(minyear,maxyear)
-ax[2].set_xlim(minyear,maxyear)
-
-#ax[0].set_ylim(min_y,max_y)
-#ax[1].set_ylim(min_y,max_y)
-#ax[2].set_ylim(min_y,max_y)
-
-# ax[0].set_title('Shallow (<200 ft)', loc='center')
-# ax[1].set_title('Midrange (200-500ft)', loc='center')
-# ax[2].set_title('Deep (> 500ft)', loc='center')
-
-
-ax[0].grid(True)
-ax[1].grid(True)
-ax[2].grid(True)
-
-#ax[0,0].set(title=name, xlabel='Year', ylabel='Change from Baseline (cm)')
-#ax[0,0].set_title(name, loc='right')
-#ax[1,0].set_ylabel("Change from 2004-2009 Baseline (cm)", loc='top', fontsize = fsize)
-ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
-
-fig.set_dpi(600.0)
-
-plt.savefig(outputpath_local+name+'_watercat_3horizontalpanel', bbox_inches='tight')
-
-# %% -- Grouped bar chart - Had to create some summarazing dataframes --
-# Check the commented code to turn on whichever graph you want to make
-#   - dens = well densities
-#   - wdc1 = water depth category 1 (deep)
-#     wdc2 = midrange
-#     wdc3 = shallow
-
-# Below is for Groundwater Regulation
-ds = wdc1_reg.copy()
-# ds = dens_wdc1_reg.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['Regulated'] = ds[labels[0]]
-ds1['Unregulated'] = ds[labels[2]]
-
-dft1 = ds1.copy()
-dft1
-
-
-ds = wdc2_reg.copy()
-# ds = dens_wdc2_reg.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['Regulated'] = ds[labels[0]]
-ds1['Unregulated'] = ds[labels[2]]
-
-dft2 = ds1.copy()
-dft2
-
-
-ds = wdc3_reg.copy()
-# ds = dens_wdc3_reg.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['Regulated'] = ds[labels[0]]
-ds1['Unregulated'] = ds[labels[2]]
-
-dft3 = ds1.copy()
-dft3
-
-df1 = pd.DataFrame(dft1.sum())
-df1 = df1.transpose()
-df1 = df1.reset_index()
-df1['index'] = 'Deep'
-df1.set_index('index', inplace=True)
-df1
-
-df2 = pd.DataFrame(dft2.sum())
-df2 = df2.transpose()
-df2 = df2.reset_index()
-df2['index'] = 'Midrange'
-df2.set_index('index', inplace=True)
-df2
-
-df3 = pd.DataFrame(dft3.sum())
-df3 = df3.transpose()
-df3 = df3.reset_index()
-df3['index'] = 'Shallow'
-df3.set_index('index', inplace=True)
-df3
-
-df_test = df3.append([df2,df1])
-df_test = df_test.transpose()
-df_test = df_test.rename_axis(None,axis=1)
-df_test
-
-# group_colors = ['cornflowerblue','slategrey','darkblue']
-group_colors = ['lightsteelblue','cornflowerblue','darkblue']
-
-# name = 'Well Densities by Groundwater Regulation'
-# horlabel = 'Well Densities (well/km^2)'
-name = 'Number of wells by Groundwater Regulation'
-horlabel = 'Number of Wells (#)'
-fsize = 14
-
-df_test.plot(figsize = (9,6),
-        kind='bar',
-        stacked=False,
-        # title=name,
-        color = group_colors,
-        zorder = 2,
-        width = 0.85,
-        fontsize = fsize
-        )
-# plt.title(name, fontsize = (fsize+2))
-plt.ylabel(horlabel, fontsize = fsize)
-plt.xticks(rotation=0)
-plt.grid(axis='y', linewidth=0.5, zorder=0)
-plt.legend(fontsize = fsize)
-
-
-# plt.savefig(outputpath_local+name+'groupedchart', dpi=600)
-
-
-# %% Below is for Water Access Category
-ds = wdc1_wc.copy()
-# ds = dens_wdc1_wc.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['Receives \nCAP \n(Regulated)'] = ds[labels[0]]
-ds1['GW \nDominated \n(Regulated)'] = ds[labels[3]]
-ds1['Surface \nWater \nDominated'] = ds[labels[5]]
-ds1['Mixed Source'] = ds[labels[2]]
-ds1['GW \nDominated'] = ds[labels[1]]
-
-dft1 = ds1.copy()
-dft1
-
-
-ds = wdc2_wc.copy()
-# ds = dens_wdc2_wc.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['Receives \nCAP \n(Regulated)'] = ds[labels[0]]
-ds1['GW \nDominated \n(Regulated)'] = ds[labels[3]]
-ds1['Surface \nWater \nDominated'] = ds[labels[5]]
-ds1['Mixed Source'] = ds[labels[2]]
-ds1['GW \nDominated'] = ds[labels[1]]
-
-dft2 = ds1.copy()
-dft2
-
-
-ds = wdc3_wc.copy()
-# ds = dens_wdc3_wc.copy()
-columns = ds.columns
-labels = ds.columns.tolist()
-
-ds1 = pd.DataFrame()
-ds1['Receives \nCAP \n(Regulated)'] = ds[labels[0]]
-ds1['GW \nDominated \n(Regulated)'] = ds[labels[3]]
-ds1['Surface \nWater \nDominated'] = ds[labels[5]]
-ds1['Mixed Source'] = ds[labels[2]]
-ds1['GW \nDominated'] = ds[labels[1]]
-
-dft3 = ds1.copy()
-dft3
-
-df1 = pd.DataFrame(dft1.sum())
-df1 = df1.transpose()
-df1 = df1.reset_index()
-df1['index'] = 'Deep'
-df1.set_index('index', inplace=True)
-df1
-
-df2 = pd.DataFrame(dft2.sum())
-df2 = df2.transpose()
-df2 = df2.reset_index()
-df2['index'] = 'Midrange'
-df2.set_index('index', inplace=True)
-df2
-
-df3 = pd.DataFrame(dft3.sum())
-df3 = df3.transpose()
-df3 = df3.reset_index()
-df3['index'] = 'Shallow'
-df3.set_index('index', inplace=True)
-df3
-
-df_test = df3.append([df2,df1])
-df_test = df_test.transpose()
-df_test = df_test.rename_axis(None,axis=1)
-df_test
-
-# group_colors = ['cornflowerblue','slategrey','darkblue']
-group_colors = ['lightsteelblue','cornflowerblue','darkblue']
-
-# name = 'Well Densities by Access to Surface Water'
-# horlabel = 'Well Densities (well/km^2)'
-name = 'Number of wells by Access to Surface Water'
-horlabel = 'Number of Wells (#)'
-fsize = 14
-
-df_test.plot(figsize = (9,6),
-        kind='bar',
-        stacked=False,
-        # title=name,
-        color = group_colors,
-        zorder = 2,
-        width = 0.85,
-        fontsize = fsize
-        )
-# plt.title(name, fontsize = (fsize+2))
-plt.ylabel(horlabel, fontsize = fsize)
-plt.xticks(rotation=0)
-plt.grid(axis='y', linewidth=0.5, zorder=0)
-plt.legend(fontsize = fsize)
-
-# plt.savefig(outputpath_local+name+'groupedchart_version2',dpi=600)
-# %% Now for plotting with exempt/non-exempt on the bar graph for Number wells
+# %% Grouped Bar Chart for Figure 5a
 # Summing the data
 
 # Shallow
@@ -598,53 +242,57 @@ with sns.axes_style("white"):
                               color=depth_colors[0],
                               edgecolor='000000',
                               linewidth=line_width,
-                              hatch='//',
-                              label='Shallow: Small Wells')
+                              hatch='//'
+                              # label='Shallow: Small Wells'
+                              )
     shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
                               bottom=shallow_exempt,
                               linewidth=line_width,
                               edgecolor='000000',
                             #   alpha=opacity,
                               color=depth_colors[0],
-                              label='     "      : Large Wells')
+                              label='Shallow')
 
     Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
                               color=depth_colors[1],
                               hatch='//',
                               edgecolor='#000000',
                               ecolor="#000000",
-                              linewidth=line_width,
-                              label='Midrange: Small Wells')
+                              linewidth=line_width
+                              # label='Midrange: Small Wells'
+                              )
     Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
                               bottom=mid_exempt, # On top of first category
                               edgecolor='000000',
                               linewidth=line_width,
                               color=depth_colors[1],
-                              label='      "       : Large Wells')
+                              label='Midrange')
     
     Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
                               color=depth_colors[2],
                               edgecolor='lightsteelblue',
                               linewidth=line_width,
-                              hatch='//',
-                              label='Deep: Small Wells')
+                              hatch='//'
+                              # label='Deep: Small Wells'
+                              )
     Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
                               bottom=deep_exempt,
                               linewidth=line_width,
                             #   alpha=opacity,
                               color=depth_colors[2],
-                              label='   "    : Large Wells')
-
+                              label='Deep')
+    
     plt.xticks(middle_bar_positions, big_categories
                , rotation=0
                )
     plt.ylabel('Number of Wells')
     plt.grid(axis='y', linewidth=0.5, zorder=0)
+    plt.title('a)', pad = 20, loc='left',fontsize=22)
     # plt.legend(bbox_to_anchor=(1.1, 1.05))  
     sns.despine()  
-    # plt.savefig(outputpath_local+'NumberWells_Regulation_BarGraph', bbox_inches='tight')
+    plt.savefig(figurepath+'Figure5a', bbox_inches='tight')
 
-# %% Now for plotting with exempt/non-exempt on the bar graph for densities
+# %% Figure 5b
 # Summing the data
 
 # Shallow
@@ -693,54 +341,51 @@ with sns.axes_style("white"):
                               color=depth_colors[0],
                               edgecolor='000000',
                               linewidth=line_width,
-                              hatch='//',
-                              label='Shallow: Small Wells')
+                              hatch='//')
     shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
                               bottom=shallow_exempt,
                               linewidth=line_width,
                               edgecolor='000000',
                             #   alpha=opacity,
                               color=depth_colors[0],
-                              label='     "      : Large Wells')
+                              label='Shallow')
 
     Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
                               color=depth_colors[1],
                               hatch='//',
                               edgecolor='#000000',
                               ecolor="#000000",
-                              linewidth=line_width,
-                              label='Midrange: Small Wells')
+                              linewidth=line_width)
     Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
                               bottom=mid_exempt, # On top of first category
                               edgecolor='000000',
                               linewidth=line_width,
                               color=depth_colors[1],
-                              label='      "       : Large Wells')
+                              label='Midrange')
     
     Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
                               color=depth_colors[2],
                               edgecolor='lightsteelblue',
                               linewidth=line_width,
-                              hatch='//',
-                              label='Deep: Small Wells')
+                              hatch='//')
     Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
                               bottom=deep_exempt,
                               linewidth=line_width,
                             #   alpha=opacity,
                               color=depth_colors[2],
-                              label='   "    : Large Wells')
+                              label='Deep')
 
     plt.xticks(middle_bar_positions, big_categories
                , rotation=0
                )
     plt.ylabel('Well Densities (well/km^2)')
     plt.grid(axis='y', linewidth=0.5, zorder=0)
+    plt.title('b)', pad = 20, loc='left',fontsize=22)
     # plt.legend(bbox_to_anchor=(1.75, 1.05))  
     sns.despine()  
-    plt.savefig(outputpath_local+'WellDensities_Regulation_BarGraph', bbox_inches='tight')
+    plt.savefig(figurepath+'Figure5b', bbox_inches='tight')
  
-
-# %% Now for plotting with exempt/non-exempt on the bar graph by water category
+# %% Figure 5c
 # Summing the data
 
 # Shallow
@@ -791,65 +436,51 @@ with sns.axes_style("white"):
                               color=depth_colors[0],
                               edgecolor='000000',
                               linewidth=line_width,
-                              hatch='//',
-                              label='Shallow: Small Wells')
+                              hatch='//')
     shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
                               bottom=shallow_exempt,
                               linewidth=line_width,
                               edgecolor='000000',
                             #   alpha=opacity,
                               color=depth_colors[0],
-                              label='     "      : Large Wells')
+                              label='Shallow')
 
     Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
                               color=depth_colors[1],
                               hatch='//',
                               edgecolor='#000000',
                               ecolor="#000000",
-                              linewidth=line_width,
-                              label='Midrange: Small Wells')
+                              linewidth=line_width)
     Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
                               bottom=mid_exempt, # On top of first category
                               edgecolor='000000',
                               linewidth=line_width,
                               color=depth_colors[1],
-                              label='      "       : Large Wells')
+                              label='Midrange')
     
     Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
                               color=depth_colors[2],
                               edgecolor='lightsteelblue',
                               linewidth=line_width,
-                              hatch='//',
-                              label='Deep: Small Wells')
+                              hatch='//')
     Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
                               bottom=deep_exempt,
                               linewidth=line_width,
                             #   alpha=opacity,
                               color=depth_colors[2],
-                              label='   "    : Large Wells')
+                              label='Deep')
 
     plt.xticks(middle_bar_positions, big_categories
                , rotation=0
                )
     plt.ylabel('Number of Wells')
     plt.grid(axis='y', linewidth=0.5, zorder=0)
-    plt.legend(bbox_to_anchor=(1.0, 1.05))  
+    plt.title('c)', pad = 20, loc='left',fontsize=22)
+    # plt.legend(bbox_to_anchor=(1.0, 1.05))  
     sns.despine()
-    plt.savefig(outputpath_local+'NumberWells_WC_BarGraph', bbox_inches='tight')
+    plt.savefig(figurepath+'Figure5c', bbox_inches='tight')
 
-# %% Totals
-ds1 = ds1.drop('MONITOR',axis=1,level=1)
-ds2 = ds2.drop('MONITOR',axis=1,level=1)
-ds3 = ds3.drop('MONITOR',axis=1,level=1)
-
-# %%
-allRegUreg = ds1 + ds2 + ds3
-allRegUreg
-
-# %%
-print('Regulated total = ', (allRegUreg.iloc[0,0]+allRegUreg.iloc[0,1]))
-print('Unregulated total = ', (allRegUreg.iloc[0,2]+allRegUreg.iloc[0,3]))
-# %% Now for plotting with exempt/non-exempt on the bar graph by water category
+# %% Figure 5d
 # Summing the data
 
 # Shallow
@@ -900,80 +531,245 @@ with sns.axes_style("white"):
                               color=depth_colors[0],
                               edgecolor='000000',
                               linewidth=line_width,
-                              hatch='//',
-                              label='Shallow: Small Wells')
+                              hatch='//')
     shallow_Nonexempt_Bar = plt.bar(left_bar_positions, shallow_nonexempt, bar_width,
                               bottom=shallow_exempt,
                               linewidth=line_width,
                               edgecolor='000000',
                             #   alpha=opacity,
                               color=depth_colors[0],
-                              label='     "      : Large Wells')
+                              label='Shallow')
 
     Mid_Exempt_bar = plt.bar(middle_bar_positions, mid_exempt, bar_width-epsilon,
                               color=depth_colors[1],
                               hatch='//',
                               edgecolor='#000000',
                               ecolor="#000000",
-                              linewidth=line_width,
-                              label='Midrange: Small Wells')
+                              linewidth=line_width)
     Mid_Nonexempt_bar = plt.bar(middle_bar_positions, mid_nonexempt, bar_width,
                               bottom=mid_exempt, # On top of first category
                               edgecolor='000000',
                               linewidth=line_width,
                               color=depth_colors[1],
-                              label='      "       : Large Wells')
+                              label='Midrange')
     
     Deep_Exempt_Bar = plt.bar(right_bar_positions, deep_exempt, bar_width-epsilon,
                               color=depth_colors[2],
                               edgecolor='lightsteelblue',
                               linewidth=line_width,
-                              hatch='//',
-                              label='Deep: Small Wells')
+                              hatch='//')
     Deep_Nonexempt_Bar = plt.bar(right_bar_positions, deep_nonexempt, bar_width,
                               bottom=deep_exempt,
                               linewidth=line_width,
                             #   alpha=opacity,
                               color=depth_colors[2],
-                              label='   "    : Large Wells')
+                              label='Deep')
+    dummy_bar = plt.bar(0, 0, bar_width-epsilon,
+                              color='white',
+                              edgecolor='black',
+                              linewidth=line_width,
+                              hatch='//',
+                              label='Small Wells')
 
     plt.xticks(middle_bar_positions, big_categories
                , rotation=0
                )
     plt.ylabel('Well Densities (well/km^2)')
     plt.grid(axis='y', linewidth=0.5, zorder=0)
+    plt.title('d)', pad = 20, loc='left',fontsize=22)
     plt.legend(bbox_to_anchor=(1.0, 1.05))  
     sns.despine()
-    plt.savefig(outputpath_local+'WellDensities_WC_BarGraph', bbox_inches='tight')
+    plt.savefig(figurepath+'Figure5d', bbox_inches='tight')
 
-# %%  === Plotting Water Level Madness ===
- 
-cat_wl2_georeg = cat_wl2_georeg.transpose()
-cat_wl2_georeg
+# %% # Plot for Figure 6 a) Shallow, b) Midrange, and c) Deep wells by Regulation
+# Formatting correctly
+test = wdc1_reg.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+wdc1_reg = test
+
+test = wdc2_reg.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+wdc2_reg = test
+
+test = wdc3_reg.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+wdc3_reg = test
+
+ds1 = wdc1_reg
+ds2 = wdc2_reg
+ds3 = wdc3_reg
+
+name = 'New Wells by Drilling Depths over Time'
+ylabel = "Well Count (#)"
+minyear=1975.0
+maxyear=2020.0
+fsize = 14
+
+columns = ds1.columns
+labels = ds1.columns.tolist()
+print(labels)
+
+# For the actual figure
+fig, ax = plt.subplots(1,3,figsize=(15,5))
+fig.supylabel(ylabel, fontsize = fsize, x=0.07)
+
+ax[0].plot(ds3[labels[0]],'--', label='Regulated', color='black')
+ax[0].plot(ds3[labels[2]], label='Unregulated', color='black')
+ax[1].plot(ds2[labels[0]],'--', label='Regulated', color='black')
+ax[1].plot(ds2[labels[2]], label='Unregulated', color='black')
+ax[2].plot(ds1[labels[0]],'--', label='Regulated', color='black')
+ax[2].plot(ds1[labels[2]], label='Unregulated', color='black')
+
+
+# Lines for 1993 and 2007
+style = ':'
+ax[0].axvline(1993,ls = style, color=specialyears, zorder=1)
+ax[1].axvline(1993,ls = style,color=specialyears, zorder=1)
+ax[2].axvline(1993,ls = style,color=specialyears, zorder=1)
+ax[0].axvline(2007,ls = style,color=specialyears, zorder=1)
+ax[1].axvline(2007,ls = style,color=specialyears, zorder=1)
+ax[2].axvline(0,ls = style,color='white', zorder=1,label=" ")
+ax[2].axvline(2007,ls = style,color=specialyears, zorder=1,label='1993 and 2007')
+
+ax[0].set_xlim(minyear,maxyear)
+ax[1].set_xlim(minyear,maxyear)
+ax[2].set_xlim(minyear,maxyear)
+
+ax[0].set_title('a)', fontsize= fsize+2, loc='left')
+ax[1].set_title('b)', fontsize = fsize+2, loc='left')
+ax[2].set_title('c)', fontsize = fsize+2, loc='left')
+
+ax[0].grid(True)
+ax[1].grid(True)
+ax[2].grid(True)
+
+ax[0].tick_params(labelsize=fsize)
+ax[1].tick_params(labelsize=fsize)
+ax[2].tick_params(labelsize=fsize)
+
+ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
+
+fig.set_dpi(600.0)
+
+plt.savefig(figurepath+'Figure6_abc', bbox_inches='tight')
+
 # %%
-cat_wl2_georeg.reset_index(inplace=True)
-cat_wl2_georeg['index'] = pd.to_numeric(cat_wl2_georeg['index'])
-cat_wl2_georeg.set_index('index', inplace=True)
-cat_wl2_georeg.info()
+# Plot for Figure 6 d) Shallow, e) Midrange, and f) Deep wells by Access to SW
+# Formatting correctly
+test = wdc1_wc.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+wdc1_wc = test
 
-# %%
-cat_wl2_georeg = cat_wl2_georeg.transpose()
-cat_wl2_georeg
+test = wdc2_wc.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+wdc2_wc = test
 
-# %% -- Linear regression --
-# This is testing whether or not the slope is positive or negative (2-way)
-#       For our purposes, time is the x variable and y is
-#       1. Depth to Water
-#       2. Number of Wells
-#       3. Well Depths
+test = wdc3_wc.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+wdc3_wc = test
 
-# Actual documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.linregress.html
-# Tutorial from https://mohammadimranhasan.com/linear-regression-of-time-series-data-with-pandas-library-in-python/
+ds1 = wdc1_wc
+ds2 = wdc2_wc
+ds3 = wdc3_wc
 
-# %% Linear Regression
+name = 'New Wells by Drilling Depths over Time'
+ylabel = "Well Count (#)"
+minyear=1975
+maxyear=2022
+#min_y = -15
+#max_y = 7
+fsize = 14
+
+columns = ds1.columns
+labels = ds1.columns.tolist()
+print(labels)
+
+# For the actual figure
+fig, ax = plt.subplots(1,3,figsize=(15,5))
+#fig.tight_layout()
+# fig.suptitle(name, fontsize=18, y=1.00)
+fig.supylabel(ylabel, fontsize = 14, x=0.06)
+
+style = ':'
+# Lines for 1993 and 2007
+ax[0].axvline(1993,ls = style, color=specialyears)
+ax[1].axvline(1993,ls = style,color=specialyears)
+ax[2].axvline(1993,ls = style,color=specialyears)
+ax[0].axvline(2007,ls = style,color=specialyears)
+ax[1].axvline(2007,ls = style,color=specialyears)
+ax[2].axvline(2007,ls = style,color=specialyears)
+
+ax[0].plot(ds3[labels[0]], label='Receives CAP (Regulated)', color=cap)
+ax[0].plot(ds3[labels[3]], label='GW Dominated (Regulated)', color=noCAP)
+ax[0].plot(ds3[labels[4]], label='Surface Water Dominated', color=swdom)
+ax[0].plot(ds3[labels[2]], label='Mixed Source', color=mixed)
+ax[0].plot(ds3[labels[1]], label='GW Dominated', color=GWdom)
+
+ax[1].plot(ds2[labels[0]], label='Receives CAP (Regulated)', color=cap)
+ax[1].plot(ds2[labels[3]], label='GW Dominated (Regulated)', color=noCAP)
+ax[1].plot(ds2[labels[4]], label='Surface Water Dominated', color=swdom)
+ax[1].plot(ds2[labels[2]], label='Mixed Source', color=mixed)
+ax[1].plot(ds2[labels[1]], label='GW Dominated', color=GWdom)
+
+ax[2].plot(ds1[labels[0]], label='Receives CAP (Regulated)', color=cap)
+ax[2].plot(ds1[labels[3]], label='GW Dominated (Regulated)', color=noCAP)
+ax[2].plot(ds1[labels[4]], label='Surface Water Dominated', color=swdom)
+ax[2].plot(ds1[labels[2]], label='Mixed Source', color=mixed)
+ax[2].plot(ds1[labels[1]], label='GW Dominated', color=GWdom)
+
+ax[0].set_xlim(minyear,maxyear)
+ax[1].set_xlim(minyear,maxyear)
+ax[2].set_xlim(minyear,maxyear)
+
+#ax[0].set_ylim(min_y,max_y)
+#ax[1].set_ylim(min_y,max_y)
+#ax[2].set_ylim(min_y,max_y)
+
+ax[0].set_title('d)', fontsize= fsize+2, loc='left')
+ax[1].set_title('e)', fontsize = fsize+2, loc='left')
+ax[2].set_title('f)', fontsize = fsize+2, loc='left')
+
+ax[0].grid(True)
+ax[1].grid(True)
+ax[2].grid(True)
+
+ax[0].tick_params(labelsize=fsize)
+ax[1].tick_params(labelsize=fsize)
+ax[2].tick_params(labelsize=fsize)
+
+ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
+
+fig.set_dpi(600.0)
+
+plt.savefig(figurepath+'Figure6_def', bbox_inches='tight')
+
+# %% Figure 7b
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
-data_type = "Depth to Water"
 min_yr = 1975
 mx_yr = 2020
 betterlabels = ['Recieves CAP (Regulated)'
@@ -981,12 +777,8 @@ betterlabels = ['Recieves CAP (Regulated)'
                 ,'Surface Water Dominated'
                 ,'GW Dominated'
                 ,'Mixed Source'] 
-Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
-print(Name)
 
 f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
-columns = ds.columns
-column_list = ds.columns.tolist()
 columns = ds.columns
 column_list = ds.columns.tolist()
 
@@ -998,17 +790,11 @@ for i in column_list:
         y=np.array(df.values, dtype=float)
         x=np.array(pd.to_datetime(df).index.values, dtype=float)
         slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-        stats = stats.append({'slope': slope, 
-                              'int':intercept, 
-                              'rsq':r_value*r_value, 
-                              'p_val':p_value, 
-                              'std_err':std_err, 
-                              'mean': np.mean(y),
-                              'var': np.var(y),
-                              'sum': np.sum(y)
-                              },
+        stats = stats.append({'slope': slope, 'int':intercept, 
+                              'rsq':r_value*r_value, 'p_val':p_value, 
+                              'std_err':std_err, 'mean': np.mean(y),
+                              'var': np.var(y),'sum': np.sum(y)},
                               ignore_index=True)
-
 
 stats.index = betterlabels
 stats1 = stats.transpose()
@@ -1042,371 +828,51 @@ yf3 = (m3*xf)+yint3
 yf4 = (m4*xf)+yint4
 yf5 = (m5*xf)+yint5
 
-fig, ax = plt.subplots(1, 1, figsize = (7,4.5))
-# fig, ax = plt.subplots(figsize = (16,9))
+fig, ax = plt.subplots(1, 1, figsize = (14,9))
 
-ax.plot(xf1, yf1,"-.",color=cap,label='Linear Trendline', lw=1)
+ax.plot(xf1, yf1,"-.",color=cap, lw=1)
 ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
 ax.plot(xf1, yf3,"-.",color=mixed, lw=1)
 ax.plot(xf1, yf4,"-.",color='#CCC339', lw=1)
 ax.plot(xf1, yf5,"-.",color=swdom, lw=1)
 
-# f.plot(ax=ax,marker='o', ls='', label=betterlabels)
-# Trying to draw lines with better shit 
-
-ds = cat_wl2_SW
-minyear=1975
-maxyear=2020
 min_y = 75
 max_y = 300
-fsize = 12
+fsize = 16
 
-ax.plot(ds['CAP'], label=betterlabels[0], color=cap)
-ax.plot(ds['No_CAP'], label=betterlabels[1], color='#CCC339') 
-ax.plot(ds['SW'], label=betterlabels[2], color=swdom) 
-ax.plot(ds['Mix'], label=betterlabels[4], color=mixed)
-ax.plot(ds['GW'], label=betterlabels[3], color=GWdom)  
+ax.plot(ds['CAP'], label=betterlabels[0], color=cap,zorder=2)
+ax.plot(ds['No_CAP'], label=betterlabels[1], color='#CCC339',zorder=2) 
+ax.plot(ds['SW'], label=betterlabels[2], color=swdom,zorder=2) 
+ax.plot(ds['Mix'], label=betterlabels[4], color=mixed,zorder=2)
+ax.plot(ds['GW'], label=betterlabels[3], color=GWdom,zorder=2)  
 
 ax.set_xlim(minyear,maxyear)
 ax.set_ylim(min_y,max_y)
 # ax.grid(True)
 ax.grid(visible=True,which='major')
 ax.grid(which='minor',color='#EEEEEE', lw=0.8)
-# ax.set_title(name, fontsize=20)
 ax.set_xlabel('Year', fontsize=fsize)
 ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
-ax.legend(loc = [1.04, 0.40], fontsize = 10)
 ax.minorticks_on()
-
 fig.set_dpi(600.0)
+ax.set_title('b)',loc='left',pad=15)
+ax.legend()
 
-# ax.set_xlim(min_yr, mx_yr)
-ax.set_ylim(75,300)
-# ax.set_title(Name)
-vertshift = 0
-plt.figtext(0.95, 0.5 - vertshift, 'CAP equation: y = '+str(m1)+'x + '+str(yint1))
-plt.figtext(0.98, 0.45 - vertshift, 'rsq = '+ str(rsq1) + '; p-value = ' + str(pval1))
-plt.figtext(0.95, 0.4 - vertshift, 'Unregulated GW equation: y = '+str(m2)+'x + '+str(yint2))
-plt.figtext(0.98, 0.35 - vertshift, 'rsq = '+ str(rsq2) +'; p-value = ' + str(pval2))
-plt.figtext(0.95, 0.3 - vertshift, 'Mixed SW/GW equation: y = '+str(m3)+'x + '+str(yint3))
-plt.figtext(0.98, 0.25 - vertshift, 'rsq = '+ str(rsq3) +'; p-value = ' + str(pval3))
-plt.figtext(0.95, 0.2 - vertshift, 'Regulated GW equation: y = '+str(m4)+'x + '+str(yint4))
-plt.figtext(0.98, 0.15 - vertshift, 'rsq = '+ str(rsq4) +'; p-value = ' + str(pval4))
-plt.figtext(0.95, 0.1 - vertshift, 'SW equation: y = '+str(m5)+'x + '+str(yint5))
-plt.figtext(0.98, 0.05 - vertshift, 'rsq = '+ str(rsq5) +'; p-value = ' + str(pval5))
+#Putting Grace on a secondary axis
+ax2 = ax.twinx()
+ax2.plot(grace_yearly['0'], label='State Average LWE', color='k',zorder=1)
+ax2.set_ylim([5, -15])
+ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
+ax2.legend(loc='lower right')
 
-ax.legend(
-        loc = [1.065, 0.65]
-        )
-plt.savefig(outputpath_local+Name, bbox_inches = 'tight')
-# plt.savefig(outputpath+'Stats/Water_CAT/'+Name, bbox_inches = 'tight')
+plt.savefig(figurepath+'Figure7b', bbox_inches = 'tight')
 
-# %% Piecewise Linear Regression
-# For Depth to Water by SW Access
-ds = cat_wl2_SW
-data_type = "Depth to Water"
-# -- Piece 1 --
-min_yr = 1975
-mx_yr = 1985
-betterlabels = ['Recieves CAP (Regulated)'
-                ,'GW Dominated (Regulated)'
-                ,'Surface Water Dominated'
-                ,'GW Dominated'
-                ,'Mixed Source'] 
-Name1 = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
-print(Name1)
-
-f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
-columns = ds.columns
-column_list = ds.columns.tolist()
-
-stats = pd.DataFrame()
-for i in column_list:
-        df = f[i]
-        # df = f[i].pct_change()
-        #print(df)
-        y=np.array(df.values, dtype=float)
-        x=np.array(pd.to_datetime(df).index.values, dtype=float)
-        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-        stats = stats.append({'slope': slope, 
-                              'int':intercept, 
-                              'rsq':r_value*r_value, 
-                              'p_val':p_value, 
-                              'std_err':std_err, 
-                              'mean': np.mean(y),
-                              'var': np.var(y),
-                              'sum': np.sum(y)
-                              },
-                              ignore_index=True)
-
-
-stats.index = betterlabels
-stats1 = stats.transpose()
-print(stats1)
-# -- Data visualization --
-xf = np.linspace(min(x),max(x),100)
-xf1 = xf.copy()
-m1 = round(stats1.loc['slope',betterlabels[0]], 2)
-m2 = round(stats1.loc['slope',betterlabels[3]], 2)
-m3 = round(stats1.loc['slope',betterlabels[4]], 2)
-m4 = round(stats1.loc['slope',betterlabels[1]], 2)
-m5 = round(stats1.loc['slope',betterlabels[2]], 2)
-yint1 = round(stats1.loc['int',betterlabels[0]], 2)
-yint2 = round(stats1.loc['int',betterlabels[3]], 2)
-yint3 = round(stats1.loc['int',betterlabels[4]], 2)
-yint4 = round(stats1.loc['int',betterlabels[1]], 2)
-yint5 = round(stats1.loc['int',betterlabels[2]], 2)
-rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
-rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
-rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
-rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
-rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
-pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
-pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
-pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
-pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
-pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
-yf1 = (m1*xf)+yint1
-yf2 = (m2*xf)+yint2
-yf3 = (m3*xf)+yint3
-yf4 = (m4*xf)+yint4
-yf5 = (m5*xf)+yint5
-
-fig, ax = plt.subplots(1, 1, figsize = (12,7))
-# fig, ax = plt.subplots(figsize = (16,9))
-
-# ax.plot(xf1, yf1,"-.",color=c_2,label='Linear Trendline', lw=1)
-ax.plot(xf1, yf2,"-.",color=c_7, lw=1)
-ax.plot(xf1, yf3,"-.",color=c_5, lw=1)
-ax.plot(xf1, yf4,"-.",color=c_3, lw=1)
-# ax.plot(xf1, yf5,"-.",color=c_4, lw=1)
-
-vertshift = -0.3
-horshift = 0
-plt.figtext(0.94+horshift, 0.55 - vertshift, 'Regression for ' +str(min_yr)+' to '+str(mx_yr)+':')
-plt.figtext(0.95+horshift, 0.5 - vertshift, 'CAP equation: y = '+str(m1)+'x + '+str(yint1))
-plt.figtext(0.98+horshift, 0.45 - vertshift, 'rsq = '+ str(rsq1) + '; p-value = ' + str(pval1))
-plt.figtext(0.95+horshift, 0.4 - vertshift, 'Unregulated GW equation: y = '+str(m2)+'x + '+str(yint2))
-plt.figtext(0.98+horshift, 0.35 - vertshift, 'rsq = '+ str(rsq2) +'; p-value = ' + str(pval2))
-plt.figtext(0.95+horshift, 0.3 - vertshift, 'Mixed SW/GW equation: y = '+str(m3)+'x + '+str(yint3))
-plt.figtext(0.98+horshift, 0.25 - vertshift, 'rsq = '+ str(rsq3) +'; p-value = ' + str(pval3))
-plt.figtext(0.95+horshift, 0.2 - vertshift, 'Regulated GW equation: y = '+str(m4)+'x + '+str(yint4))
-plt.figtext(0.98+horshift, 0.15 - vertshift, 'rsq = '+ str(rsq4) +'; p-value = ' + str(pval4))
-plt.figtext(0.95+horshift, 0.1 - vertshift, 'SW equation: y = '+str(m5)+'x + '+str(yint5))
-plt.figtext(0.98+horshift, 0.05 - vertshift, 'rsq = '+ str(rsq5) +'; p-value = ' + str(pval5))
-
-# -- Piece 2 --
-min_yr = 1985
-mx_yr = 1995
-Name2 = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
-print(Name2)
-
-f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
-columns = ds.columns
-column_list = ds.columns.tolist()
-
-stats = pd.DataFrame()
-for i in column_list:
-        df = f[i]
-        # df = f[i].pct_change()
-        #print(df)
-        y=np.array(df.values, dtype=float)
-        x=np.array(pd.to_datetime(df).index.values, dtype=float)
-        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-        stats = stats.append({'slope': slope, 
-                              'int':intercept, 
-                              'rsq':r_value*r_value, 
-                              'p_val':p_value, 
-                              'std_err':std_err, 
-                              'mean': np.mean(y),
-                              'var': np.var(y),
-                              'sum': np.sum(y)
-                              },
-                              ignore_index=True)
-
-
-stats.index = betterlabels
-stats1 = stats.transpose()
-print(stats1)
-# -- Data visualization --
-xf = np.linspace(min(x),max(x),100)
-xf1 = xf.copy()
-m1 = round(stats1.loc['slope',betterlabels[0]], 2)
-m2 = round(stats1.loc['slope',betterlabels[3]], 2)
-m3 = round(stats1.loc['slope',betterlabels[4]], 2)
-m4 = round(stats1.loc['slope',betterlabels[1]], 2)
-m5 = round(stats1.loc['slope',betterlabels[2]], 2)
-yint1 = round(stats1.loc['int',betterlabels[0]], 2)
-yint2 = round(stats1.loc['int',betterlabels[3]], 2)
-yint3 = round(stats1.loc['int',betterlabels[4]], 2)
-yint4 = round(stats1.loc['int',betterlabels[1]], 2)
-yint5 = round(stats1.loc['int',betterlabels[2]], 2)
-rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
-rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
-rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
-rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
-rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
-pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
-pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
-pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
-pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
-pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
-yf1 = (m1*xf)+yint1
-yf2 = (m2*xf)+yint2
-yf3 = (m3*xf)+yint3
-yf4 = (m4*xf)+yint4
-yf5 = (m5*xf)+yint5
-
-# ax.plot(xf1, yf1,"-.",color=c_2, lw=1)
-ax.plot(xf1, yf2,"-.",color=c_7, lw=1)
-ax.plot(xf1, yf3,"-.",color=c_5, lw=1)
-ax.plot(xf1, yf4,"-.",color=c_3, lw=1)
-# ax.plot(xf1, yf5,"-.",color=c_4, lw=1)
-
-vertshift = -0.3
-horshift = 0.3
-plt.figtext(0.94+horshift, 0.55 - vertshift, 'Regression for ' +str(min_yr)+' to '+str(mx_yr)+':')
-plt.figtext(0.95+horshift, 0.5 - vertshift, 'CAP equation: y = '+str(m1)+'x + '+str(yint1))
-plt.figtext(0.98+horshift, 0.45 - vertshift, 'rsq = '+ str(rsq1) + '; p-value = ' + str(pval1))
-plt.figtext(0.95+horshift, 0.4 - vertshift, 'Unregulated GW equation: y = '+str(m2)+'x + '+str(yint2))
-plt.figtext(0.98+horshift, 0.35 - vertshift, 'rsq = '+ str(rsq2) +'; p-value = ' + str(pval2))
-plt.figtext(0.95+horshift, 0.3 - vertshift, 'Mixed SW/GW equation: y = '+str(m3)+'x + '+str(yint3))
-plt.figtext(0.98+horshift, 0.25 - vertshift, 'rsq = '+ str(rsq3) +'; p-value = ' + str(pval3))
-plt.figtext(0.95+horshift, 0.2 - vertshift, 'Regulated GW equation: y = '+str(m4)+'x + '+str(yint4))
-plt.figtext(0.98+horshift, 0.15 - vertshift, 'rsq = '+ str(rsq4) +'; p-value = ' + str(pval4))
-plt.figtext(0.95+horshift, 0.1 - vertshift, 'SW equation: y = '+str(m5)+'x + '+str(yint5))
-plt.figtext(0.98+horshift, 0.05 - vertshift, 'rsq = '+ str(rsq5) +'; p-value = ' + str(pval5))
-
-# -- Piece 3 --
-min_yr = 1995
-mx_yr = 2020
-Name3 = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
-print(Name3)
-
-f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
-columns = ds.columns
-column_list = ds.columns.tolist()
-
-stats = pd.DataFrame()
-for i in column_list:
-        df = f[i]
-        # df = f[i].pct_change()
-        #print(df)
-        y=np.array(df.values, dtype=float)
-        x=np.array(pd.to_datetime(df).index.values, dtype=float)
-        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-        stats = stats.append({'slope': slope, 
-                              'int':intercept, 
-                              'rsq':r_value*r_value, 
-                              'p_val':p_value, 
-                              'std_err':std_err, 
-                              'mean': np.mean(y),
-                              'var': np.var(y),
-                              'sum': np.sum(y)
-                              },
-                              ignore_index=True)
-
-
-stats.index = betterlabels
-stats1 = stats.transpose()
-print(stats1)
-# -- Data visualization --
-xf = np.linspace(min(x),max(x),100)
-xf1 = xf.copy()
-m1 = round(stats1.loc['slope',betterlabels[0]], 2)
-m2 = round(stats1.loc['slope',betterlabels[3]], 2)
-m3 = round(stats1.loc['slope',betterlabels[4]], 2)
-m4 = round(stats1.loc['slope',betterlabels[1]], 2)
-m5 = round(stats1.loc['slope',betterlabels[2]], 2)
-yint1 = round(stats1.loc['int',betterlabels[0]], 2)
-yint2 = round(stats1.loc['int',betterlabels[3]], 2)
-yint3 = round(stats1.loc['int',betterlabels[4]], 2)
-yint4 = round(stats1.loc['int',betterlabels[1]], 2)
-yint5 = round(stats1.loc['int',betterlabels[2]], 2)
-rsq1 = round(stats1.loc['rsq', betterlabels[0]], 4)
-rsq2 = round(stats1.loc['rsq', betterlabels[3]], 4)
-rsq3 = round(stats1.loc['rsq', betterlabels[4]], 4)
-rsq4 = round(stats1.loc['rsq', betterlabels[1]], 4)
-rsq5 = round(stats1.loc['rsq', betterlabels[2]], 4)
-pval1 = round(stats1.loc['p_val', betterlabels[0]], 4)
-pval2 = round(stats1.loc['p_val', betterlabels[3]], 4)
-pval3 = round(stats1.loc['p_val', betterlabels[4]], 4)
-pval4 = round(stats1.loc['p_val', betterlabels[1]], 4)
-pval5 = round(stats1.loc['p_val', betterlabels[2]], 4)
-yf1 = (m1*xf)+yint1
-yf2 = (m2*xf)+yint2
-yf3 = (m3*xf)+yint3
-yf4 = (m4*xf)+yint4
-yf5 = (m5*xf)+yint5
-
-# ax.plot(xf1, yf1,"-.",color=c_2, lw=1)
-ax.plot(xf1, yf2,"-.",color=c_7, lw=1)
-ax.plot(xf1, yf3,"-.",color=c_5, lw=1)
-ax.plot(xf1, yf4,"-.",color=c_3, lw=1)
-# ax.plot(xf1, yf5,"-.",color=c_4, lw=1)
-
-vertshift = -0.3
-horshift = 0.6
-plt.figtext(0.94+horshift, 0.55 - vertshift, 'Regression for ' +str(min_yr)+' to '+str(mx_yr)+':')
-plt.figtext(0.95+horshift, 0.5 - vertshift, 'CAP equation: y = '+str(m1)+'x + '+str(yint1))
-plt.figtext(0.98+horshift, 0.45 - vertshift, 'rsq = '+ str(rsq1) + '; p-value = ' + str(pval1))
-plt.figtext(0.95+horshift, 0.4 - vertshift, 'Unregulated GW equation: y = '+str(m2)+'x + '+str(yint2))
-plt.figtext(0.98+horshift, 0.35 - vertshift, 'rsq = '+ str(rsq2) +'; p-value = ' + str(pval2))
-plt.figtext(0.95+horshift, 0.3 - vertshift, 'Mixed SW/GW equation: y = '+str(m3)+'x + '+str(yint3))
-plt.figtext(0.98+horshift, 0.25 - vertshift, 'rsq = '+ str(rsq3) +'; p-value = ' + str(pval3))
-plt.figtext(0.95+horshift, 0.2 - vertshift, 'Regulated GW equation: y = '+str(m4)+'x + '+str(yint4))
-plt.figtext(0.98+horshift, 0.15 - vertshift, 'rsq = '+ str(rsq4) +'; p-value = ' + str(pval4))
-plt.figtext(0.95+horshift, 0.1 - vertshift, 'SW equation: y = '+str(m5)+'x + '+str(yint5))
-plt.figtext(0.98+horshift, 0.05 - vertshift, 'rsq = '+ str(rsq5) +'; p-value = ' + str(pval5))
-
-
-# --- Code for Main Plot ---
-ds = cat_wl2_SW
-minyear=1975
-maxyear=2020
-min_y = 75
-max_y = 300
-fsize = 14
-
-# ax.plot(ds['CAP'], label='CAP', color=c_2)
-ax.plot(ds['No_CAP'], label='Regulated GW', color=c_3) 
-# ax.plot(ds['SW'], label='Surface Water', color=c_4) 
-ax.plot(ds['Mix'], label='Mixed SW/GW', color=c_5)
-ax.plot(ds['GW'], label='Unregulated GW', color=c_7)  
-
-ax.set_xlim(minyear,maxyear)
-ax.set_ylim(min_y,max_y)
-# ax.grid(True)
-ax.grid(visible=True,which='major')
-ax.grid(which='minor',color='#EEEEEE', lw=0.8)
-# ax.set_title(name, fontsize=20)
-ax.set_xlabel('Year', fontsize=fsize)
-ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
-ax.legend(loc = [1.04, 0.40], fontsize = fsize)
-
-ax.minorticks_on()
-
-fig.set_dpi(600.0)
-
-# ax.set_xlim(min_yr, mx_yr)
-ax.set_ylim(75,300)
-# ax.set_title(Name)
-ax.set_title('Linear Regression Depth to Water and Access to Surface Water Categories')
-ax.legend(
-        # loc = [1.065, 0.75]
-        )
-# plt.savefig(outputpath+'Stats/Water_CAT/'+Name+'_all', bbox_inches = 'tight')
-plt.savefig(outputpath_local+Name+'_GW_3pieces', bbox_inches = 'tight')
-# stats1.to_csv(outputpath+'Stats/Water_CAT/'+Name+'_GW.csv')
-
-# %% For Depth to Water by regulation
+# %% Figure 7a
+# For Depth to Water by regulation
 ds = cat_wl2_reg
-data_type = "Depth to Water"
 min_yr = 1975
 mx_yr = 2020
 betterlabels = ['Regulated','Unregulated'] 
-Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
-print(Name)
 
 f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
 columns = ds.columns
@@ -1450,19 +916,18 @@ pval2 = round(stats1.loc['p_val', 'Unregulated'], 4)
 yf1 = (m1*xf)+yint1
 yf2 = (m2*xf)+yint2
 
-fig, ax = plt.subplots(1, 1, figsize = (7,4.5))
-ax.plot(xf1, yf1,"-.",color=cap,label='Linear Trendline', lw=1)
-ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
+fig, ax = plt.subplots(1, 1, figsize = (14,9))
 
-ds = cat_wl2_reg
-minyear=1975
-maxyear=2020
 min_y = 75
 max_y = 300
-fsize = 12
+fsize = 16
 
 ax.plot(ds['R'], label='Regulated', color=cap) 
 ax.plot(ds['U'], label='Unregulated', color=GWdom) 
+
+ax.plot(xf1, yf1,"-.",color='k',label='Linear Trendline', lw=1)
+ax.plot(xf1, yf1,"-.",color=cap, lw=1)
+ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
 
 ax.set_xlim(minyear,maxyear)
 ax.set_ylim(min_y,max_y)
@@ -1471,182 +936,18 @@ ax.grid(visible=True,which='major')
 ax.grid(which='minor',color='#EEEEEE', lw=0.8)
 ax.set_xlabel('Year', fontsize=fsize)
 ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
-ax.legend(loc = [1.04, 0.40], fontsize = fsize)
 ax.minorticks_on()
-
 fig.set_dpi(600.0)
+ax.set_title('a)',loc='left',pad=15)
+ax.legend(loc='upper left')
 
-# ax.set_xlim(min_yr, mx_yr)
-ax.set_ylim(75,300)
-# ax.set_title(Name)
+#Putting Grace on a secondary axis
+ax2 = ax.twinx()
+ax2.plot(grace_yearly['0'], label='State Average LWE', color='k',zorder=1)
+ax2.set_ylim([5, -15])
+ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
+ax2.legend(loc='lower right')
 
-plt.figtext(0.95, 0.4, 'Regulated equation: y= '+str(m1)+'x + '+str(yint1))
-plt.figtext(0.96, 0.35, 'p-value = ' + str(pval1))
-plt.figtext(0.95, 0.6, 'Unregulated equation: y= '+str(m2)+'x + '+str(yint2))
-plt.figtext(0.96, 0.55, 'p-value = ' + str(pval2))
-ax.legend()
-plt.savefig(outputpath_local+Name, bbox_inches = 'tight')
-# stats1.to_csv(outputpath+'Stats/'+Name+'.csv')
+plt.savefig(figurepath+'Figure7a', bbox_inches = 'tight')
 
-
-# %% Correlation Graphs
-# =.= By Regulation =.=
-cat_wl2 = cat_wl2_reg.copy() 
-
-# Water Analysis period
-wlanalysis_period = cat_wl2[cat_wl2.index>=1975]
-
-state_wellcount = wdc1_reg.fillna(0) + wdc2_reg.fillna(0) + wdc3_reg.fillna(0)
-state_wellcount = state_wellcount[['R','U']]
-
-test = state_wellcount.copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test.set_index('Regulation', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-
-# Scatterplot of correlation values
-Name = 'Comparing Number of wells with DTW by Regulation'
-regulation_scatterplot(wlanalysis_period,test,Name)
-
-
-# %% For Deep Wells
-test = wdc1_reg.fillna(0).copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test.set_index('Regulation', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-
-# Scatterplot of correlation values
-Name = 'Comparing Number of Deep Wells with DTW by Regulation'
-regulation_scatterplot(wlanalysis_period,test,Name)
-
-# %% For Midrange Wells
-test = wdc2_reg.fillna(0).copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test.set_index('Regulation', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-
-# Scatterplot of correlation values
-Name = 'Comparing Number of Midrange Wells with DTW by Regulation'
-regulation_scatterplot(wlanalysis_period,test,Name)
-
-# %% For Shallow Wells
-test = wdc3_reg.fillna(0).copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test.set_index('Regulation', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-
-# Scatterplot of correlation values
-Name = 'Comparing Number of Shallow Wells with DTW by Regulation'
-regulation_scatterplot(wlanalysis_period,test,Name)
-
-# %% For well densities
-state_wellcount = dens_wdc1_reg.fillna(0) + dens_wdc2_reg.fillna(0) + dens_wdc3_reg.fillna(0)
-state_wellcount = state_wellcount[['R','U']]
-
-test = state_wellcount.copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test.set_index('Regulation', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-
-# Scatterplot of correlation values
-Name = 'Comparing Well Densities with DTW by Regulation'
-regulation_scatterplot(wlanalysis_period,test,Name)
-
-# %% For Deep Wells
-test = dens_wdc1_reg.fillna(0).copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test.set_index('Regulation', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-
-# Scatterplot of correlation values
-Name = 'Comparing Deep Well Densities with DTW by Regulation'
-regulation_scatterplot(wlanalysis_period,test,Name)
-
-# %% For Midrange Wells
-test = dens_wdc2_reg.fillna(0).copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test.set_index('Regulation', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-
-# Scatterplot of correlation values
-Name = 'Comparing Midrange Well Densities with DTW by Regulation'
-regulation_scatterplot(wlanalysis_period,test,Name)
-
-# %% For Shallow Wells
-test = dens_wdc3_reg.fillna(0).copy()
-test = test.reset_index()
-test['Regulation'] = test['Regulation'].astype(float)
-test.set_index('Regulation', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-
-# Scatterplot of correlation values
-Name = 'Comparing Shallow Well Densities with DTW by Regulation'
-regulation_scatterplot(wlanalysis_period,test,Name)
-
-# %%
-display_corr_pairs(wlanalysis_period)
-# %% = By access to SW =
-cat_wl2 = cat_wl2_SW.copy() 
-
-# Water Analysis period
-wlanalysis_period = cat_wl2[cat_wl2.index>=1975]
-
-
-state_wellcount = wdc1_wc.fillna(0) + wdc2_wc.fillna(0) + wdc3_wc.fillna(0)
-del state_wellcount['Res']
-state_wellcount
-# %%
-test = state_wellcount.copy()
-test = test.reset_index()
-test['Water_CAT'] = test['Water_CAT'].astype(float)
-test.set_index('Water_CAT', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-test
-# %% Scatterplot of correlation values
-Name = 'Comparing Number of wells with Depth to Water Levels by Access to SW'
-sw_scatterplot(wlanalysis_period,test,Name)
-# %% Trying just for deep wells
-test = wdc1_wc.fillna(0).copy()
-test = test.reset_index()
-test['Water_CAT'] = test['Water_CAT'].astype(float)
-test.set_index('Water_CAT', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-
-Name = 'Comparing Number of Deep Wells with Depth to Water Levels by Access to SW'
-sw_scatterplot(wlanalysis_period,test,Name)
-
-# %% Trying just for midrange wells
-test = wdc2_wc.fillna(0).copy()
-test = test.reset_index()
-test['Water_CAT'] = test['Water_CAT'].astype(float)
-test.set_index('Water_CAT', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-
-Name = 'Comparing Number of Midrange Wells with Depth to Water Levels by Access to SW'
-sw_scatterplot(wlanalysis_period,test,Name)
-
-# %% Trying just for shallow wells
-test = wdc3_wc.fillna(0).copy()
-test = test.reset_index()
-test['Water_CAT'] = test['Water_CAT'].astype(float)
-test.set_index('Water_CAT', inplace=True)
-test = test[(test.index>=1975)&(test.index<=2020)]
-
-Name = 'Comparing Number of Shallow Wells with Depth to Water Levels by Access to SW'
-sw_scatterplot(wlanalysis_period,test,Name)
 # %%

@@ -181,10 +181,16 @@ wd2 = combo[(combo["WELL_DEPTH"] <= deep) & (combo["WELL_DEPTH"] >= shallow)]
 wd3 = combo[(combo["WELL_DEPTH"] < shallow)]
 
 # %% in order to make it where we can actually group these bitches
-whatever = [combo,wd1,wd2,wd3]
-for i in whatever:
-        del i['WELL_DEPTH']
+del combo['WELL_DEPTH']
 
+# %%
+combo_new = combo
+combo_new['Old_Water_CAT'] = combo_new['Water_CAT']
+combo_new
+
+# %%
+combo_new.loc[combo_new['Water_CAT']=='No_CAP'] = 'GW'
+combo_new['Water_CAT'].unique()
 # %% Now for aggregating by category for the timeseries
 # to narrow by depth database
 # combo = wd1
@@ -192,99 +198,25 @@ for i in whatever:
 cat_wl_georeg = combo.groupby(['GEOREGI_NU']).mean()
 cat_wl_reg = combo.groupby(['Regulation']).mean()
 cat_wl_SW = combo.groupby(['Water_CAT']).mean()
-
-cat_wl_georeg.info()
-
+cat_wl_SW
 # %%
-test = cat_wl_reg.copy()
-del test['Combo_ID']
-test = test.transpose()
-test
-#%%
-test.plot()
-
+cat_wl_SW_newcat = combo_new.groupby(['Old_Water_CAT']).mean()
+cat_wl_SW_newcat
 # %%
-wdc1_reg = wd1.groupby(['Regulation']).mean() # deep
-wdc2_reg = wd2.groupby(['Regulation']).mean() # midrange
-wdc3_reg = wd3.groupby(['Regulation']).mean() # shallow
-
-wdc1_SW = wd1.groupby(['Water_CAT']).mean()
-wdc2_SW = wd2.groupby(['Water_CAT']).mean()
-wdc3_SW = wd3.groupby(['Water_CAT']).mean()
-
+combo_new['Water_CAT']
+butts = combo.groupby(['Water_CAT']).mean()
+butts
 # %%
-i = wdc1_reg
-i = i.sort_values(by=['GEOREGI_NU'])
-del i['GEOREGI_NU']
-f = i.transpose()
-f.reset_index(inplace=True)
-f['index'] = pd.to_numeric(f['index'])
-f['index'] = f['index'].astype(int)
-f.set_index('index', inplace=True)
-f.info()
-wdc1_reg = f
 
-i = wdc2_reg
-i = i.sort_values(by=['GEOREGI_NU'])
-del i['GEOREGI_NU']
-f = i.transpose()
-f.reset_index(inplace=True)
-f['index'] = pd.to_numeric(f['index'])
-f['index'] = f['index'].astype(int)
-f.set_index('index', inplace=True)
-f.info()
-wdc2_reg = f
-
-i = wdc3_reg
-i = i.sort_values(by=['GEOREGI_NU'])
-del i['GEOREGI_NU']
-f = i.transpose()
-f.reset_index(inplace=True)
-f['index'] = pd.to_numeric(f['index'])
-f['index'] = f['index'].astype(int)
-f.set_index('index', inplace=True)
-f.info()
-wdc3_reg = f
-
-i = wdc1_SW
-i = i.sort_values(by=['GEOREGI_NU'])
-del i['GEOREGI_NU']
-f = i.transpose()
-f.reset_index(inplace=True)
-f['index'] = pd.to_numeric(f['index'])
-f['index'] = f['index'].astype(int)
-f.set_index('index', inplace=True)
-f.info()
-wdc1_SW = f
-
-i = wdc2_SW
-i = i.sort_values(by=['GEOREGI_NU'])
-del i['GEOREGI_NU']
-f = i.transpose()
-f.reset_index(inplace=True)
-f['index'] = pd.to_numeric(f['index'])
-f['index'] = f['index'].astype(int)
-f.set_index('index', inplace=True)
-f.info()
-wdc2_SW = f
-
-i = wdc3_SW
-i = i.sort_values(by=['GEOREGI_NU'])
-del i['GEOREGI_NU']
-f = i.transpose()
-f.reset_index(inplace=True)
-f['index'] = pd.to_numeric(f['index'])
-f['index'] = f['index'].astype(int)
-f.set_index('index', inplace=True)
-f.info()
-wdc3_SW = f
 # %% 
 cat_wl2_georeg = cat_wl_georeg.copy()
 cat_wl2_reg = cat_wl_reg.copy()
 cat_wl2_SW = cat_wl_SW.copy()
+# cat_wl2_SW_newcat = cat_wl_SW_newcat.copy()
 
 cat_wl2_georeg = cat_wl2_georeg.sort_values(by=['GEOREGI_NU'])
 cat_wl2_SW = cat_wl2_SW.sort_values(by=['GEOREGI_NU'])
+# cat_wl2_SW_newcat = cat_wl2_SW_newcat.sort_values(by=['GEOREGI_NU'])
 
 # Clean up the dataframe for graphing
 
@@ -316,6 +248,19 @@ f['index'] = f['index'].astype(int)
 f.set_index('index', inplace=True)
 f.info()
 cat_wl2_SW = f
+
+# i = cat_wl2_SW_newcat
+# del i['GEOREGI_NU']
+# f = i.transpose()
+# f.reset_index(inplace=True)
+# f['index'] = pd.to_numeric(f['index'])
+# f['index'] = f['index'].astype(int)
+# f.set_index('index', inplace=True)
+# f.info()
+# cat_wl2_SW_newcat = f
+
+# %%
+cat_wl2_SW['GW_only'] = 
 # %% Going to export all these as CSV's
 cat_wl2_georeg.to_csv(outputpath_local+'Waterlevels_georegions.csv')
 cat_wl2_reg.to_csv(outputpath_local+'Waterlevels_Regulation.csv')
