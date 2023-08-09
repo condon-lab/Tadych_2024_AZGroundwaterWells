@@ -168,6 +168,7 @@ cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
 filepath = filepath = outputpath_web+'grace_stateavg_yearly.csv'
 # filepath = outputpath_local+'gracse_remapped_yearly.csv'
 grace_yearly = pd.read_csv(filepath, index_col=0)
+grace_yearly = grace_yearly[:-1]
 
 # Reading in the shapefile - note, figure 2 is created through QGIS
 filename_georeg = 'georeg_reproject_fixed.shp'
@@ -767,7 +768,90 @@ fig.set_dpi(600.0)
 
 plt.savefig(figurepath+'Figure6_def', bbox_inches='tight')
 
-# %% Figure 7b
+# %% Figure 7a
+# For Depth to Water by regulation
+ds = cat_wl2_reg
+min_yr = 1975
+mx_yr = 2020
+betterlabels = ['Regulated','Unregulated'] 
+
+f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
+columns = ds.columns
+column_list = ds.columns.tolist()
+
+stats = pd.DataFrame()
+# for i in range(1, 12, 1):
+for i in column_list:
+        df = f[i]
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+        stats = stats.append({'slope': slope, 
+                              'int':intercept, 
+                              'rsq':r_value*r_value, 
+                              'p_val':p_value, 
+                              'std_err':std_err, 
+                              'mean': np.mean(y),
+                              'var': np.var(y),
+                              'sum': np.sum(y)
+                              },
+                              ignore_index=True)
+
+
+stats.index = betterlabels
+stats1 = stats.transpose()
+print(stats1)
+
+# -- Data visualization --
+xf = np.linspace(min(x),max(x),100)
+xf1 = xf.copy()
+#xf1 = pd.to_datetime(xf1)
+m1 = round(stats1.loc['slope','Regulated'], 2)
+m2 = round(stats1.loc['slope','Unregulated'], 2)
+yint1 = round(stats1.loc['int','Regulated'], 2)
+yint2 = round(stats1.loc['int','Unregulated'], 2)
+pval1 = round(stats1.loc['p_val', 'Regulated'], 4)
+pval2 = round(stats1.loc['p_val', 'Unregulated'], 4)
+
+yf1 = (m1*xf)+yint1
+yf2 = (m2*xf)+yint2
+
+fig, ax = plt.subplots(1, 1, figsize = (14,9))
+
+min_y = 75
+max_y = 300
+fsize = 18
+
+ax.plot(ds['R'], label='Regulated', color=cap) 
+ax.plot(ds['U'], label='Unregulated', color=GWdom) 
+
+ax.plot(xf1, yf1,"-.",color='k',label='Linear Trendline', lw=1)
+ax.plot(xf1, yf1,"-.",color=cap, lw=1)
+ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
+
+ax.set_xlim(min_yr,mx_yr)
+ax.set_ylim(min_y,max_y)
+# ax.grid(True)
+ax.grid(visible=True,which='major')
+ax.grid(which='minor',color='#EEEEEE', lw=0.8)
+ax.set_xlabel('Year', fontsize=fsize)
+ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
+ax.minorticks_on()
+fig.set_dpi(600.0)
+ax.set_title('a)',loc='left',pad=15)
+ax.legend(loc='upper left')
+
+#Putting Grace on a secondary axis
+ax2 = ax.twinx()
+ax2.plot(grace_yearly['0'], label='State Average LWE', color='k',zorder=1)
+ax2.set_ylim([5, -15])
+ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
+ax2.legend(loc='lower right')
+
+plt.savefig(figurepath+'Figure7a', bbox_inches = 'tight')
+
+# %% Figure 7c
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
 min_yr = 1975
@@ -838,7 +922,7 @@ ax.plot(xf1, yf5,"-.",color=swdom, lw=1)
 
 min_y = 75
 max_y = 300
-fsize = 16
+fsize = 18
 
 ax.plot(ds['CAP'], label=betterlabels[0], color=cap,zorder=2)
 ax.plot(ds['No_CAP'], label=betterlabels[1], color='#CCC339',zorder=2) 
@@ -846,7 +930,7 @@ ax.plot(ds['SW'], label=betterlabels[2], color=swdom,zorder=2)
 ax.plot(ds['Mix'], label=betterlabels[4], color=mixed,zorder=2)
 ax.plot(ds['GW'], label=betterlabels[3], color=GWdom,zorder=2)  
 
-ax.set_xlim(minyear,maxyear)
+ax.set_xlim([min_yr,mx_yr])
 ax.set_ylim(min_y,max_y)
 # ax.grid(True)
 ax.grid(visible=True,which='major')
@@ -855,7 +939,7 @@ ax.set_xlabel('Year', fontsize=fsize)
 ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
 ax.minorticks_on()
 fig.set_dpi(600.0)
-ax.set_title('b)',loc='left',pad=15)
+ax.set_title('c)',fontsize = fsize,loc='left',pad=15)
 ax.legend()
 
 #Putting Grace on a secondary axis
@@ -863,91 +947,8 @@ ax2 = ax.twinx()
 ax2.plot(grace_yearly['0'], label='State Average LWE', color='k',zorder=1)
 ax2.set_ylim([5, -15])
 ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
-ax2.legend(loc='lower right')
+# ax2.legend(loc='lower right')
 
-plt.savefig(figurepath+'Figure7b', bbox_inches = 'tight')
-
-# %% Figure 7a
-# For Depth to Water by regulation
-ds = cat_wl2_reg
-min_yr = 1975
-mx_yr = 2020
-betterlabels = ['Regulated','Unregulated'] 
-
-f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
-columns = ds.columns
-column_list = ds.columns.tolist()
-
-stats = pd.DataFrame()
-# for i in range(1, 12, 1):
-for i in column_list:
-        df = f[i]
-        #print(df)
-        y=np.array(df.values, dtype=float)
-        x=np.array(pd.to_datetime(df).index.values, dtype=float)
-        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-        stats = stats.append({'slope': slope, 
-                              'int':intercept, 
-                              'rsq':r_value*r_value, 
-                              'p_val':p_value, 
-                              'std_err':std_err, 
-                              'mean': np.mean(y),
-                              'var': np.var(y),
-                              'sum': np.sum(y)
-                              },
-                              ignore_index=True)
-
-
-stats.index = betterlabels
-stats1 = stats.transpose()
-print(stats1)
-
-# -- Data visualization --
-xf = np.linspace(min(x),max(x),100)
-xf1 = xf.copy()
-#xf1 = pd.to_datetime(xf1)
-m1 = round(stats1.loc['slope','Regulated'], 2)
-m2 = round(stats1.loc['slope','Unregulated'], 2)
-yint1 = round(stats1.loc['int','Regulated'], 2)
-yint2 = round(stats1.loc['int','Unregulated'], 2)
-pval1 = round(stats1.loc['p_val', 'Regulated'], 4)
-pval2 = round(stats1.loc['p_val', 'Unregulated'], 4)
-
-yf1 = (m1*xf)+yint1
-yf2 = (m2*xf)+yint2
-
-fig, ax = plt.subplots(1, 1, figsize = (14,9))
-
-min_y = 75
-max_y = 300
-fsize = 16
-
-ax.plot(ds['R'], label='Regulated', color=cap) 
-ax.plot(ds['U'], label='Unregulated', color=GWdom) 
-
-ax.plot(xf1, yf1,"-.",color='k',label='Linear Trendline', lw=1)
-ax.plot(xf1, yf1,"-.",color=cap, lw=1)
-ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
-
-ax.set_xlim(minyear,maxyear)
-ax.set_ylim(min_y,max_y)
-# ax.grid(True)
-ax.grid(visible=True,which='major')
-ax.grid(which='minor',color='#EEEEEE', lw=0.8)
-ax.set_xlabel('Year', fontsize=fsize)
-ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
-ax.minorticks_on()
-fig.set_dpi(600.0)
-ax.set_title('a)',loc='left',pad=15)
-ax.legend(loc='upper left')
-
-#Putting Grace on a secondary axis
-ax2 = ax.twinx()
-ax2.plot(grace_yearly['0'], label='State Average LWE', color='k',zorder=1)
-ax2.set_ylim([5, -15])
-ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
-ax2.legend(loc='lower right')
-
-plt.savefig(figurepath+'Figure7a', bbox_inches = 'tight')
+plt.savefig(figurepath+'Figure7c', bbox_inches = 'tight')
 
 # %%
