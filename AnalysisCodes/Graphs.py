@@ -36,14 +36,12 @@ outputpath_local = '../Data/Output_files/'
 shapepath_local = '../Data/Shapefiles/'
 figurepath = '../Data/Figures/'
 
-# Change this based on whether you're running off local or web data
+# Change this based on whether you're running off local or web
 # Cyverse:
-datapath = datapath_web
 outputpath = outputpath_web
 shapepath = shapepath_web
 
 # Local: 
-# datapath = datapath_local
 # outputpath = outputpath_local
 # shapepath = shapepath_local
 # %% Read in the data
@@ -147,25 +145,25 @@ dens_wdc3_wc_ex
 
 # %% Importing Water Level Values
 # For regulation
-filepath = outputpath_web+'/Waterlevels_Regulation.csv'
+filepath = outputpath+'/Waterlevels_Regulation.csv'
 # filepath = '../Data/Output_files/Waterlevels_Regulation.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 cat_wl2_reg.head()
 
 # For Access to SW
-filepath = outputpath_web+'/Waterlevels_AccesstoSW.csv'
+filepath = outputpath+'/Waterlevels_AccesstoSW.csv'
 # filepath = '../Data/Output_files/Waterlevels_AccesstoSW_GWlumped.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 cat_wl2_SW.head()
 
 # For georegion number
-filepath = outputpath_web+'Waterlevels_georegions.csv'
+filepath = outputpath+'Waterlevels_georegions.csv'
 # filepath = '../Data/Output_files/Waterlevels_georegions.csv'
 cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
 # cat_wl2_georeg.head()
 
 # %% Importing GRACE analyses
-filepath = filepath = outputpath_web+'grace_stateavg_yearly.csv'
+filepath = filepath = outputpath+'grace_stateavg_yearly.csv'
 # filepath = outputpath_local+'gracse_remapped_yearly.csv'
 grace_yearly = pd.read_csv(filepath, index_col=0)
 grace_yearly = grace_yearly[:-1]

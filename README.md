@@ -1,6 +1,6 @@
-# Evaluation of Spatial and Temporal Patterns of Well Distributions and Groundwater: A Historical and Statistical Analysis of Arizona
+# Historical Patterns of Well Drilling and Groundwater Depth Across Arizona Considering Groundwater Regulation and Surface Water Access
 
-*by Danielle E. Tadych, Matthew Ford, Laura E. Condon, Bonnie G. Colby*
+*by Danielle E. Tadych, Matthew Ford, Bonnie G. Colby, Laura E. Condon*
 
 <br>
 The purpose of this repository is to be able to recreate databases and timeseries from our paper (under review).  All data for the paper can be found on cyverse <a href="https://gisdata2016-11-18t150447874z-azwater.opendata.arcgis.com/maps/gwsi-app/about">here</a>; however, the goals of this study are for others to recreate these datasets or run new analyses with the raw data.  Below are instructions on where to download and place the data on this repository so the code runs properly.
@@ -8,7 +8,7 @@ The purpose of this repository is to be able to recreate databases and timeserie
 
 <br></br>
 By using this repository or data in your publications, you agree to cite:
-> *Tadych, D.E., Ford, M., Condon, L.E., Colby, B.G.: Evaluation of Spatial and Temporal Patterns of Well Distributions and Groundwater: A Historical and Statistical Analysis of Arizona[under review], 2023.*
+> *Tadych, D.E., Ford, M., Colby, B.G, Condon, L.E..: Historical Patterns of Well Drilling and Groundwater Depth Across Arizona Considering Groundwater Regulation and Surface Water Access[under review], 2023.*
 <br></br>
 
 ## Choose your adventure!
@@ -25,6 +25,12 @@ Once you have the environment set up you can activate it by running:
 
 ```
 conda activate azgwspatialanalysis
+```
+If you have trouble installing the environment.yml file, you can always install packages through conda-forge manually:
+```
+conda create --name azgwspatialanalysis python=3.8
+conda activate azgwspatialanalysis
+conda install -c conda-forge <package>
 ```
 
 ### 2. Create Graphs
