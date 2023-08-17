@@ -19,7 +19,7 @@ To run the code you can use the provided conda environment. To clone the repo an
 ```
 git clone git@github.com:dtadych/Az-Well-GRACE-Spatiotemp-Analysis.git
 cd Az-Well-GRACE-Spatiotemp-Analysis
-conda env create -f environment.yml
+conda env create -f azgwspatialanalysis.yml
 ```
 Once you have the environment set up you can activate it by running:
 
