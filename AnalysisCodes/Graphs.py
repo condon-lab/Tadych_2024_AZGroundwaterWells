@@ -1,4 +1,4 @@
-# ----- All Paper Graphs -----
+# ----- All Paper Graphs except graphics from QGIS -----
 # %% Load the packages
 from cProfile import label
 from operator import ge

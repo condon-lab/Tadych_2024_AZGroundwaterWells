@@ -15,6 +15,8 @@ import scipy.stats as sp
 from scipy.stats import kendalltau, pearsonr, spearmanr
 import pymannkendall as mk
 
+outputpath_local = '../Data/Output_files/'
+
 # Some functions for analysis
 def kendall_pval(x,y):
         return kendalltau(x,y)[1]
@@ -213,7 +215,7 @@ def linearregress(ds,data_type,min_yr,mx_yr,labels):
 
         """
         import pandas as pd
-        Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression:"
+        Name = str(min_yr) + " to " + str(mx_yr) + " Linear Regression for " + data_type
         print(Name)
 
         f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
@@ -243,4 +245,4 @@ def linearregress(ds,data_type,min_yr,mx_yr,labels):
         stats.index = labels
         stats1 = stats.transpose()
         print(stats1)
-        stats1.to_csv(outputpath_local+'/'+Name+'_linearRegress.csv')
+        stats1.to_csv(outputpath_local+Name+'.csv')

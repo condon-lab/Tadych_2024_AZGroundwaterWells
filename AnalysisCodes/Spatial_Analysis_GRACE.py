@@ -1,14 +1,14 @@
 # === GRACE Spatial Analysis Script ===
 # written by Danielle Tadych
 # The purpose of this script is to analyze GRACE Data for Arizona by points and shapes
-#  - Importing packages: Line 6
-#  - Reading in files: Line 37
+#  - Importing packages: Line 12
+#  - Reading in files: Line 36
 #  - EASYMORE Remapping using a shapefile to computer zonal statistics: Line 56
 #     *Note: in order for this package to work
 #               > the projections need to be in espg4326, exported, re-read in
 #               > the time variable for nc needs to be datetime
 #               > Value error -> run the "fix geometries" tool in qgis
-#  - Calculating the average based off a mask (not weighted): Line 510
+#  - Calculating the average based off a mask (not weighted): Line 212
 # %%
 from itertools import count
 import os
@@ -26,16 +26,12 @@ from shapely.geometry import geo
 import geopandas as gp
 import xarray as xr
 import rioxarray as rxr
-import cartopy
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import netCDF4
 import rasterio
 from scipy.stats import kendalltau, pearsonr, spearmanr
 import easymore
 import glob
 import scipy.stats as sp
-import pymannkendall as mk
 
 # %% Read in the file
 filename = 'CSR_GRACE_GRACE-FO_RL06_Mascons_all-corrections_v02.nc'
@@ -250,19 +246,6 @@ cm_df_year
 # %% Write the csv
 cm_df_year.to_csv(outputpath+'grace_stateavg_yearly.csv')
 
-# %% Plotting The state average
-f, ax = plt.subplots(figsize=(8, 5))
-
-ax.plot(cm_df_year, color='#2F2F2F', label='Arizona Average')
-ax.set(title='Arizona Average')
-ax.legend(fontsize = 12)
-ax.set_xlim(2002,2020)
-ax.grid(zorder = 0)
-# plt.xlabel('Year')
-plt.ylabel('Liquid Water Equivalent (cm)', fontsize = 12)
-fig.set_dpi(600)
-
-# plt.savefig(outputpath+'Arizona_Average')
 
 # %% Creating Arizona Specific Anomalies (Changes from Az Average)
 remap_anom = grace_yearlyavg.copy()

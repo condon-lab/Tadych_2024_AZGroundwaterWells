@@ -38,7 +38,18 @@ conda install -c conda-forge <package>
   - This code automatically links to our data on Cyverse and outputs images into the Data/Figures folder
 <br></br>
 
-### **To create your own graphs of the databases using our methodology:**
+### **To re-run well statistics using our regions:**
+### 1. Clone This Repository & Create Environment (see above).
+### 2. Run Statistics
+- In the Analysis Codes folder, run "Spatial_Analysis_Wells_Final_Georeg.py"
+  - *Follow workflow 1*
+  - Runs a linear regression on our formatted data
+
+### 3. Create Graphs
+- In the Analysis Codes folder, run "Graphs.py".
+  - This code automatically links to our data on Cyverse and outputs images into the Data/Figures folder
+
+### **To create your own graphs of the databases using our methodology (most time consumptive):**
 ### 1. Clone This Repository & Create Environment (see above).
 ### 2. Download Data
 - Well Registry (also known as Wells55) can be downloaded <a href="https://gisdata2016-11-18t150447874z-azwater.opendata.arcgis.com/datasets/azwater::well-registry/explore?location=34.114115%2C-111.970052%2C8.10">here</a>: 
@@ -64,11 +75,13 @@ conda install -c conda-forge <package>
     1. Well_Count_Analysis.py
         - Creates .csv files for new well installations per year and for well densities (# Well/km^2) in each georegion
     2. Spatial_Analysis_Wells_FinalGeoreg.py
+        - *Follow Workflow 2*
         - Creates depth to water databases based on the categories in the shapefiles
+        - Runs statistical analyses on the desired categories
     3. Spatial_Analysis_GRACE.py
         - Re-maps GRACE Satellite .nc files to shapefiles and exports both csv and shapefiles
 ### 5. Visualize Data
-- In the AnalysisCodes/ folder, run Graphs.py
+- In the AnalysisCodes folder, run Graphs.py
+   - make sure to change the "output" paths to local
 
 You did it!
-
