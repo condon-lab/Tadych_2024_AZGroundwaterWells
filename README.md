@@ -3,7 +3,7 @@
 *by Danielle E. Tadych, Matthew Ford, Bonnie G. Colby, Laura E. Condon*
 
 <br>
-The purpose of this repository is to be able to recreate databases and timeseries from our paper (under review).  All data for the paper can be found on cyverse <a href="https://gisdata2016-11-18t150447874z-azwater.opendata.arcgis.com/maps/gwsi-app/about">here</a>; however, the goals of this study are for others to recreate these datasets or run new analyses with the raw data.  Below are instructions on where to download and place the data on this repository so the code runs properly.
+The purpose of this repository is to be able to recreate databases and timeseries from our paper (under review).  All data for the paper can be found on cyverse <a href="https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/">here</a>; however, the goals of this study are for others to recreate these datasets or run new analyses with the raw data.  Below are instructions on where to download and place the data on this repository so the code runs properly.
 </br>
 
 <br></br>
