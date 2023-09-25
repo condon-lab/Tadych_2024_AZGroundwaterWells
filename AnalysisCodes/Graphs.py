@@ -16,9 +16,7 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import box
 import geopandas as gp
-#import earthpy as et
 import scipy.stats as sp
-#import earthpy as et
 from scipy.stats import kendalltau, pearsonr, spearmanr
 import pymannkendall as mk
 import Custom_functions
@@ -26,9 +24,10 @@ import Custom_functions
 # === Assign Data paths ===
 
 # This is for accessing our data on Cyverse
-datapath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/'
-outputpath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Output_files/'
-shapepath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Shapefiles/'
+# 
+datapath_web = 'https://datacommons.cyverse.org/browse/iplant/home/shared/commons_repo/curated/Tadych_AzGroundwaterSpatialAnalysis_Aug2023/Data/'
+outputpath_web = 'https://datacommons.cyverse.org/browse/iplant/home/shared/commons_repo/curated/Tadych_AzGroundwaterSpatialAnalysis_Aug2023/Data/Output_files/'
+shapepath_web = 'https://datacommons.cyverse.org/browse/iplant/home/shared/commons_repo/curated/Tadych_AzGroundwaterSpatialAnalysis_Aug2023/Data/Shapefiles/'
 
 # This is if you created your own database
 datapath_local = '../Data'

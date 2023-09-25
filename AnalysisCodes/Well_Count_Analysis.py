@@ -29,9 +29,9 @@ import geopandas as gp
 import scipy.stats as sp
 import Custom_functions as cf
 # %% Assign Data paths
-datapath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/'
-outputpath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Output_files/'
-shapepath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Shapefiles/'
+datapath_web = 'https://datacommons.cyverse.org/browse/iplant/home/shared/commons_repo/curated/Tadych_AzGroundwaterSpatialAnalysis_Aug2023/Data/'
+outputpath_web = 'https://datacommons.cyverse.org/browse/iplant/home/shared/commons_repo/curated/Tadych_AzGroundwaterSpatialAnalysis_Aug2023/Data/Output_files/'
+shapepath_web = 'https://datacommons.cyverse.org/browse/iplant/home/shared/commons_repo/curated/Tadych_AzGroundwaterSpatialAnalysis_Aug2023/Data/Shapefiles/'
 
 datapath = '../Data'
 outputpath = '../Data/Output_files/'
@@ -39,7 +39,8 @@ shapepath = '../Data/Shapefiles/'
 
 # %% Reading in the data
 filename = 'Final_Static_geodatabase_waterwells.csv'
-filepath = os.path.join(outputpath_web, filename)
+# filepath = os.path.join(outputpath_web, filename)
+filepath = os.path.join(outputpath, filename)
 print(filepath)
 static_geo2 = pd.read_csv(filepath 
                           ,parse_dates=['INSTALLED']
@@ -161,6 +162,16 @@ new_wells_reg2 = new_wells_reg2.iloc[1:, :]
 new_wells_reg2
 
 # %%
+del new_wells_reg2['Res']
+new_wells_reg2
+
+# %%
+summies = new_wells_reg2.sum()
+
+# %%
+summies = 36474 + 48027
+summies
+# %%
 new_wells_watercat2 = pd.read_csv(outputpath+'Final_NewWells_watercat.csv',
                         header=1,
                         names = ['CAP','GW','Mix','No_CAP','Res','SW']
@@ -168,6 +179,9 @@ new_wells_watercat2 = pd.read_csv(outputpath+'Final_NewWells_watercat.csv',
 new_wells_watercat2 = new_wells_watercat2.iloc[1:, :]
 new_wells_watercat2
 
+# %%
+summies = new_wells_watercat2.sum()
+summies
 # %%
 filename_georeg = 'georeg_reproject_fixed.shp'
 filepath = os.path.join(shapepath+filename_georeg)
