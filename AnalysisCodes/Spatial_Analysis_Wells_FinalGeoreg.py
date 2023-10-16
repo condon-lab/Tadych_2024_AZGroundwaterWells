@@ -43,10 +43,6 @@ import pymannkendall as mk
 import Custom_functions as cf
 
 # Data paths
-datapath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/'
-outputpath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Output_files/'
-shapepath_web = 'https://data.cyverse.org/dav-anon/iplant/home/dtadych/AZ_Spatial_Analysis/Data/Shapefiles/'
-
 datapath_local = '../Data'
 outputpath_local = '../Data/Output_files/'
 shapepath_local = '../Data/Shapefiles/'
@@ -54,12 +50,12 @@ shapepath_local = '../Data/Shapefiles/'
 # %%  ==== Reading in the data we created above ====
 #          Default is to read from the web, change as appropriate
 # For regulation
-filepath = outputpath_web+'/Waterlevels_Regulation.csv'
+filepath = outputpath_local+'/Waterlevels_Regulation.csv'
 # filepath = outputpath_local+'Waterlevels_Regulation.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 
 # For Access to SW
-filepath = outputpath_web+'/Waterlevels_AccesstoSW.csv'
+filepath = outputpath_local+'/Waterlevels_AccesstoSW.csv'
 # filepath = outputpath_local+'Waterlevels_AccesstoSW.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 
@@ -88,7 +84,7 @@ cf.linearregress(ds,data_type,min,mx,betterlabels)
 
 # Load in the master databases
 filename_mdb_nd = 'Master_ADWR_database_noduplicates.shp'
-filepath = os.path.join(outputpath_web, filename_mdb_nd)
+filepath = os.path.join(outputpath_local, filename_mdb_nd)
 print(filepath)
 
 masterdb = gp.read_file(filepath)
@@ -97,7 +93,7 @@ print(masterdb.info())
 
 # %%
 filename_mdb_w = 'Master_ADWR_database_water.shp'
-filepath = os.path.join(outputpath_web, filename_mdb_w)
+filepath = os.path.join(outputpath_local, filename_mdb_w)
 print(filepath)
 
 masterdb_water = gp.read_file(filepath)
@@ -106,7 +102,7 @@ print(masterdb_water.info())
 # %%
 # Reading in the shapefile
 filename_georeg = 'georeg_reproject_fixed.shp'
-filepath = os.path.join(shapepath_web, filename_georeg)
+filepath = os.path.join(shapepath_local, filename_georeg)
 georeg = gp.read_file(filepath)
 georeg.plot(cmap='viridis')
 
@@ -116,7 +112,7 @@ georeg.info()
 #%%
 # Read in the annual time series database
 filename_ts = 'Wells55_GWSI_WLTS_DB_annual.csv'
-filepath = os.path.join(outputpath_web, filename_ts)
+filepath = os.path.join(outputpath_local, filename_ts)
 print(filepath)
 annual_db = pd.read_csv(filepath, header=1, index_col=0)
 annual_db
@@ -194,7 +190,7 @@ combo
 combo.to_csv(outputpath_local+'Final_WaterLevels_adjusted.csv')
 
 # %% Reading in so we don't have to redo the combining, comment as appropriate
-filepath = outputpath_web+'Final_WaterLevels_adjusted.csv'
+filepath = outputpath_local+'Final_WaterLevels_adjusted.csv'
 # filepath = outputpath_local+'Final_WaterLevels_adjusted.csv'
 combo = pd.read_csv(filepath, index_col=0)
 combo.head()
