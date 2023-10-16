@@ -62,12 +62,16 @@ To re-create the study with brand new data, install all of the above plus the fo
 
 ### **To re-run well statistics using our regions:**
 
-### 1. Run Statistics
+### 1. Downlaod data
+- go to our <a href='http://doi.org/10.25739/1ckh-tx39'>Cyverse data hub</a> and download the following files from "Data/Output_files" to your local "Data/Output_files":
+    - Waterlevels_Regulation.csv
+    - Waterlevels_AccesstoSW.csv
+### 2. Run Statistics
 - In the Analysis Codes folder, run "Spatial_Analysis_Wells_FinalGeoreg.py"
   - *Follow workflow 1*
   - Runs a linear regression on our formatted data
 
-### 2. Create Graphs
+### 3. Create Graphs
 - In the Analysis Codes folder, run "Graphs.py".
   - This code automatically links to our data on Cyverse and outputs images into the Data/Figures folder
 
