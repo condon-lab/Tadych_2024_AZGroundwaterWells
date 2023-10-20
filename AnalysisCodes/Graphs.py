@@ -37,12 +37,12 @@ figurepath = '../Data/Figures/'
 
 # Change this based on whether you're running off local or web
 # Cyverse:
-outputpath = outputpath_web
-shapepath = shapepath_web
+# outputpath = outputpath_web
+# shapepath = shapepath_web
 
 # Local: 
-# outputpath = outputpath_local
-# shapepath = shapepath_local
+outputpath = outputpath_local
+shapepath = shapepath_local
 # %% Read in the data
 # Shallow and Deep and drilling depth cutoffs
 shallow = 200
@@ -144,19 +144,22 @@ dens_wdc3_wc_ex
 
 # %% Importing Water Level Values
 # For regulation
-filepath = outputpath+'/Waterlevels_Regulation.csv'
-# filepath = '../Data/Output_files/Waterlevels_Regulation.csv'
+# filepath = outputpath+'/Waterlevels_Regulation.csv'
+# filepath = outputpath+'/Waterlevels_Regulation_updated.csv'
+filepath = '../Data/Output_files/Waterlevels_Regulation_comboID.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 cat_wl2_reg.head()
 
 # For Access to SW
-filepath = outputpath+'/Waterlevels_AccesstoSW.csv'
-# filepath = '../Data/Output_files/Waterlevels_AccesstoSW_GWlumped.csv'
+# filepath = outputpath+'/Waterlevels_AccesstoSW.csv'
+# filepath = outputpath+'/Waterlevels_AccesstoSW_updated.csv'
+filepath = '../Data/Output_files/Waterlevels_AccesstoSW_comboID.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 cat_wl2_SW.head()
 
 # For georegion number
-filepath = outputpath+'Waterlevels_georegions.csv'
+# filepath = outputpath+'Waterlevels_georegions.csv'
+filepath = outputpath+'Waterlevels_georegions_updated.csv'
 # filepath = '../Data/Output_files/Waterlevels_georegions.csv'
 cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
 # cat_wl2_georeg.head()
@@ -768,9 +771,11 @@ plt.savefig(figurepath+'Figure6_def', bbox_inches='tight')
 # %% Figure 7a
 # For Depth to Water by regulation
 ds = cat_wl2_reg
-min_yr = 1975
+min_yr = 1960
 mx_yr = 2020
 betterlabels = ['Regulated','Unregulated'] 
+
+# del ds['Res']
 
 f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
 columns = ds.columns
@@ -814,11 +819,11 @@ pval2 = round(stats1.loc['p_val', 'Unregulated'], 4)
 yf1 = (m1*xf)+yint1
 yf2 = (m2*xf)+yint2
 
-fig, ax = plt.subplots(1, 1, figsize = (14,9))
+fig, ax = plt.subplots(1, 1, figsize = (7,5))
 
-min_y = 75
+min_y = 0
 max_y = 300
-fsize = 18
+fsize = 12
 
 ax.plot(ds['R'], label='Regulated', color=cap) 
 ax.plot(ds['U'], label='Unregulated', color=GWdom) 
@@ -836,28 +841,30 @@ ax.set_xlabel('Year', fontsize=fsize)
 ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
 ax.minorticks_on()
 fig.set_dpi(600.0)
-ax.set_title('a)',loc='left',pad=15)
+# ax.set_title('a)',loc='left',pad=15)
 ax.legend(loc='upper left')
 
 #Putting Grace on a secondary axis
 ax2 = ax.twinx()
 ax2.plot(grace_yearly['0'], label='State Average LWE', color='k',zorder=1)
-ax2.set_ylim([5, -15])
+ax2.set_ylim([15, -15])
 ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
 ax2.legend(loc='lower right')
 
-plt.savefig(figurepath+'Figure7a', bbox_inches = 'tight')
+# plt.savefig(figurepath+'Figure7a', bbox_inches = 'tight')
 
 # %% Figure 7c
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
-min_yr = 1975
-mx_yr = 2020
+min_yr = 1960
+mx_yr = 2022
 betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
                 ,'Surface Water Dominated'
                 ,'GW Dominated'
                 ,'Mixed Source'] 
+
+del ds['Res']
 
 f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
 columns = ds.columns
@@ -909,7 +916,7 @@ yf3 = (m3*xf)+yint3
 yf4 = (m4*xf)+yint4
 yf5 = (m5*xf)+yint5
 
-fig, ax = plt.subplots(1, 1, figsize = (14,9))
+fig, ax = plt.subplots(1, 1, figsize = (7,5))
 
 ax.plot(xf1, yf1,"-.",color=cap, lw=1)
 ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
@@ -917,9 +924,9 @@ ax.plot(xf1, yf3,"-.",color=mixed, lw=1)
 ax.plot(xf1, yf4,"-.",color='#CCC339', lw=1)
 ax.plot(xf1, yf5,"-.",color=swdom, lw=1)
 
-min_y = 75
+min_y = 0
 max_y = 300
-fsize = 18
+fsize = 12
 
 ax.plot(ds['CAP'], label=betterlabels[0], color=cap,zorder=2)
 ax.plot(ds['No_CAP'], label=betterlabels[1], color='#CCC339',zorder=2) 
@@ -928,7 +935,7 @@ ax.plot(ds['Mix'], label=betterlabels[4], color=mixed,zorder=2)
 ax.plot(ds['GW'], label=betterlabels[3], color=GWdom,zorder=2)  
 
 ax.set_xlim([min_yr,mx_yr])
-ax.set_ylim(min_y,max_y)
+ax.set_ylim(min_y, max_y)
 # ax.grid(True)
 ax.grid(visible=True,which='major')
 ax.grid(which='minor',color='#EEEEEE', lw=0.8)
@@ -936,16 +943,16 @@ ax.set_xlabel('Year', fontsize=fsize)
 ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
 ax.minorticks_on()
 fig.set_dpi(600.0)
-ax.set_title('c)',fontsize = fsize,loc='left',pad=15)
-ax.legend()
+# ax.set_title('c)',fontsize = fsize,loc='left',pad=15)
+# ax.legend()
 
 #Putting Grace on a secondary axis
 ax2 = ax.twinx()
 ax2.plot(grace_yearly['0'], label='State Average LWE', color='k',zorder=1)
-ax2.set_ylim([5, -15])
+ax2.set_ylim([15, -15])
 ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
 # ax2.legend(loc='lower right')
 
-plt.savefig(figurepath+'Figure7c', bbox_inches = 'tight')
+# plt.savefig(figurepath+'Figure7c', bbox_inches = 'tight')
 
 # %%

@@ -67,7 +67,7 @@ print(wl_data2.info())
 
 #%%
 # Output wl_data2 to a csv in the specified directory
-wl_data2.to_csv(outputpath+'wl_data2.csv')
+wl_data2.to_csv(outputpath+'wl_data3.csv')
 
 # %% 
 # ----- Import the Data and Shapefiles with Geometries -----
@@ -82,6 +82,7 @@ pd.options.display.float_format = '{:.2f}'.format
 print(wells55.info())
 
 # Read in GWSI collated water level data
+# filename = 'wl_data3.csv'
 filename = 'wl_data2.csv'
 filepath = os.path.join(outputpath, filename)
 print(filepath)
@@ -95,11 +96,11 @@ print(wl_data2.info())
 # Following this method: https://stackoverflow.com/questions/32215024/merging-time-series-data-by-timestamp-using-numpy-pandas
 # Confirmed through the variables list that "depth" in wldata2 and "WATER_LEVE" are both depth to water below land surface in feet
 
-# gwsi_wl = wl_data2[["date","wellid","SITE_WELL_REG_ID","depth"]].copy()
-# gwsi_wl.info()
-
-gwsi_wl = wl_data2[["date","SITE_WELL_REG_ID","depth"]].copy()
+gwsi_wl = wl_data2[["date","wellid","SITE_WELL_REG_ID","depth"]].copy()
 gwsi_wl.info()
+
+# gwsi_wl = wl_data2[["date","SITE_WELL_REG_ID","depth"]].copy()
+# gwsi_wl.info()
 
 wells55_wl = wells55[["INSTALLED", "REGISTRY_ID", "WATER_LEVEL"]].copy()
 wells55_wl.info()
@@ -113,12 +114,12 @@ wells55_wl.head()
 # %%
 wells55_wl.rename(columns = {'INSTALLED':'date','WATER_LEVEL':'depth'}, inplace=True)
 # %% Need to create a combo ID column
-# gwsi_wl['Combo_ID'] = gwsi_wl.SITE_WELL_REG_ID.combine_first(gwsi_wl.wellid)
-# gwsi_wl.info()
+gwsi_wl['Combo_ID'] = gwsi_wl.SITE_WELL_REG_ID.combine_first(gwsi_wl.wellid)
+gwsi_wl.info()
 
-
-# gwsi_wl.rename(columns={'Combo_ID':'REGISTRY_ID'}, inplace=True)
-gwsi_wl.rename(columns={'SITE_WELL_REG_ID':'REGISTRY_ID'}, inplace=True)
+# %%
+gwsi_wl.rename(columns={'Combo_ID':'REGISTRY_ID'}, inplace=True)
+# gwsi_wl.rename(columns={'SITE_WELL_REG_ID':'REGISTRY_ID'}, inplace=True)
 gwsi_wl.info()
 
 # %% Need to make sure the columns are the same Dtype
@@ -143,8 +144,8 @@ combo = wells55_wl.merge(gwsi_wl, suffixes=['_wells55','_gwsi'], how="outer"
                                           )
 combo.info()
 
-# # %% This block of code takes a really long time to run so I would suggest skipping
-WL_TS_DB = pd.pivot_table(combo, index=["REGISTRY_ID"], columns="date", values="depth")
+# %% This block of code takes a really long time to run so I would suggest skipping
+# WL_TS_DB = pd.pivot_table(combo, index=["REGISTRY_ID"], columns="date", values="depth")
 # WL_TS_DB.head()
 # # Export data into a csv
 # WL_TS_DB.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB.csv')
@@ -156,6 +157,7 @@ combo.head()
 
 # %%
 WL_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=np.mean)
+
 # %% Testing 1980 versus 2020 to see if there's a difference
 print(WL_TS_DB_year.iloc[:,115])
 # %%
@@ -191,14 +193,8 @@ narrowedstats.to_csv(outputpath+"state_average_WL.csv")
 max = stats['max']
 max[119:157].plot()
 # %% Exporting data
-WL_TS_DB_1980.to_csv(outputpath + 'comboDB_WL_1980.csv')
-WL_TS_DB_2020.to_csv(outputpath + 'comboDB_WL_2020.csv')
-# %%  Seeing if things work
-fig, ax = plt.subplots()
-ax.plot(WL_TS_DB_year.iloc[:,155])
-ax.set(title='WL in 1980', xlabel='Registry ID', ylabel='Water Level (feet)')
-ax.grid()
-plt.show
+# WL_TS_DB_1980.to_csv(outputpath + 'comboDB_WL_1980.csv')
+# WL_TS_DB_2020.to_csv(outputpath + 'comboDB_WL_2020.csv')
 # %%
 WL_TS_DB_year.info()
 # %%
@@ -214,7 +210,7 @@ WL_TS_DB_month.index.name = None
 WL_TS_DB_month.head()
 # %%
 # Export both yearly summary data and monthly into csv
-WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual.csv')
+WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual_comboID.csv')
 # %%
 WL_TS_DB_month.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_monthly.csv')
 # %%

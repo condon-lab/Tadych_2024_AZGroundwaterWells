@@ -50,19 +50,19 @@ shapepath_local = '../Data/Shapefiles/'
 # %%  ==== WORFKLOW 1 ====
 #          Default is to read from the web, change as appropriate
 # For regulation
-filepath = outputpath_local+'/Waterlevels_Regulation.csv'
-# filepath = outputpath_local+'Waterlevels_Regulation.csv'
+# filepath = outputpath_local+'/Waterlevels_Regulation_updated.csv'
+filepath = outputpath_local+'Waterlevels_Regulation.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 
 # For Access to SW
-filepath = outputpath_local+'/Waterlevels_AccesstoSW.csv'
-# filepath = outputpath_local+'Waterlevels_AccesstoSW.csv'
+# filepath = outputpath_local+'/Waterlevels_AccesstoSW_updated.csv'
+filepath = outputpath_local+'Waterlevels_AccesstoSW.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 
 # %% -- Linear regression --
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
-dt = "Access to Surface Water, Depth to Water"
+dt = "Access to Surface Water, Depth to Water (Updated Data)"
 min = 1975
 mx = 2020
 betterlabels = ['Recieves CAP (Regulated)'
@@ -73,7 +73,7 @@ betterlabels = ['Recieves CAP (Regulated)'
 cf.linearregress(ds,dt,min,mx,betterlabels)
 #%%
 ds = cat_wl2_reg
-data_type = "Regulation, Depth to Water"
+data_type = "Regulation, Depth to Water (Updated Data)"
 min = 1975
 mx = 2020
 betterlabels = ['Regulated','Unregulated'] 
@@ -111,12 +111,17 @@ georeg['GEOREGI_NU'] = georeg['GEOREGI_NU'].astype('int64')
 georeg.info()
 #%%
 # Read in the annual time series database
-filename_ts = 'Wells55_GWSI_WLTS_DB_annual.csv'
+# filename_ts = 'Wells55_GWSI_WLTS_DB_annual.csv'
+# filename_ts = 'Wells55_GWSI_WLTS_DB_annual_updated.csv'
+filename_ts = 'Wells55_GWSI_WLTS_DB_annual_comboID.csv'
 filepath = os.path.join(outputpath_local, filename_ts)
 print(filepath)
 annual_db = pd.read_csv(filepath, header=1, index_col=0)
 annual_db
 
+# %%
+annual_db = annual_db[1:168102]
+annual_db
 # %%
 annual_db.index = annual_db.index.astype('int64')
 
@@ -147,7 +152,7 @@ static_geo.head()
 print(str(filename_mdb_nd) + " and " + str(filename_georeg) + " join complete.")
 
 # %% Exporting or reading in the static geodatabase instead of rerunning
-static_geo.to_csv(outputpath_local+'/Final_Static_geodatabase_allwells.csv')
+# static_geo.to_csv(outputpath_local+'/Final_Static_geodatabase_allwells.csv')
 
 # %% Rerunning this but for the water wells
 static_geo2 = gp.sjoin(masterdb_water, georeg, how="inner", op='intersects')
@@ -155,7 +160,7 @@ static_geo2.head()
 print(str(filename_mdb_nd) + " and " + str(filename_georeg) + " join complete.")
 
 #%%
-static_geo2.to_csv(outputpath_local+'/Final_Static_geodatabase_waterwells.csv')
+# static_geo2.to_csv(outputpath_local+'/Final_Static_geodatabase_waterwells.csv')
 
 # %%
 filename = "Final_Static_geodatabase_allwells.csv"
@@ -187,7 +192,7 @@ combo = combo.sort_values(by=['GEOREGI_NU'])
 combo
 
 # %% Exporting the combo table
-combo.to_csv(outputpath_local+'Final_WaterLevels_adjusted.csv')
+# combo.to_csv(outputpath_local+'Final_WaterLevels_adjusted.csv')
 
 # %% Reading in so we don't have to redo the combining, comment as appropriate
 filepath = outputpath_local+'Final_WaterLevels_adjusted.csv'
@@ -230,6 +235,7 @@ cat_wl2_SW = cat_wl2_SW.sort_values(by=['GEOREGI_NU'])
 # Clean up the dataframe for graphing
 
 i = cat_wl2_georeg
+del i['WELL_DEPTH']
 f = i.transpose()
 f.reset_index(inplace=True)
 f['index'] = pd.to_numeric(f['index'])
@@ -240,6 +246,7 @@ cat_wl2_georeg = f
         
 i = cat_wl2_reg
 del i['GEOREGI_NU']
+del i['WELL_DEPTH']
 f = i.transpose()
 f.reset_index(inplace=True)
 f['index'] = pd.to_numeric(f['index'])
@@ -250,6 +257,7 @@ cat_wl2_reg = f
 
 i = cat_wl2_SW
 del i['GEOREGI_NU']
+del i['WELL_DEPTH']
 f = i.transpose()
 f.reset_index(inplace=True)
 f['index'] = pd.to_numeric(f['index'])
@@ -259,19 +267,22 @@ f.info()
 cat_wl2_SW = f
 
 # %% Going to export all these as CSV's
-cat_wl2_georeg.to_csv(outputpath_local+'Waterlevels_georegions.csv')
-cat_wl2_reg.to_csv(outputpath_local+'Waterlevels_Regulation.csv')
-cat_wl2_SW.to_csv(outputpath_local+'Waterlevels_AccesstoSW.csv')
+cat_wl2_georeg.to_csv(outputpath_local+'Waterlevels_georegions_comboID.csv')
+cat_wl2_reg.to_csv(outputpath_local+'Waterlevels_Regulation_comboID.csv')
+cat_wl2_SW.to_csv(outputpath_local+'Waterlevels_AccesstoSW_comboID.csv')
 
 # %%  ==== Reading in the data we created above ====
 #          Default is to read from the web, change as appropriate
 # For regulation
-filepath = outputpath_local+'Waterlevels_Regulation.csv'
+filepath = outputpath_local+'Waterlevels_Regulation_comboID.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 
 # For Access to SW
 filepath = outputpath_local+'Waterlevels_AccesstoSW.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
+
+# %% This might be necessary
+del cat_wl2_reg['Res'], cat_wl2_SW['Res']
 
 # %% -- Linear regression --
 # For Depth to Water by SW Access
@@ -293,3 +304,5 @@ mx = 2020
 betterlabels = ['Regulated','Unregulated'] 
 
 cf.linearregress(ds,data_type,min,mx,betterlabels)
+
+# %%
