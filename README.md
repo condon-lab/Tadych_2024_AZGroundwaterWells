@@ -51,6 +51,7 @@ To re-create the study with brand new data, install all of the above plus the fo
 - rioxarray
 - easymore
 - shapely
+- openpyxl
 
 ## Choose your adventure!
 

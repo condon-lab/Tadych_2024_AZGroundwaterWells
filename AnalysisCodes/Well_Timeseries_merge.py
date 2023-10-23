@@ -157,7 +157,8 @@ combo.head()
 
 # %%
 WL_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=np.mean)
-
+LEN_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=len)
+max_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=np.max)
 # %% Testing 1980 versus 2020 to see if there's a difference
 print(WL_TS_DB_year.iloc[:,115])
 # %%
@@ -179,7 +180,7 @@ test = WL_TS_DB_year.mean()
 test.plot()
 
 # %% 
-stats = WL_TS_DB_year.describe()
+# stats = WL_TS_DB_year.describe()
 stats = stats.transpose()
 stats2 = stats[['mean','25%','50%','75%']]
 stats2[119:157].plot()
@@ -188,7 +189,7 @@ stats2[119:157].plot()
 narrowedstats = stats[110:158]
 narrowedstats
 # %%
-narrowedstats.to_csv(outputpath+"state_average_WL.csv")
+narrowedstats.to_csv(outputpath+"state_average_WL_updated.csv")
 # %%
 max = stats['max']
 max[119:157].plot()
@@ -210,7 +211,36 @@ WL_TS_DB_month.index.name = None
 WL_TS_DB_month.head()
 # %%
 # Export both yearly summary data and monthly into csv
-WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual_comboID.csv')
+# WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual.csv')
+# WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual_comboID.csv')
+WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual_updated.csv')
+# %%
+# LEN_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_LEN_WLTS_DB_annual.csv')
+LEN_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_LEN_WLTS_DB_annual_comboID.csv')
+# LEN_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_LEN_WLTS_DB_annual_updated.csv')
+
+# %%
+# max_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_MAX_WLTS_DB_annual.csv')
+max_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_MAX_WLTS_DB_annual_comboID.csv')
+# max_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_MAX_WLTS_DB_annual_updated.csv')
+
+# %% Creating totals for mapping
+min_yr = 1975.0
+mx_yr = 2023.0
+# ds = WL_TS_DB_year.transpose()
+ds = LEN_TS_DB_year.loc[:, ('depth', min_yr):('depth', mx_yr)]
+total_WL = ds.sum(axis=1)
+total_WL = pd.DataFrame(total_WL)
+total_WL = total_WL.reset_index()
+total_WL = total_WL.rename(columns={"REGISTRY_ID": "Combo_ID",
+                   0: "LEN"}, errors="raise")
+total_WL = total_WL.set_index('Combo_ID')
+# total_WL = total_WL['LEN'].astype(int, errors = 'raise')
+total_WL
+total_WL.to_csv(outputpath+'numberWL_perwell_'+str(min_yr)+'-'+str(mx_yr)+'_comboID.csv')
+# total_WL.to_csv(outputpath+'numberWL_perwell_'+str(min_yr)+'-'+str(mx_yr)+'_updated.csv')
+
+
 # %%
 WL_TS_DB_month.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_monthly.csv')
 # %%
