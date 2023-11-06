@@ -82,8 +82,7 @@ pd.options.display.float_format = '{:.2f}'.format
 print(wells55.info())
 
 # Read in GWSI collated water level data
-# filename = 'wl_data3.csv'
-filename = 'wl_data2.csv'
+filename = 'wl_data3.csv'
 filepath = os.path.join(outputpath, filename)
 print(filepath)
 
@@ -159,6 +158,7 @@ combo.head()
 WL_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=np.mean)
 LEN_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=len)
 max_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=np.max)
+min_TS_DB_year = pd.pivot_table(combo, index=["REGISTRY_ID"], columns=["year"], values=["depth"], dropna=False, aggfunc=np.min)
 # %% Testing 1980 versus 2020 to see if there's a difference
 print(WL_TS_DB_year.iloc[:,115])
 # %%
@@ -211,18 +211,15 @@ WL_TS_DB_month.index.name = None
 WL_TS_DB_month.head()
 # %%
 # Export both yearly summary data and monthly into csv
-# WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual.csv')
-# WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual_comboID.csv')
 WL_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_WLTS_DB_annual_updated.csv')
 # %%
-# LEN_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_LEN_WLTS_DB_annual.csv')
-LEN_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_LEN_WLTS_DB_annual_comboID.csv')
-# LEN_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_LEN_WLTS_DB_annual_updated.csv')
+LEN_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_LEN_WLTS_DB_annual_updated.csv')
 
 # %%
-# max_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_MAX_WLTS_DB_annual.csv')
-max_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_MAX_WLTS_DB_annual_comboID.csv')
-# max_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_MAX_WLTS_DB_annual_updated.csv')
+max_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_MAX_WLTS_DB_annual_updated.csv')
+
+# %%
+min_TS_DB_year.to_csv(outputpath + 'Wells55_GWSI_MIN_WLTS_DB_annual_updated.csv')
 
 # %% Creating totals for mapping
 min_yr = 1975.0

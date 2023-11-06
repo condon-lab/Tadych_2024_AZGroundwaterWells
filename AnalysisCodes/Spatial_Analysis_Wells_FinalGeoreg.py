@@ -50,13 +50,13 @@ shapepath_local = '../Data/Shapefiles/'
 # %%  ==== WORFKLOW 1 ====
 #          Default is to read from the web, change as appropriate
 # For regulation
-# filepath = outputpath_local+'/Waterlevels_Regulation_updated.csv'
-filepath = outputpath_local+'Waterlevels_Regulation.csv'
+filepath = outputpath_local+'/Waterlevels_Regulation_updated.csv'
+# filepath = outputpath_local+'Waterlevels_Regulation.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 
 # For Access to SW
-# filepath = outputpath_local+'/Waterlevels_AccesstoSW_updated.csv'
-filepath = outputpath_local+'Waterlevels_AccesstoSW.csv'
+filepath = outputpath_local+'/Waterlevels_AccesstoSW_updated.csv'
+# filepath = outputpath_local+'Waterlevels_AccesstoSW.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 
 # %% -- Linear regression --
@@ -111,9 +111,7 @@ georeg['GEOREGI_NU'] = georeg['GEOREGI_NU'].astype('int64')
 georeg.info()
 #%%
 # Read in the annual time series database
-# filename_ts = 'Wells55_GWSI_WLTS_DB_annual.csv'
-# filename_ts = 'Wells55_GWSI_WLTS_DB_annual_updated.csv'
-filename_ts = 'Wells55_GWSI_WLTS_DB_annual_comboID.csv'
+filename_ts = 'Wells55_GWSI_WLTS_DB_annual_updated.csv'
 filepath = os.path.join(outputpath_local, filename_ts)
 print(filepath)
 annual_db = pd.read_csv(filepath, header=1, index_col=0)
