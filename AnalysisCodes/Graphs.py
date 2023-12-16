@@ -145,15 +145,15 @@ dens_wdc3_wc_ex
 # %% Importing Water Level Values
 # For regulation
 # filepath = outputpath+'/Waterlevels_Regulation.csv'
-# filepath = outputpath+'/Waterlevels_Regulation_updated.csv'
-filepath = '../Data/Output_files/Waterlevels_Regulation_comboID.csv'
+filepath = outputpath+'/Waterlevels_Regulation_updated.csv'
+# filepath = '../Data/Output_files/Waterlevels_Regulation_comboID.csv'
 cat_wl2_reg = pd.read_csv(filepath, index_col=0)
 cat_wl2_reg.head()
 
 # For Access to SW
 # filepath = outputpath+'/Waterlevels_AccesstoSW.csv'
-# filepath = outputpath+'/Waterlevels_AccesstoSW_updated.csv'
-filepath = '../Data/Output_files/Waterlevels_AccesstoSW_comboID.csv'
+filepath = outputpath+'/Waterlevels_AccesstoSW_updated.csv'
+# filepath = '../Data/Output_files/Waterlevels_AccesstoSW_comboID.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 cat_wl2_SW.head()
 
@@ -173,15 +173,6 @@ grace_yearly = grace_yearly[:-1]
 # Reading in the shapefile - note, figure 2 is created through QGIS
 filename_georeg = 'georeg_reproject_fixed.shp'
 filepath = os.path.join(shapepath_web, filename_georeg)
-# %% creating weights for the GW dominated categories
-georeg = gp.read_file(filepath)
-georeg.plot(cmap='viridis')
-georeg['area'] = georeg.geometry.area/10**6
-georeg_wcweights = georeg.groupby(['Water_CAT']).sum()
-nocap_area = georeg_wcweights.loc['No_CAP','area']
-gwdom_area = georeg_wcweights.loc['GW','area']
-nocap_wt = nocap_area/(nocap_area+gwdom_area)
-gwdom_wt = gwdom_area/(nocap_area+gwdom_area)
 
 # %% Creating colors
 # Matching map
@@ -771,8 +762,8 @@ plt.savefig(figurepath+'Figure6_def', bbox_inches='tight')
 # %% Figure 7a
 # For Depth to Water by regulation
 ds = cat_wl2_reg
-min_yr = 1960
-mx_yr = 2020
+min_yr = 1975
+mx_yr = 2022
 betterlabels = ['Regulated','Unregulated'] 
 
 # del ds['Res']
@@ -819,11 +810,11 @@ pval2 = round(stats1.loc['p_val', 'Unregulated'], 4)
 yf1 = (m1*xf)+yint1
 yf2 = (m2*xf)+yint2
 
-fig, ax = plt.subplots(1, 1, figsize = (7,5))
+fig, ax = plt.subplots(1, 1, figsize = (11,8))
 
 min_y = 0
 max_y = 300
-fsize = 12
+fsize = 18
 
 ax.plot(ds['R'], label='Regulated', color=cap) 
 ax.plot(ds['U'], label='Unregulated', color=GWdom) 
@@ -841,8 +832,9 @@ ax.set_xlabel('Year', fontsize=fsize)
 ax.set_ylabel('Depth to Water (ft)',fontsize=fsize)
 ax.minorticks_on()
 fig.set_dpi(600.0)
-# ax.set_title('a)',loc='left',pad=15)
-ax.legend(loc='upper left')
+ax.set_title('a)',loc='left',pad=15)
+# ax.legend(loc = [1.2,0.5])
+ax.legend(loc = "lower left")
 
 #Putting Grace on a secondary axis
 ax2 = ax.twinx()
@@ -851,12 +843,17 @@ ax2.set_ylim([15, -15])
 ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
 ax2.legend(loc='lower right')
 
-# plt.savefig(figurepath+'Figure7a', bbox_inches = 'tight')
+# Combine legends for both axes
+# lines, labels = ax.get_legend_handles_labels()
+# lines2, labels2 = ax2.get_legend_handles_labels()
+# ax.legend(lines + lines2, labels + labels2, loc=[1.2,0.5])
+
+plt.savefig(figurepath+'Figure7a', bbox_inches = 'tight')
 
 # %% Figure 7c
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
-min_yr = 1960
+min_yr = 1975
 mx_yr = 2022
 betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
@@ -864,7 +861,7 @@ betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated'
                 ,'Mixed Source'] 
 
-del ds['Res']
+# del ds['Res']
 
 f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
 columns = ds.columns
@@ -916,7 +913,7 @@ yf3 = (m3*xf)+yint3
 yf4 = (m4*xf)+yint4
 yf5 = (m5*xf)+yint5
 
-fig, ax = plt.subplots(1, 1, figsize = (7,5))
+fig, ax = plt.subplots(1, 1, figsize = (11,8))
 
 ax.plot(xf1, yf1,"-.",color=cap, lw=1)
 ax.plot(xf1, yf2,"-.",color=GWdom, lw=1)
@@ -926,7 +923,7 @@ ax.plot(xf1, yf5,"-.",color=swdom, lw=1)
 
 min_y = 0
 max_y = 300
-fsize = 12
+fsize = 18
 
 ax.plot(ds['CAP'], label=betterlabels[0], color=cap,zorder=2)
 ax.plot(ds['No_CAP'], label=betterlabels[1], color='#CCC339',zorder=2) 
@@ -952,7 +949,8 @@ ax2.plot(grace_yearly['0'], label='State Average LWE', color='k',zorder=1)
 ax2.set_ylim([15, -15])
 ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
 # ax2.legend(loc='lower right')
+ax.legend(loc = [1.1,0.7])
 
-# plt.savefig(figurepath+'Figure7c', bbox_inches = 'tight')
+plt.savefig(figurepath+'Figure7c', bbox_inches = 'tight')
 
 # %%

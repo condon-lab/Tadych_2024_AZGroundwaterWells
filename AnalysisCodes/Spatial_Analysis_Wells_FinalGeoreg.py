@@ -62,9 +62,10 @@ cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 # %% -- Linear regression --
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
+del cat_wl2_SW['Res']
 dt = "Access to Surface Water, Depth to Water (Updated Data)"
 min = 1975
-mx = 2020
+mx = 2022
 betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
                 ,'Surface Water Dominated'
@@ -73,9 +74,10 @@ betterlabels = ['Recieves CAP (Regulated)'
 cf.linearregress(ds,dt,min,mx,betterlabels)
 #%%
 ds = cat_wl2_reg
+del cat_wl2_reg['Res']
 data_type = "Regulation, Depth to Water (Updated Data)"
 min = 1975
-mx = 2020
+mx = 2022
 betterlabels = ['Regulated','Unregulated'] 
 
 cf.linearregress(ds,data_type,min,mx,betterlabels)
