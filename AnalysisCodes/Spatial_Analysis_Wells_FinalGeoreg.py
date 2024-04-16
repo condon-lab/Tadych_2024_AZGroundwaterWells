@@ -59,7 +59,42 @@ filepath = outputpath_local+'/Waterlevels_AccesstoSW_updated.csv'
 # filepath = outputpath_local+'Waterlevels_AccesstoSW.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 
+# Shallow and Deep and drilling depth cutoffs
+shallow = 200
+deep = 500
+
+# Importing the Depth categories for Well Counts
+wdc1_reg = pd.read_csv(outputpath_local+'Final_Welldepth_regulation' + str(deep) + 'plus.csv',
+                        header=1, index_col=0)
+wdc1_reg = wdc1_reg.iloc[1:,:]
+wdc2_reg = pd.read_csv(outputpath_local+'Final_Welldepth_regulation' + str(shallow) + 'to' + str(deep) + '.csv',
+                        header=1, index_col=0)
+wdc2_reg = wdc2_reg.iloc[1:,:]
+wdc3_reg = pd.read_csv(outputpath_local+'Final_Welldepth_regulation' + str(shallow) + 'minus.csv',
+                        header=1, index_col=0)
+wdc3_reg = wdc3_reg.iloc[1:,:]
+
+wdc1_wc = pd.read_csv(outputpath_local+'Final_Welldepth_sw' + str(deep) + 'plus.csv',
+                        header=1, index_col=0)
+wdc1_wc = wdc1_wc.iloc[1:,:]
+wdc2_wc = pd.read_csv(outputpath_local+'Final_Welldepth_sw' + str(shallow) + 'to' + str(deep) + '.csv',
+                        header=1, index_col=0)
+wdc2_wc = wdc2_wc.iloc[1:,:]
+wdc3_wc = pd.read_csv(outputpath_local+'Final_Welldepth_sw' + str(shallow) + 'minus.csv',
+                        header=1, index_col=0)
+wdc3_wc = wdc3_wc.iloc[1:,:]
+
 # %% -- Linear regression --
+# For Depth to Water by Regulation
+ds = cat_wl2_reg
+del cat_wl2_reg['Res']
+data_type = "Regulation, Depth to Water (Updated Data)"
+min = 1975
+mx = 2022
+betterlabels = ['Regulated','Unregulated'] 
+
+cf.linearregress(ds,data_type,min,mx,betterlabels)
+
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
 del cat_wl2_SW['Res']
@@ -72,16 +107,18 @@ betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated'
                 ,'Mixed Source']
 cf.linearregress(ds,dt,min,mx,betterlabels)
-#%%
-ds = cat_wl2_reg
-del cat_wl2_reg['Res']
-data_type = "Regulation, Depth to Water (Updated Data)"
+
+#%% For Well Counts by regulation
+# Deep
+ds = wdc1_reg
+depth = "Deep "
+# del ds['Res']
 min = 1975
 mx = 2022
+data_type = "Regulation, New "+depth+" Wells (Updated Data)"
 betterlabels = ['Regulated','Unregulated'] 
 
 cf.linearregress(ds,data_type,min,mx,betterlabels)
-
 # %% === WORKFLOW 2 ===
 
 # Load in the master databases

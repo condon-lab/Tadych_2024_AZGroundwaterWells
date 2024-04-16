@@ -117,7 +117,7 @@ def regulation_scatterplot(ds,ds2,name):
                 p_pval = round(df1.corr(df2, method=pearsonr_pval),4)
                 # print('  rsq = ',rsq)
                 # print('  pval = ',p_pval)
-                stats = stats.append({'tau':tau,
+                stats = stats._append({'tau':tau,
                               'k_pval':k_pval,
                               'rho':rho,
                               's_pval':s_pval,                                            
@@ -190,7 +190,7 @@ def sw_scatterplot(ds,ds2,name):
                 p_pval = round(df1.corr(df2, method=pearsonr_pval),4)
                 # print('  rsq = ',rsq)
                 # print('  pval = ',p_pval)
-                stats = stats.append({'tau':tau,
+                stats = stats._append({'tau':tau,
                               'k_pval':k_pval,
                               'rho':rho,
                               's_pval':s_pval,                                            
@@ -230,7 +230,7 @@ def linearregress(ds,data_type,min_yr,mx_yr,labels):
                 y=np.array(df.values, dtype=float)
                 x=np.array(pd.to_datetime(df).index.values, dtype=float)
                 slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-                stats = stats.append({'slope': slope, 
+                stats = stats._append({'slope': slope, 
                                 'int':intercept, 
                                 'rsq':r_value*r_value, 
                                 'p_val':p_value, 
