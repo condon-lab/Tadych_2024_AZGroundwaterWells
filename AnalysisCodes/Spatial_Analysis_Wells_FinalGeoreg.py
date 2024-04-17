@@ -108,17 +108,138 @@ betterlabels = ['Recieves CAP (Regulated)'
                 ,'Mixed Source']
 cf.linearregress(ds,dt,min,mx,betterlabels)
 
-#%% For Well Counts by regulation
-# Deep
-ds = wdc1_reg
-depth = "Deep "
-# del ds['Res']
+#%% For Well Counts by Groundwater Regulation
+# Note: Run this as many times as needed depending
+
+# Shallow
+ds = wdc3_reg
+depth = "Shallow"
+del ds['Res']
 min = 1975
 mx = 2022
 data_type = "Regulation, New "+depth+" Wells (Updated Data)"
 betterlabels = ['Regulated','Unregulated'] 
+#Fix the index
+test = ds.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+ds = test
 
 cf.linearregress(ds,data_type,min,mx,betterlabels)
+
+# %% Midrange
+ds = wdc2_reg
+depth = "Midrange"
+del ds['Res']
+min = 1975
+mx = 2022
+data_type = "Regulation, New "+depth+" Wells (Updated Data)"
+betterlabels = ['Regulated','Unregulated'] 
+#Fix the index
+test = ds.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+ds = test
+
+cf.linearregress(ds,data_type,min,mx,betterlabels)
+
+# %% Deep
+ds = wdc1_reg
+depth = "Deep"
+del ds['Res']
+min = 1975
+mx = 2022
+data_type = "Regulation, New "+depth+" Wells (Updated Data)"
+betterlabels = ['Regulated','Unregulated'] 
+#Fix the index
+test = ds.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+test.info()
+ds = test
+
+cf.linearregress(ds,data_type,min,mx,betterlabels)
+# %% For Well counts by Access to SW
+
+# Shallow
+ds = wdc3_wc
+depth = "Shallow"
+# del ds['Res']
+min = 1975
+mx = 2020
+data_type = "A2SW, New "+depth+" Wells (Updated Data)"
+betterlabels = ['Recieves CAP (Regulated)'
+                ,'GW Dominated (Regulated)'
+                ,'Surface Water Dominated'
+                ,'GW Dominated'
+                ,'Mixed Source']
+#Fix the index
+test = ds.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+ds = test
+
+cf.linearregress(ds,data_type,min,mx,betterlabels)
+#%%
+# Midrange
+ds = wdc2_wc
+depth = "Midrange"
+# del ds['Res']
+min = 1975
+mx = 2020
+data_type = "A2SW, New "+depth+" Wells (Updated Data)"
+betterlabels = ['Recieves CAP (Regulated)'
+                ,'GW Dominated (Regulated)'
+                ,'Surface Water Dominated'
+                ,'GW Dominated'
+                ,'Mixed Source']
+#Fix the index
+test = ds.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+ds = test
+# Fix the NaNs
+ds.fillna(0, inplace=True)
+cf.linearregress(ds,data_type,min,mx,betterlabels)
+# %%
+# Deep
+ds = wdc1_wc
+depth = "Deep"
+# del ds['Res']
+min = 1975
+mx = 2020
+data_type = "A2SW, New "+depth+" Wells (Updated Data)"
+betterlabels = ['Recieves CAP (Regulated)'
+                ,'GW Dominated (Regulated)'
+                ,'Surface Water Dominated'
+                ,'GW Dominated'
+                ,'Mixed Source']
+#Fix the index
+test = ds.copy()
+test = test.reset_index()
+test['Water_CAT'] = test['Water_CAT'].astype(float)
+test['Water_CAT'] = test['Water_CAT'].astype(int)
+test.set_index('Water_CAT', inplace=True)
+test.info()
+ds = test
+# Fix the NaNs
+ds.fillna(0, inplace=True)
+cf.linearregress(ds,data_type,min,mx,betterlabels)
+
 # %% === WORKFLOW 2 ===
 
 # Load in the master databases
