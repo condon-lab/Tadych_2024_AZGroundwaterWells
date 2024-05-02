@@ -87,7 +87,7 @@ wdc3_wc = wdc3_wc.iloc[1:,:]
 # %% -- Linear regression --
 # For Depth to Water by Regulation
 ds = cat_wl2_reg
-del cat_wl2_reg['Res']
+# del cat_wl2_reg['Res']
 data_type = "Regulation, Depth to Water (Updated Data)"
 min = 1975
 mx = 2022
@@ -97,26 +97,23 @@ cf.linearregress(ds,data_type,min,mx,betterlabels)
 
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
-del cat_wl2_SW['Res']
+# del cat_wl2_SW['Res']
 dt = "Access to Surface Water, Depth to Water (Updated Data)"
-min = 1975
-mx = 2022
-betterlabels = ['Recieves CAP (Regulated)'
+betterlabels = ['Receives CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
                 ,'Surface Water Dominated'
                 ,'GW Dominated'
                 ,'Mixed Source']
 cf.linearregress(ds,dt,min,mx,betterlabels)
-
 #%% For Well Counts by Groundwater Regulation
 # Note: Run this as many times as needed depending
 
 # Shallow
 ds = wdc3_reg
 depth = "Shallow"
-del ds['Res']
-min = 1975
-mx = 2022
+# del ds['Res']
+min = 2007
+mx = 2012
 data_type = "Regulation, New "+depth+" Wells (Updated Data)"
 betterlabels = ['Regulated','Unregulated'] 
 #Fix the index
@@ -130,12 +127,10 @@ ds = test
 
 cf.linearregress(ds,data_type,min,mx,betterlabels)
 
-# %% Midrange
+# Midrange
 ds = wdc2_reg
 depth = "Midrange"
-del ds['Res']
-min = 1975
-mx = 2022
+# del ds['Res']
 data_type = "Regulation, New "+depth+" Wells (Updated Data)"
 betterlabels = ['Regulated','Unregulated'] 
 #Fix the index
@@ -149,12 +144,10 @@ ds = test
 
 cf.linearregress(ds,data_type,min,mx,betterlabels)
 
-# %% Deep
+# Deep
 ds = wdc1_reg
 depth = "Deep"
-del ds['Res']
-min = 1975
-mx = 2022
+# del ds['Res']
 data_type = "Regulation, New "+depth+" Wells (Updated Data)"
 betterlabels = ['Regulated','Unregulated'] 
 #Fix the index
@@ -167,16 +160,15 @@ test.info()
 ds = test
 
 cf.linearregress(ds,data_type,min,mx,betterlabels)
-# %% For Well counts by Access to SW
+
+# For Well counts by Access to SW
 
 # Shallow
 ds = wdc3_wc
 depth = "Shallow"
 # del ds['Res']
-min = 1975
-mx = 2020
 data_type = "A2SW, New "+depth+" Wells (Updated Data)"
-betterlabels = ['Recieves CAP (Regulated)'
+betterlabels = ['Receives CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
                 ,'Surface Water Dominated'
                 ,'GW Dominated'
@@ -191,13 +183,11 @@ test.info()
 ds = test
 
 cf.linearregress(ds,data_type,min,mx,betterlabels)
-#%%
+#
 # Midrange
 ds = wdc2_wc
 depth = "Midrange"
 # del ds['Res']
-min = 1975
-mx = 2020
 data_type = "A2SW, New "+depth+" Wells (Updated Data)"
 betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
@@ -215,13 +205,11 @@ ds = test
 # Fix the NaNs
 ds.fillna(0, inplace=True)
 cf.linearregress(ds,data_type,min,mx,betterlabels)
-# %%
+# 
 # Deep
 ds = wdc1_wc
 depth = "Deep"
 # del ds['Res']
-min = 1975
-mx = 2020
 data_type = "A2SW, New "+depth+" Wells (Updated Data)"
 betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated (Regulated)'
