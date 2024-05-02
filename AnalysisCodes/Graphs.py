@@ -1,4 +1,8 @@
 # ----- All Paper Graphs except graphics from QGIS -----
+# All maps (Figure 1, 2, and 7a) were created in QGIS using the data from this repository.
+# For help recreating them, feel free to contact the author.
+# Otherwise, all other graphs were created using the code below.
+
 # %% Load the packages
 from cProfile import label
 from operator import ge
@@ -165,7 +169,7 @@ cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
 # cat_wl2_georeg.head()
 
 # %% Importing GRACE analyses
-filepath = filepath = outputpath+'grace_stateavg_yearly.csv'
+filepath = outputpath+'grace_stateavg_yearly.csv'
 # filepath = outputpath_local+'gracse_remapped_yearly.csv'
 grace_yearly = pd.read_csv(filepath, index_col=0)
 grace_yearly = grace_yearly[:-1]
@@ -174,6 +178,12 @@ grace_yearly = grace_yearly[:-1]
 filename_georeg = 'georeg_reproject_fixed.shp'
 filepath = os.path.join(shapepath_web, filename_georeg)
 
+#%% Importing Population Data
+filepath = datapath_local+'/Input_files/Arizona_Population.csv'
+# filepath = outputpath_local+'gracse_remapped_yearly.csv'
+population = pd.read_csv(filepath, index_col=0, header=0)
+population = population[:-7]
+population
 # %% Creating colors
 # Matching map
 cap = '#C6652B'
@@ -184,7 +194,84 @@ mixed = '#6EB2E4'
 swdom = '#469B76'
 specialyears = 'darkgray'
 
-# %% Grouped Bar Chart for Figure 5a
+# %% Number of New wells for Figure 3
+allnewwells = wdc1_reg+wdc2_reg+wdc3_reg
+exempt_newwells = wdc1_reg_ex+wdc2_reg_ex+wdc3_reg_ex
+del allnewwells['Res']
+del exempt_newwells['Res']
+allnewwells = allnewwells.sum(axis=1)
+
+ds = exempt_newwells['R',     'EXEMPT'] + exempt_newwells['U',     'EXEMPT']
+
+test = allnewwells.copy()
+test = test.reset_index()
+test['Regulation'] = test['Regulation'].astype(float)
+test['Regulation'] = test['Regulation'].astype(int)
+test.set_index('Regulation', inplace=True)
+allnewwells = test
+
+test = ds.copy()
+test = test.reset_index()
+test['In_year'] = test['In_year'].astype(float)
+test['In_year'] = test['In_year'].astype(int)
+test.set_index('In_year', inplace=True)
+exempt_newwells = test
+
+test = population.copy()
+test = test.reset_index()
+test['Year'] = test['Year'].astype(float)
+test['Year'] = test['Year'].astype(int)
+test.set_index('Year', inplace=True)
+test.info()
+population = test
+
+ds = allnewwells
+ds2 = exempt_newwells
+min_yr = 1975
+mx_yr = 2022
+
+fig, ax = plt.subplots(1, 1, figsize = (9,5))
+
+min_y = 0
+max_y = 4000
+fsize = 12
+
+#Putting Population on a secondary axis
+ax2 = ax.twinx()
+ax2.bar(population.index, population['Percent_Change'], 
+        alpha=0.5, 
+        label='Arizona Population', color='#989FA6')
+ax2.set_ylim([0, 8])
+ax2.set_ylabel('Percent Change (%)',fontsize=fsize)
+ax2.legend(loc='upper right')
+
+# New Well Lines
+ax.plot(ds, label='All New Wells', color='black',lw=2) 
+ax.plot(ds2, '--',label='Exempt Wells', color='black') 
+
+ax.set_xlim(min_yr,mx_yr)
+ax.set_ylim(min_y,max_y)
+ax.grid(visible=True,which='major',color='#D5D5D5')
+ax.set_ylabel('Number of New Wells',fontsize=fsize)
+fig.set_dpi(600.0)
+ax.legend(loc = "upper left")
+
+# Remove frame and x-grid lines
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['left'].set_visible(False)
+ax2.spines['top'].set_visible(False)
+ax2.spines['right'].set_visible(False)
+ax2.spines['left'].set_visible(False)
+ax.xaxis.grid(False)
+
+# Remove major tick marks
+ax.tick_params(axis='both', which='major', length=0)
+ax2.tick_params(axis='both', which='major', length=0)
+
+plt.savefig(figurepath+'Figure3', bbox_inches = 'tight')
+
+# %% Grouped Bar Chart for Figure 4a
 # Summing the data
 
 # Shallow
@@ -282,9 +369,9 @@ with sns.axes_style("white"):
     plt.title('a)', pad = 20, loc='left',fontsize=22)
     # plt.legend(bbox_to_anchor=(1.1, 1.05))  
     sns.despine()  
-    plt.savefig(figurepath+'Figure5a', bbox_inches='tight')
+    plt.savefig(figurepath+'Figure4a', bbox_inches='tight')
 
-# %% Figure 5b
+# %% Figure 4b
 # Summing the data
 
 # Shallow
@@ -375,9 +462,9 @@ with sns.axes_style("white"):
     plt.title('b)', pad = 20, loc='left',fontsize=22)
     # plt.legend(bbox_to_anchor=(1.75, 1.05))  
     sns.despine()  
-    plt.savefig(figurepath+'Figure5b', bbox_inches='tight')
+    plt.savefig(figurepath+'Figure4b', bbox_inches='tight')
  
-# %% Figure 5c
+# %% Figure 4c
 # Summing the data
 
 # Shallow
@@ -470,9 +557,9 @@ with sns.axes_style("white"):
     plt.title('c)', pad = 20, loc='left',fontsize=22)
     # plt.legend(bbox_to_anchor=(1.0, 1.05))  
     sns.despine()
-    plt.savefig(figurepath+'Figure5c', bbox_inches='tight')
+    plt.savefig(figurepath+'Figure4c', bbox_inches='tight')
 
-# %% Figure 5d
+# %% Figure 4d
 # Summing the data
 
 # Shallow
@@ -571,9 +658,9 @@ with sns.axes_style("white"):
     plt.title('d)', pad = 20, loc='left',fontsize=22)
     plt.legend(bbox_to_anchor=(1.0, 1.05))  
     sns.despine()
-    plt.savefig(figurepath+'Figure5d', bbox_inches='tight')
+    plt.savefig(figurepath+'Figure4d', bbox_inches='tight')
 
-# %% # Plot for Figure 6 a) Shallow, b) Midrange, and c) Deep wells by Regulation
+# %% # Plot for Figure 5 a) Shallow, b) Midrange, and c) Deep wells by Regulation
 # Formatting correctly
 test = wdc1_reg.copy()
 test = test.reset_index()
@@ -655,10 +742,10 @@ ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
 
 fig.set_dpi(600.0)
 
-plt.savefig(figurepath+'Figure6_abc', bbox_inches='tight')
+plt.savefig(figurepath+'Figure5_abc', bbox_inches='tight')
 
 # %%
-# Plot for Figure 6 d) Shallow, e) Midrange, and f) Deep wells by Access to SW
+# Plot for Figure 5 d) Shallow, e) Midrange, and f) Deep wells by Access to SW
 # Formatting correctly
 test = wdc1_wc.copy()
 test = test.reset_index()
@@ -757,9 +844,9 @@ ax[2].legend(loc = [1.05, 0.3], fontsize = fsize)
 
 fig.set_dpi(600.0)
 
-plt.savefig(figurepath+'Figure6_def', bbox_inches='tight')
+plt.savefig(figurepath+'Figure5_def', bbox_inches='tight')
 
-# %% Figure 7a
+# %% Figure 6a
 # For Depth to Water by regulation
 ds = cat_wl2_reg
 min_yr = 1975
@@ -848,9 +935,9 @@ ax2.legend(loc='lower right')
 # lines2, labels2 = ax2.get_legend_handles_labels()
 # ax.legend(lines + lines2, labels + labels2, loc=[1.2,0.5])
 
-plt.savefig(figurepath+'Figure7a', bbox_inches = 'tight')
+plt.savefig(figurepath+'Figure6a', bbox_inches = 'tight')
 
-# %% Figure 7c
+# %% Figure 6c
 # For Depth to Water by SW Access
 ds = cat_wl2_SW
 min_yr = 1975
@@ -951,6 +1038,9 @@ ax2.set_ylabel(u'Δ LWE (cm)',fontsize=fsize)
 # ax2.legend(loc='lower right')
 ax.legend(loc = [1.1,0.7])
 
-plt.savefig(figurepath+'Figure7c', bbox_inches = 'tight')
+plt.savefig(figurepath+'Figure6c', bbox_inches = 'tight')
 
 # %%
+# For Figure 7b, see "IndividualSlopes.ipynb"
+
+# For Figure 8, see "NarrowedAreas.ipynb"
