@@ -161,12 +161,12 @@ filepath = outputpath+'/Waterlevels_AccesstoSW_updated.csv'
 cat_wl2_SW = pd.read_csv(filepath, index_col=0)
 cat_wl2_SW.head()
 
-# For georegion number
-# filepath = outputpath+'Waterlevels_georegions.csv'
-filepath = outputpath+'Waterlevels_georegions_updated.csv'
-# filepath = '../Data/Output_files/Waterlevels_georegions.csv'
-cat_wl2_georeg = pd.read_csv(filepath, index_col=0)
-# cat_wl2_georeg.head()
+# For MAR
+filepath = outputpath+'MAR_Slopes.csv'
+mar = pd.read_csv(filepath)
+
+filepath = outputpath_local+"MAR_timeseries.csv"
+mar_ts = pd.read_csv(filepath, index_col=0)
 
 # %% Importing GRACE analyses
 filepath = outputpath+'grace_stateavg_yearly.csv'
@@ -187,6 +187,7 @@ population
 # %% Creating colors
 # Matching map
 cap = '#C6652B'
+cap_secondary = '#77A8A5'
 # noCAP = '#EDE461' # This is one from the map but it's too bright and hard to see
 noCAP = '#CCC339' # This color but darker for lines
 GWdom = '#3B76AF'
@@ -242,12 +243,12 @@ ax2.bar(population.index, population['Percent_Change'],
         alpha=0.5, 
         label='Arizona Population', color='#989FA6')
 ax2.set_ylim([0, 8])
-ax2.set_ylabel('Percent Change (%)',fontsize=fsize)
+ax2.set_ylabel('% Population Change',fontsize=fsize)
 ax2.legend(loc='upper right')
 
 # New Well Lines
 ax.plot(ds, label='All New Wells', color='black',lw=2) 
-ax.plot(ds2, '--',label='Exempt Wells', color='black') 
+ax.plot(ds2, '--',label='Small Exempt Wells', color='black') 
 
 ax.set_xlim(min_yr,mx_yr)
 ax.set_ylim(min_y,max_y)
@@ -648,7 +649,7 @@ with sns.axes_style("white"):
                               edgecolor='black',
                               linewidth=line_width,
                               hatch='//',
-                              label='Small Wells')
+                              label='Small Exempt Wells')
 
     plt.xticks(middle_bar_positions, big_categories
                , rotation=0
@@ -853,7 +854,7 @@ min_yr = 1975
 mx_yr = 2022
 betterlabels = ['Regulated','Unregulated'] 
 
-# del ds['Res']
+del ds['Res']
 
 f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
 columns = ds.columns
@@ -867,7 +868,7 @@ for i in column_list:
         y=np.array(df.values, dtype=float)
         x=np.array(pd.to_datetime(df).index.values, dtype=float)
         slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-        stats = stats.append({'slope': slope, 
+        stats = stats._append({'slope': slope, 
                               'int':intercept, 
                               'rsq':r_value*r_value, 
                               'p_val':p_value, 
@@ -948,7 +949,7 @@ betterlabels = ['Recieves CAP (Regulated)'
                 ,'GW Dominated'
                 ,'Mixed Source'] 
 
-# del ds['Res']
+del ds['Res']
 
 f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
 columns = ds.columns
@@ -962,7 +963,7 @@ for i in column_list:
         y=np.array(df.values, dtype=float)
         x=np.array(pd.to_datetime(df).index.values, dtype=float)
         slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
-        stats = stats.append({'slope': slope, 'int':intercept, 
+        stats = stats._append({'slope': slope, 'int':intercept, 
                               'rsq':r_value*r_value, 'p_val':p_value, 
                               'std_err':std_err, 'mean': np.mean(y),
                               'var': np.var(y),'sum': np.sum(y)},
@@ -1040,7 +1041,192 @@ ax.legend(loc = [1.1,0.7])
 
 plt.savefig(figurepath+'Figure6c', bbox_inches = 'tight')
 
-# %%
-# For Figure 7b, see "IndividualSlopes.ipynb"
+# %% Figure 7 MAR Boxplot
+# Define the desired order of categories
+desired_order = ['None','GSF', 'USF']
 
-# For Figure 8, see "NarrowedAreas.ipynb"
+df = mar.copy()
+df['GSF_OR_USF'].fillna('None',inplace=True)
+# Define colors using hexadecimal codes
+box_colors = ['white',
+              '#007272',
+              "#b66dff"
+              # "#00b49f"
+              ]
+              # cblind[2]]
+
+
+# Initialize an empty list to store the box artists
+artists = []
+
+fig, ax = plt.subplots(figsize=(9, 9)) 
+
+plt.axhline(y=0, color='lightgrey', linewidth=1)
+# Iterate over each category and plot the boxplot
+for i, cat in enumerate(desired_order):
+    subset = df[df['GSF_OR_USF'] == cat]
+    color = box_colors[i]
+    artist = plt.boxplot(subset['Slope'], positions=[i], patch_artist=True,
+                         boxprops=dict(facecolor=color, color='black'),
+                         whiskerprops=dict(color='black'),
+                         medianprops=dict(color='black'),
+                         capprops=dict(color='black'),
+                         widths=0.4)
+    artists.append(artist)
+
+# Set xticks and labels
+plt.xticks(range(len(desired_order)), desired_order)
+
+plt.ylabel("Slope")
+# plt.xlabel("GSF_OR_USF")
+# plt.title("b) ")
+plt.ylim(-17, 17)
+fig.set_dpi(600.0)
+plt.show()
+plt.savefig(figurepath+'Figure7b', bbox_inches = 'tight')
+# %%
+# For Figure 8 Timeseries
+ds = mar_ts
+ds2 = cat_wl2_SW
+min_yr = 1975
+mx_yr = 2022
+Name = "mean_CAPandNoCAP"
+
+betterlabels = ['GSF','None','USF']
+betterlabels2 = ['Receives CAP (Regulated)'
+                ,'Out of CAP Service Area (Regulated)'
+                ,'Surface Water Dominated'
+                ,'GW Dominated'
+                ,'Mixed Source'] 
+
+f = ds[(ds.index >= min_yr) & (ds.index <= mx_yr)]
+columns = ds.columns
+column_list = ds.columns.tolist()
+
+stats = pd.DataFrame()
+# for i in range(1, 12, 1):
+for i in column_list:
+        df = f[i]
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+        stats = stats._append({'slope': slope, 
+                              'int':intercept, 
+                              'rsq':r_value*r_value, 
+                              'p_val':p_value, 
+                              'std_err':std_err, 
+                              'mean': np.mean(y),
+                              'var': np.var(y),
+                              'sum': np.sum(y)
+                              },
+                              ignore_index=True)
+
+
+stats.index = betterlabels
+stats1 = stats.transpose()
+print(stats1)
+stats1.to_csv(outputpath_local+'Stats_MAR.csv')
+
+f = ds2[(ds2.index >= min_yr) & (ds2.index <= mx_yr)]
+columns2 = ds2.columns
+column_list2 = ds2.columns.tolist()
+
+stats2 = pd.DataFrame()
+for i in column_list2:
+        df = f[i]
+        # df = f[i].pct_change()
+        #print(df)
+        y=np.array(df.values, dtype=float)
+        x=np.array(pd.to_datetime(df).index.values, dtype=float)
+        slope, intercept, r_value, p_value, std_err =sp.linregress(x,y)
+        stats2 = stats2._append({'slope': slope, 'int':intercept, 
+                              'rsq':r_value*r_value, 'p_val':p_value, 
+                              'std_err':std_err, 'mean': np.mean(y),
+                              'var': np.var(y),'sum': np.sum(y)},
+                              ignore_index=True)
+
+stats2.index = betterlabels2
+stats3 = stats2.transpose()
+
+# -- Data visualization --
+xf = np.linspace(min(x),max(x),100)
+xf1 = xf.copy()
+m1 = round(stats1.loc['slope',betterlabels[0]], 2)
+yint1 = round(stats1.loc['int',betterlabels[0]], 2)
+pval1 = round(stats1.loc['p_val',betterlabels[0]], 4)
+yf1 = (m1*xf)+yint1
+
+m2 = round(stats1.loc['slope',betterlabels[1]], 2)
+yint2 = round(stats1.loc['int',betterlabels[1]], 2)
+pval2 = round(stats1.loc['p_val', betterlabels[1]], 4)
+yf2 = (m2*xf)+yint2
+
+m3 = round(stats1.loc['slope',betterlabels[2]], 2)
+yint3 = round(stats1.loc['int',betterlabels[2]], 2)
+pval3 = round(stats1.loc['p_val', betterlabels[2]], 4)
+yf3 = (m3*xf)+yint3
+
+m4 = round(stats3.loc['slope',betterlabels2[1]], 2)
+yint4 = round(stats3.loc['int',betterlabels2[1]], 2)
+pval4 = round(stats3.loc['p_val', betterlabels2[1]], 4)
+yf4 = (m4*xf)+yint4
+
+m5 = round(stats3.loc['slope',betterlabels2[0]], 2)
+yint5 = round(stats3.loc['int',betterlabels2[0]], 2)
+pval5 = round(stats3.loc['p_val', betterlabels2[0]], 4)
+yf5 = (m5*xf)+yint5
+
+fig, ax = plt.subplots(1, 2, figsize = (20,6))
+
+min_y = 300
+max_y = 0
+fsize = 18
+
+# Set x ticks to every 5 years
+xticks = np.arange(min_yr, mx_yr + 1, 5)
+ax[0].set_xticks(xticks)
+ax[1].set_xticks(xticks)
+
+# Ensure that the labels are integers
+ax[0].set_xticklabels(map(int, xticks))
+ax[1].set_xticklabels(map(int, xticks))
+
+# ax.plot(ds[column_list[0]], color=water_designation,label=betterlabels[0])
+ax[1].plot(ds[column_list[1]], color='black',label=betterlabels[1], lw=3) 
+ax[1].plot(ds[column_list[0]], color=box_colors[1],label=betterlabels[0],lw=3) 
+ax[1].plot(ds[column_list[2]], color=box_colors[2],label=betterlabels[2],lw=3)
+ax[0].plot(ds2[column_list2[1]], color='#CCC339',label=betterlabels2[1],lw=3)
+ax[0].plot(ds2[column_list2[0]], color=cap_secondary,label=betterlabels2[0],lw=3)  
+
+ax[1].plot(xf1, yf2,"-.",color='black', lw=2)
+ax[1].plot(xf1, yf1,"-.",color=box_colors[1], lw=2)
+ax[1].plot(xf1, yf3,"-.",color=box_colors[2], lw=2)
+ax[0].plot(xf1, yf4,"-.",color='#CCC339', lw=2)
+ax[0].plot(xf1, yf5,"-.",color=cap_secondary, lw=2)
+
+ax[0].set_xlim(min_yr,mx_yr)
+ax[0].set_ylim(max_y,min_y)
+ax[1].set_xlim(min_yr,mx_yr)
+ax[1].set_ylim(max_y,min_y)
+ax[0].grid(visible=True,which='major')
+ax[0].grid(which='minor',color='#EEEEEE', lw=0.8)
+ax[1].grid(visible=True,which='major')
+ax[1].grid(which='minor',color='#EEEEEE', lw=0.8)
+ax[0].set_xlabel('Year', fontsize=fsize)
+ax[1].set_xlabel('Year', fontsize=fsize)
+
+ax[0].set_ylabel('Depth to Water (ft)',fontsize=fsize)
+
+ax[0].tick_params(axis='x', rotation=45)
+ax[1].tick_params(axis='x', rotation=45)
+
+fig.set_dpi(600.0)
+ax[0].set_title('a)',loc='left',pad=15)
+ax[0].legend(loc='lower right')
+ax[1].set_title('b)',loc='left',pad=15)
+ax[1].legend(loc='lower right')
+
+
+plt.savefig(figurepath+'Figure8', bbox_inches = 'tight')
+

@@ -65,16 +65,42 @@ To re-create the study with brand new data, install all of the above plus the fo
 
 ### 1. Downlaod data
 - go to our <a href='http://doi.org/10.25739/1ckh-tx39'>Cyverse data hub</a> and download the following files from "Data/Output_files" to your local "Data/Output_files":
-    - Waterlevels_Regulation.csv
-    - Waterlevels_AccesstoSW.csv
+    - Final_Welldepth_regulation_exemptstatus200minus.csv
+    - Final_Welldepth_regulation_exemptstatus200to500.csv
+    - Final_Welldepth_regulation_exemptstatus500plus.csv
+    - Final_Welldepth_regulation200minus.csv
+    - Final_Welldepth_regulation200to500.csv
+    - Final_Welldepth_regulation500plus.csv
+    - Final_Welldepth_sw_exemptstatus200minus.csv
+    - Final_Welldepth_sw_exemptstatus200to500.csv
+    - Final_Welldepth_sw_exemptstatus500plus.csv
+    - Final_Welldepth_sw200minus.csv
+    - Final_Welldepth_sw200to500.csv
+    - Final_Welldepth_sw500plus.csv
+    - FinalDensities_Welldepth_regulation_exemptstatus200minus.csv
+    - FinalDensities_Welldepth_regulation_exemptstatus200to500.csv
+    - FinalDensities_Welldepth_regulation_exemptstatus500plus.csv
+    - FinalDensities_Welldepth_regulation200minus.csv
+    - FinalDensities_Welldepth_regulation200to500.csv
+    - FinalDensities_Welldepth_regulation500plus.csv
+    - FinalDensities_Welldepth_sw_exemptstatus200minus.csv
+    - FinalDensities_Welldepth_sw_exemptstatus200to500.csv
+    - FinalDensities_Welldepth_sw_exemptstatus500plus.csv
+    - FinalDensities_Welldepth_sw200minus.csv
+    - FinalDensities_Welldepth_sw200to500.csv
+    - FinalDensities_Welldepth_sw500plus.csv
+    - grace_stateavg_yearly.csv
+    - MAR_Slopes.csv
+    - MAR_timeseries.csv
+    - Waterlevels_Regulation_updated.csv
+    - Waterlevels_AccesstoSW_updated.csv
 ### 2. Run Statistics
 - In the Analysis Codes folder, run "Spatial_Analysis_Wells_FinalGeoreg.py"
   - *Follow workflow 1*
   - Runs a linear regression on our formatted data
-
 ### 3. Create Graphs
 - In the Analysis Codes folder, run "Graphs.py".
-  - This code automatically links to our data on Cyverse and outputs images into the Data/Figures folder
+  - This code pulls from the downloaded data above outputs images into the Data/Figures folder
 
 ### **To create your own graphs of the databases using our methodology (most time consumptive):**
 
@@ -107,6 +133,12 @@ To re-create the study with brand new data, install all of the above plus the fo
         - Runs statistical analyses on the desired categories
     3. Spatial_Analysis_GRACE.py
         - Re-maps GRACE Satellite .nc files to shapefiles and exports both csv and shapefiles
+    4. IndividualSlopes.ipynb
+        - Calculates the slopes of each individual well with at least 15 years of measurements or more
+        - For our purposes, we used Managed Active Recharge areas in Arizona
+    5. NarrowedAreas.ipynb
+        - Calculates the averages for a more specialized shapefile from the individual slopes output
+        - For our purposes, we used Managed Active Recharge areas in Arizona
 ### 4. Visualize Data
 - In the AnalysisCodes folder, run Graphs.py
    - make sure to change the "output" paths to local
