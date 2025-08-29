@@ -3,14 +3,14 @@
 *by Danielle E. Tadych, Matthew Ford, Bonnie G. Colby, Laura E. Condon*
 
 <br>
-The purpose of this repository is to be able to recreate databases and timeseries from our paper (under review).  All data for the paper can be found on cyverse at <a href='http://doi.org/10.25739/1ckh-tx39'>http://doi.org/10.25739/1ckh-tx39</a>; however, the goals of this study are for others to recreate these datasets or run new analyses with the raw data.  Below are instructions on where to download and place the data on this repository so the code runs properly.
+The purpose of this repository is to be able to recreate databases and timeseries from our paper.  All data for the paper can be found on cyverse at <a href='http://doi.org/10.25739/1ckh-tx39'>http://doi.org/10.25739/1ckh-tx39</a>; however, the goals of this study are for others to recreate these datasets or run new analyses with the raw data.  Below are instructions on where to download and place the data on this repository so the code runs properly.
 </br>
 
 <br></br>
 By using this repository or data in your publications, you agree to cite:
-> *Tadych, D.E., Ford, M., Colby, B.G, Condon, L.E..: Historical Patterns of Well Drilling and Groundwater Depth in Arizona Considering Groundwater Regulation and Surface Water Access [under review], 2023.*
+> *Tadych, Danielle E., Matthew Ford, Bonnie G. Colby and Laura E. Condon 2024. “ Historical Patterns of Well Drilling and Groundwater Depth in Arizona Considering Groundwater Regulation and Surface Water Access.” JAWRA Journal of the American Water Resources Association 60(6):1193–1208. <a href='https://doi.org/10.1111/1752-1688.13234'>https://doi.org/10.1111/1752-1688.13234</a>.*
 
-> Danielle Tadych (2023). Az Groundwater Spatiotemporal Analysis. CyVerse Data Commons. DOI 10.25739/1ckh-tx39
+> Danielle Tadych (2023). Az Groundwater Spatiotemporal Analysis. CyVerse Data Commons. <a href='http://doi.org/10.25739/1ckh-tx39'>DOI 10.25739/1ckh-tx39</a>
 <br></br>
 
 ## Prepare for your journey!
